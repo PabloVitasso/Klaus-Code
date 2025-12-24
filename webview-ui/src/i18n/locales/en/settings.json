@@ -64,6 +64,10 @@
 		"collapseThinking": {
 			"label": "Collapse Thinking messages by default",
 			"description": "When enabled, thinking blocks will be collapsed by default until you interact with them"
+		},
+		"requireCtrlEnterToSend": {
+			"label": "Require {{primaryMod}}+Enter to send messages",
+			"description": "When enabled, you must press {{primaryMod}}+Enter to send messages instead of just Enter"
 		}
 	},
 	"prompts": {
@@ -206,11 +210,6 @@
 			"label": "Browser",
 			"description": "Automatically perform browser actions without requiring approval. Note: Only applies when the model supports computer use"
 		},
-		"retry": {
-			"label": "Retry",
-			"description": "Automatically retry failed API requests when server returns an error response",
-			"delayLabel": "Delay before retrying the request"
-		},
 		"mcp": {
 			"label": "MCP",
 			"description": "Enable auto-approval of individual MCP tools in the MCP Servers view (requires both this setting and the tool's individual \"Always allow\" checkbox)"
@@ -240,10 +239,6 @@
 			"addButton": "Add",
 			"autoDenied": "Commands with the prefix `{{prefix}}` have been forbidden by the user. Do not bypass this restriction by running another command."
 		},
-		"updateTodoList": {
-			"label": "Todo",
-			"description": "Automatically update the to-do list without requiring approval"
-		},
 		"apiRequestLimit": {
 			"title": "Max Count",
 			"unlimited": "Unlimited"
@@ -264,6 +259,7 @@
 		"configProfile": "Configuration Profile",
 		"description": "Save different API configurations to quickly switch between providers and settings.",
 		"apiProvider": "API Provider",
+		"apiProviderDocs": "Provider Docs",
 		"model": "Model",
 		"nameEmpty": "Name cannot be empty",
 		"nameExists": "A profile with this name already exists",
@@ -288,8 +284,6 @@
 		"vercelAiGatewayApiKey": "Vercel AI Gateway API Key",
 		"getVercelAiGatewayApiKey": "Get Vercel AI Gateway API Key",
 		"apiKeyStorageNotice": "API keys are stored securely in VSCode's Secret Storage",
-		"glamaApiKey": "Glama API Key",
-		"getGlamaApiKey": "Get Glama API Key",
 		"useCustomBaseUrl": "Use custom base URL",
 		"useReasoning": "Enable reasoning",
 		"useHostHeader": "Use custom Host header",
@@ -317,6 +311,8 @@
 		"anthropic1MContextBetaDescription": "Extends context window to 1 million tokens for Claude Sonnet 4",
 		"awsBedrock1MContextBetaLabel": "Enable 1M context window (Beta)",
 		"awsBedrock1MContextBetaDescription": "Extends context window to 1 million tokens for Claude Sonnet 4",
+		"vertex1MContextBetaLabel": "Enable 1M context window (Beta)",
+		"vertex1MContextBetaDescription": "Extends context window to 1 million tokens for Claude Sonnet 4",
 		"basetenApiKey": "Baseten API Key",
 		"getBasetenApiKey": "Get Baseten API Key",
 		"cerebrasApiKey": "Cerebras API Key",
@@ -385,6 +381,14 @@
 		"awsRegion": "AWS Region",
 		"awsCrossRegion": "Use cross-region inference",
 		"awsGlobalInference": "Use Global inference (auto-select optimal AWS Region)",
+		"awsServiceTier": "Service Tier",
+		"awsServiceTierStandard": "Standard",
+		"awsServiceTierStandardDesc": "Balanced performance and cost",
+		"awsServiceTierFlex": "Flex (50% discount)",
+		"awsServiceTierFlexDesc": "Lower cost, higher latency for non-critical tasks",
+		"awsServiceTierPriority": "Priority (75% premium)",
+		"awsServiceTierPriorityDesc": "Fastest performance for mission-critical applications",
+		"awsServiceTierNote": "Service tiers affect pricing and performance. Flex offers 50% discount with higher latency, Priority offers 25% better performance with 75% premium.",
 		"awsBedrockVpc": {
 			"useCustomVpcEndpoint": "Use custom VPC endpoint",
 			"vpcEndpointUrlPlaceholder": "Enter VPC Endpoint URL (optional)",
@@ -512,7 +516,8 @@
 			"minimal": "Minimal (Fastest)",
 			"low": "Low",
 			"medium": "Medium",
-			"high": "High"
+			"high": "High",
+			"xhigh": "Extra High"
 		},
 		"verbosity": {
 			"label": "Output Verbosity",
@@ -829,6 +834,17 @@
 		"MULTIPLE_NATIVE_TOOL_CALLS": {
 			"name": "Parallel tool calls",
 			"description": "When enabled, the native protocol can execute multiple tools in a single assistant message turn."
+		},
+		"CUSTOM_TOOLS": {
+			"name": "Enable custom tools",
+			"description": "When enabled, Roo can load and use custom TypeScript/JavaScript tools from your project's .roo/tools directory or ~/.roo/tools for global tools. Note: these tools will automatically be auto-approved.",
+			"toolsHeader": "Available Custom Tools",
+			"noTools": "No custom tools loaded. Add .ts or .js files to your project's .roo/tools directory or ~/.roo/tools for global tools.",
+			"refreshButton": "Refresh",
+			"refreshing": "Refreshing...",
+			"refreshSuccess": "Tools refreshed successfully",
+			"refreshError": "Failed to refresh tools",
+			"toolParameters": "Parameters"
 		}
 	},
 	"promptCaching": {

@@ -202,11 +202,6 @@
 			"label": "Navegador",
 			"description": "Realizar ações do navegador automaticamente sem exigir aprovação. Nota: Aplica-se apenas quando o modelo suporta uso do computador"
 		},
-		"retry": {
-			"label": "Tentar novamente",
-			"description": "Tentar novamente automaticamente requisições de API com falha quando o servidor retorna uma resposta de erro",
-			"delayLabel": "Atraso antes de tentar novamente a requisição"
-		},
 		"mcp": {
 			"label": "MCP",
 			"description": "Ativar aprovação automática de ferramentas MCP individuais na visualização de Servidores MCP (requer tanto esta configuração quanto a caixa de seleção \"Permitir sempre\" da ferramenta)"
@@ -236,10 +231,6 @@
 			"addButton": "Adicionar",
 			"autoDenied": "Comandos com o prefixo `{{prefix}}` foram proibidos pelo usuário. Não contorne esta restrição executando outro comando."
 		},
-		"updateTodoList": {
-			"label": "Todo",
-			"description": "A lista de tarefas é atualizada automaticamente sem aprovação"
-		},
 		"apiRequestLimit": {
 			"title": "Máximo de Solicitações",
 			"description": "Fazer automaticamente este número de requisições à API antes de pedir aprovação para continuar com a tarefa.",
@@ -259,6 +250,7 @@
 		"configProfile": "Perfil de configuração",
 		"description": "Salve diferentes configurações de API para alternar rapidamente entre provedores e configurações.",
 		"apiProvider": "Provedor de API",
+		"apiProviderDocs": "Documentação do Provedor",
 		"model": "Modelo",
 		"nameEmpty": "O nome não pode estar vazio",
 		"nameExists": "Já existe um perfil com este nome",
@@ -283,8 +275,6 @@
 		"vercelAiGatewayApiKey": "Chave API do Vercel AI Gateway",
 		"getVercelAiGatewayApiKey": "Obter chave API do Vercel AI Gateway",
 		"apiKeyStorageNotice": "As chaves de API são armazenadas com segurança no Armazenamento Secreto do VSCode",
-		"glamaApiKey": "Chave de API Glama",
-		"getGlamaApiKey": "Obter chave de API Glama",
 		"useCustomBaseUrl": "Usar URL base personalizado",
 		"useReasoning": "Habilitar raciocínio",
 		"useHostHeader": "Usar cabeçalho Host personalizado",
@@ -312,6 +302,8 @@
 		"anthropic1MContextBetaDescription": "Estende a janela de contexto para 1 milhão de tokens para o Claude Sonnet 4",
 		"awsBedrock1MContextBetaLabel": "Ativar janela de contexto de 1M (Beta)",
 		"awsBedrock1MContextBetaDescription": "Estende a janela de contexto para 1 milhão de tokens para o Claude Sonnet 4",
+		"vertex1MContextBetaLabel": "Ativar janela de contexto de 1M (Beta)",
+		"vertex1MContextBetaDescription": "Estende a janela de contexto para 1 milhão de tokens para o Claude Sonnet 4",
 		"basetenApiKey": "Chave de API Baseten",
 		"getBasetenApiKey": "Obter chave de API Baseten",
 		"cerebrasApiKey": "Chave de API Cerebras",
@@ -380,6 +372,14 @@
 		"awsRegion": "Região AWS",
 		"awsCrossRegion": "Usar inferência entre regiões",
 		"awsGlobalInference": "Usar inferência global (selecionar automaticamente a região ideal da AWS)",
+		"awsServiceTier": "Nível de serviço",
+		"awsServiceTierStandard": "Padrão",
+		"awsServiceTierStandardDesc": "Desempenho e custo equilibrados",
+		"awsServiceTierFlex": "Flex (50% de desconto)",
+		"awsServiceTierFlexDesc": "Custo mais baixo, latência mais alta para tarefas não críticas",
+		"awsServiceTierPriority": "Priority (75% de prêmio)",
+		"awsServiceTierPriorityDesc": "Desempenho mais rápido para aplicações críticas",
+		"awsServiceTierNote": "Os níveis de serviço afetam preços e desempenho. Flex oferece 50% de desconto com latência mais alta, Priority oferece 25% melhor desempenho com 75% de prêmio.",
 		"awsBedrockVpc": {
 			"useCustomVpcEndpoint": "Usar endpoint VPC personalizado",
 			"vpcEndpointUrlPlaceholder": "Digite a URL do endpoint VPC (opcional)",
@@ -506,6 +506,7 @@
 			"none": "Nenhum",
 			"minimal": "Mínimo (mais rápido)",
 			"high": "Alto",
+			"xhigh": "Muito alto",
 			"medium": "Médio",
 			"low": "Baixo"
 		},
@@ -825,6 +826,17 @@
 		"MULTIPLE_NATIVE_TOOL_CALLS": {
 			"name": "Chamadas paralelas de ferramentas",
 			"description": "Quando habilitado, o protocolo nativo pode executar múltiplas ferramentas em um único turno de mensagem do assistente."
+		},
+		"CUSTOM_TOOLS": {
+			"name": "Ativar ferramentas personalizadas",
+			"description": "Quando habilitado, o Roo pode carregar e usar ferramentas TypeScript/JavaScript personalizadas do diretório .roo/tools do seu projeto ou ~/.roo/tools para ferramentas globais. Nota: estas ferramentas serão aprovadas automaticamente.",
+			"toolsHeader": "Ferramentas personalizadas disponíveis",
+			"noTools": "Nenhuma ferramenta personalizada carregada. Adicione arquivos .ts ou .js ao diretório .roo/tools do seu projeto ou ~/.roo/tools para ferramentas globais.",
+			"refreshButton": "Atualizar",
+			"refreshing": "Atualizando...",
+			"refreshSuccess": "Ferramentas atualizadas com sucesso",
+			"refreshError": "Falha ao atualizar ferramentas",
+			"toolParameters": "Parâmetros"
 		}
 	},
 	"promptCaching": {
@@ -956,6 +968,10 @@
 		"collapseThinking": {
 			"label": "Recolher mensagens de pensamento por padrão",
 			"description": "Quando ativado, os blocos de pensamento serão recolhidos por padrão até que você interaja com eles"
+		},
+		"requireCtrlEnterToSend": {
+			"label": "Requer {{primaryMod}}+Enter para enviar mensagens",
+			"description": "Quando ativado, você deve pressionar {{primaryMod}}+Enter para enviar mensagens em vez de apenas Enter"
 		}
 	}
 }

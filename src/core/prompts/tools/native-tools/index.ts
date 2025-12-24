@@ -9,12 +9,13 @@ import codebaseSearch from "./codebase_search"
 import executeCommand from "./execute_command"
 import fetchInstructions from "./fetch_instructions"
 import generateImage from "./generate_image"
-import listCodeDefinitionNames from "./list_code_definition_names"
 import listFiles from "./list_files"
 import newTask from "./new_task"
 import { createReadFileTool } from "./read_file"
 import runSlashCommand from "./run_slash_command"
 import searchAndReplace from "./search_and_replace"
+import searchReplace from "./search_replace"
+import edit_file from "./edit_file"
 import searchFiles from "./search_files"
 import switchMode from "./switch_mode"
 import updateTodoList from "./update_todo_list"
@@ -41,12 +42,13 @@ export function getNativeTools(partialReadsEnabled: boolean = true): OpenAI.Chat
 		executeCommand,
 		fetchInstructions,
 		generateImage,
-		listCodeDefinitionNames,
 		listFiles,
 		newTask,
 		createReadFileTool(partialReadsEnabled),
 		runSlashCommand,
 		searchAndReplace,
+		searchReplace,
+		edit_file,
 		searchFiles,
 		switchMode,
 		updateTodoList,

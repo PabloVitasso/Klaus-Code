@@ -149,27 +149,6 @@ Example: Requesting to list all files in the current directory
 <recursive>false</recursive>
 </list_files>
 
-## list_code_definition_names
-Description: Request to list definition names (classes, functions, methods, etc.) from source code. This tool can analyze either a single file or all files at the top level of a specified directory. It provides insights into the codebase structure and important constructs, encapsulating high-level concepts and relationships that are crucial for understanding the overall architecture.
-Parameters:
-- path: (required) The path of the file or directory (relative to the current working directory /test/path) to analyze. When given a directory, it lists definitions from all top-level source files.
-Usage:
-<list_code_definition_names>
-<path>Directory path here</path>
-</list_code_definition_names>
-
-Examples:
-
-1. List definitions from a specific file:
-<list_code_definition_names>
-<path>src/main.ts</path>
-</list_code_definition_names>
-
-2. List definitions from all files in a directory:
-<list_code_definition_names>
-<path>src/</path>
-</list_code_definition_names>
-
 ## write_to_file
 Description: Request to write content to a file. This tool is primarily used for **creating new files** or for scenarios where a **complete rewrite of an existing file is intentionally required**. If the file exists, it will be overwritten. If it doesn't exist, it will be created. This tool will automatically create any directories needed to write the file.
 
@@ -247,6 +226,10 @@ Parameters:
         - Use with the `size` parameter to specify the new size.
     * scroll_down: Scroll down the page by one page height.
     * scroll_up: Scroll up the page by one page height.
+    * screenshot: Take a screenshot and save it to a file.
+        - Use with the `path` parameter to specify the destination file path.
+        - Supported formats: .png, .jpeg, .webp
+        - Example: `<action>screenshot</action>` with `<path>screenshots/result.png</path>`
     * close: Close the Puppeteer-controlled browser instance. This **must always be the final browser action**.
         - Example: `<action>close</action>`
 - url: (optional) Use this for providing the URL for the `launch` action.
@@ -264,6 +247,9 @@ Parameters:
     * Example: <size>1280,720</size>
 - text: (optional) Use this for providing the text for the `type` action.
     * Example: <text>Hello, world!</text>
+- path: (optional) File path for the `screenshot` action. Path is relative to the workspace.
+    * Supported formats: .png, .jpeg, .webp
+    * Example: <path>screenshots/my-screenshot.png</path>
 Usage:
 <browser_action>
 <action>Action to perform (e.g., launch, click, type, press, scroll_down, scroll_up, close)</action>
@@ -282,6 +268,12 @@ Example: Requesting to click on the element at coordinates 450,300 on a 1024x768
 <browser_action>
 <action>click</action>
 <coordinate>450,300@1024x768</coordinate>
+</browser_action>
+
+Example: Taking a screenshot and saving it to a file
+<browser_action>
+<action>screenshot</action>
+<path>screenshots/result.png</path>
 </browser_action>
 
 ## ask_followup_question
@@ -554,6 +546,10 @@ Mode-specific Instructions:
 7. Use the switch_mode tool to request that the user switch to another mode to implement the solution.
 
 **IMPORTANT: Focus on creating clear, actionable todo lists rather than lengthy markdown documents. Use the todo list as your primary planning tool to track and organize the work that needs to be done.**
+
+**CRITICAL: Never provide level of effort time estimates (e.g., hours, days, weeks) for tasks. Focus solely on breaking down the work into clear, actionable steps without estimating how long they will take.**
+
+Unless told otherwise, if you want to save a plan file, put it in the /plans directory
 
 Rules:
 # Rules from .clinerules-architect:

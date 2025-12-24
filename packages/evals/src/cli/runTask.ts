@@ -13,6 +13,7 @@ import {
 	RooCodeEventName,
 	IpcMessageType,
 	EVALS_SETTINGS,
+	type ToolUsage,
 } from "@roo-code/types"
 import { IpcClient } from "@roo-code/ipc"
 
@@ -31,6 +32,7 @@ import { EVALS_REPO_PATH } from "../exercises/index.js"
 import { Logger, getTag, isDockerContainer } from "./utils.js"
 import { redisClient, getPubSubKey, registerRunner, deregisterRunner } from "./redis.js"
 import { runUnitTest } from "./runUnitTest.js"
+import { MessageLogDeduper } from "./messageLogDeduper.js"
 
 class SubprocessTimeoutError extends Error {
 	constructor(timeout: number) {
@@ -277,6 +279,15 @@ export const runTask = async ({ run, task, publish, logger, jobToken }: RunTaskO
 	let taskMetricsId: number | undefined
 	let rooTaskId: string | undefined
 	let isClientDisconnected = false
+	// Track accumulated tool usage across task instances (handles rehydration after abort)
+	const accumulatedToolUsage: ToolUsage = {}
+
+	// Promise that resolves when taskMetricsId is set, preventing race conditions
+	// where TaskTokenUsageUpdated arrives before TaskStarted handler completes
+	let resolveTaskMetricsReady: () => void
+	const taskMetricsReady = new Promise<void>((resolve) => {
+		resolveTaskMetricsReady = resolve
+	})
 
 	const ignoreEvents: Record<"broadcast" | "log", RooCodeEventName[]> = {
 		broadcast: [RooCodeEventName.Message],
@@ -295,6 +306,7 @@ export const runTask = async ({ run, task, publish, logger, jobToken }: RunTaskO
 	]
 
 	let isApiUnstable = false
+	const messageLogDeduper = new MessageLogDeduper()
 
 	client.on(IpcMessageType.TaskEvent, async (taskEvent) => {
 		const { eventName, payload } = taskEvent
@@ -320,6 +332,15 @@ export const runTask = async ({ run, task, publish, logger, jobToken }: RunTaskO
 				(payload[0].message.say && loggableSays.includes(payload[0].message.say)) ||
 				payload[0].message.partial !== true)
 		) {
+			// Dedupe identical repeated message events (same message.ts + same payload)
+			if (eventName === RooCodeEventName.Message) {
+				const action = payload[0]?.action as string | undefined
+				const message = payload[0]?.message
+				if (!messageLogDeduper.shouldLog(action, message)) {
+					return
+				}
+			}
+
 			// Extract tool name for tool-related messages for clearer logging
 			let logEventName: string = eventName
 			if (eventName === RooCodeEventName.Message && payload[0]?.message?.ask === "tool") {
@@ -357,6 +378,9 @@ export const runTask = async ({ run, task, publish, logger, jobToken }: RunTaskO
 			taskStartedAt = Date.now()
 			taskMetricsId = taskMetrics.id
 			rooTaskId = payload[0]
+
+			// Signal that taskMetricsId is now ready for other handlers
+			resolveTaskMetricsReady()
 		}
 
 		if (eventName === RooCodeEventName.TaskToolFailed) {
@@ -364,14 +388,45 @@ export const runTask = async ({ run, task, publish, logger, jobToken }: RunTaskO
 			await createToolError({ taskId: task.id, toolName, error })
 		}
 
-		if (
-			(eventName === RooCodeEventName.TaskTokenUsageUpdated || eventName === RooCodeEventName.TaskCompleted) &&
-			taskMetricsId
-		) {
+		if (eventName === RooCodeEventName.TaskTokenUsageUpdated || eventName === RooCodeEventName.TaskCompleted) {
+			// Wait for taskMetricsId to be set by the TaskStarted handler.
+			// This prevents a race condition where these events arrive before
+			// the TaskStarted handler finishes its async database operations.
+			// Note: taskMetricsReady is also resolved on disconnect to prevent deadlock.
+			await taskMetricsReady
+
+			// Guard: taskMetricsReady may have been resolved due to disconnect
+			// without taskMetricsId being set. Skip metrics update in this case.
+			if (!taskMetricsId) {
+				logger.info(`skipping metrics update: taskMetricsId not set (event: ${eventName})`)
+				return
+			}
+
 			const duration = Date.now() - taskStartedAt
 
 			const { totalCost, totalTokensIn, totalTokensOut, contextTokens, totalCacheWrites, totalCacheReads } =
 				payload[1]
+
+			// For both TaskTokenUsageUpdated and TaskCompleted: toolUsage is payload[2]
+			const incomingToolUsage: ToolUsage = payload[2] ?? {}
+
+			// Merge incoming tool usage with accumulated data using MAX strategy.
+			// This handles the case where a task is rehydrated after abort:
+			// - Empty rehydrated data won't overwrite existing: max(5, 0) = 5
+			// - Legitimate restart with additional work is captured: max(5, 8) = 8
+			// Each task instance tracks its own cumulative values, so we take the max
+			// to preserve the highest values seen across all instances.
+			for (const [toolName, usage] of Object.entries(incomingToolUsage)) {
+				const existing = accumulatedToolUsage[toolName as keyof ToolUsage]
+				if (existing) {
+					accumulatedToolUsage[toolName as keyof ToolUsage] = {
+						attempts: Math.max(existing.attempts, usage.attempts),
+						failures: Math.max(existing.failures, usage.failures),
+					}
+				} else {
+					accumulatedToolUsage[toolName as keyof ToolUsage] = { ...usage }
+				}
+			}
 
 			await updateTaskMetrics(taskMetricsId, {
 				cost: totalCost,
@@ -381,12 +436,8 @@ export const runTask = async ({ run, task, publish, logger, jobToken }: RunTaskO
 				duration,
 				cacheWrites: totalCacheWrites ?? 0,
 				cacheReads: totalCacheReads ?? 0,
+				toolUsage: accumulatedToolUsage,
 			})
-		}
-
-		if (eventName === RooCodeEventName.TaskCompleted && taskMetricsId) {
-			const toolUsage = payload[2]
-			await updateTaskMetrics(taskMetricsId, { toolUsage })
 		}
 
 		if (eventName === RooCodeEventName.TaskAborted) {
@@ -401,6 +452,10 @@ export const runTask = async ({ run, task, publish, logger, jobToken }: RunTaskO
 	client.on(IpcMessageType.Disconnect, async () => {
 		logger.info(`disconnected from IPC socket -> ${ipcSocketPath}`)
 		isClientDisconnected = true
+		// Resolve taskMetricsReady to unblock any handlers waiting on it.
+		// This prevents deadlock if TaskStarted never fired or threw before resolving.
+		// The handlers check for taskMetricsId being set before proceeding.
+		resolveTaskMetricsReady()
 	})
 
 	client.sendCommand({

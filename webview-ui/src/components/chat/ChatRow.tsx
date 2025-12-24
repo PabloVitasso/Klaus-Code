@@ -59,6 +59,7 @@ import {
 	FolderTree,
 	TerminalSquare,
 	MessageCircle,
+	Repeat2,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { PathTooltip } from "../ui/PathTooltip"
@@ -108,6 +109,7 @@ interface ChatRowProps {
 	onBatchFileResponse?: (response: { [key: string]: boolean }) => void
 	onFollowUpUnmount?: () => void
 	isFollowUpAnswered?: boolean
+	isFollowUpAutoApprovalPaused?: boolean
 	editable?: boolean
 	hasCheckpoint?: boolean
 }
@@ -161,6 +163,7 @@ export const ChatRowContent = ({
 	onFollowUpUnmount,
 	onBatchFileResponse,
 	isFollowUpAnswered,
+	isFollowUpAutoApprovalPaused,
 }: ChatRowContentProps) => {
 	const { t, i18n } = useTranslation()
 
@@ -705,32 +708,6 @@ export const ChatRowContent = ({
 						</div>
 					</>
 				)
-			case "listCodeDefinitionNames":
-				return (
-					<>
-						<div style={headerStyle}>
-							{toolIcon("file-code")}
-							<span style={{ fontWeight: "bold" }}>
-								{message.type === "ask"
-									? tool.isOutsideWorkspace
-										? t("chat:directoryOperations.wantsToViewDefinitionsOutsideWorkspace")
-										: t("chat:directoryOperations.wantsToViewDefinitions")
-									: tool.isOutsideWorkspace
-										? t("chat:directoryOperations.didViewDefinitionsOutsideWorkspace")
-										: t("chat:directoryOperations.didViewDefinitions")}
-							</span>
-						</div>
-						<div className="pl-6">
-							<CodeAccordian
-								path={tool.path}
-								code={tool.content}
-								language="markdown"
-								isExpanded={isExpanded}
-								onToggleExpand={handleToggleExpand}
-							/>
-						</div>
-					</>
-				)
 			case "searchFiles":
 				return (
 					<>
@@ -1104,37 +1081,63 @@ export const ChatRowContent = ({
 											? "https://github.com/cline/cline/wiki/TroubleShooting-%E2%80%90-%22PowerShell-is-not-recognized-as-an-internal-or-external-command%22"
 											: undefined
 									}
+									errorDetails={apiReqStreamingFailedMessage}
 								/>
 							)}
 						</>
 					)
 				case "api_req_retry_delayed":
 					let body = t(`chat:apiRequest.failed`)
-					let retryInfo, code, docsURL
+					let retryInfo, rawError, code, docsURL
 					if (message.text !== undefined) {
-						// Try to show richer error message for that code, if available
-						if (parseInt(message.text.substring(0, 3)) >= 400) {
-							code = parseInt(message.text)
-							const stringForError = `chat:apiRequest.errorMessage.${code}`
-							if (i18n.exists(stringForError)) {
-								body = t(stringForError)
-								// Fill this out in upcoming PRs
-								// Do not remove this
-								// switch(code) {
-								// 	case ERROR_CODE:
-								// 		docsURL = ???
-								// 		break;
-								// }
+						// Check for Claude Code authentication error first
+						if (message.text.includes("Not authenticated with Claude Code")) {
+							body = t("chat:apiRequest.errorMessage.claudeCodeNotAuthenticated")
+							docsURL = "roocode://settings?provider=claude-code"
+						} else {
+							// Try to show richer error message for that code, if available
+							const potentialCode = parseInt(message.text.substring(0, 3))
+							if (!isNaN(potentialCode) && potentialCode >= 400) {
+								code = potentialCode
+								const stringForError = `chat:apiRequest.errorMessage.${code}`
+								if (i18n.exists(stringForError)) {
+									body = t(stringForError)
+									// Fill this out in upcoming PRs
+									// Do not remove this
+									// switch(code) {
+									// 	case ERROR_CODE:
+									// 		docsURL = ???
+									// 		break;
+									// }
+								} else {
+									body = t("chat:apiRequest.errorMessage.unknown")
+									docsURL = "mailto:support@roocode.com?subject=Unknown API Error"
+								}
+							} else if (message.text.indexOf("Connection error") === 0) {
+								body = t("chat:apiRequest.errorMessage.connection")
 							} else {
+								// Non-HTTP-status-code error message - store full text as errorDetails
 								body = t("chat:apiRequest.errorMessage.unknown")
 								docsURL = "mailto:support@roocode.com?subject=Unknown API Error"
 							}
-							retryInfo = (
-								<p className="mt-1 font-light text-xs text-vscode-errorForeground/80 cursor-default">
-									{message.text.substring(4)}
-								</p>
-							)
 						}
+
+						// This isn't pretty, but since the retry logic happens at a lower level
+						// and the message object is just a flat string, we need to extract the
+						// retry information using this "tag" as a convention
+						const retryTimerMatch = message.text.match(/<retry_timer>(.*?)<\/retry_timer>/)
+						const retryTimer = retryTimerMatch && retryTimerMatch[1] ? parseInt(retryTimerMatch[1], 10) : 0
+						rawError = message.text.replace(/<retry_timer>(.*?)<\/retry_timer>/, "").trim()
+						retryInfo = retryTimer > 0 && (
+							<p
+								className={cn(
+									"mt-2 font-light text-xs  text-vscode-descriptionForeground cursor-default flex items-center gap-1 transition-all duration-1000",
+									retryTimer === 0 ? "opacity-0 max-h-0" : "max-h-2 opacity-100",
+								)}>
+								<Repeat2 className="size-3" strokeWidth={1.5} />
+								<span>{retryTimer}s</span>
+							</p>
+						)
 					}
 					return (
 						<ErrorRow
@@ -1143,6 +1146,7 @@ export const ChatRowContent = ({
 							message={body}
 							docsURL={docsURL}
 							additionalContent={retryInfo}
+							errorDetails={rawError}
 						/>
 					)
 				case "api_req_finished":
@@ -1255,7 +1259,34 @@ export const ChatRowContent = ({
 						</div>
 					)
 				case "error":
-					return <ErrorRow type="error" message={message.text || ""} />
+					// Check if this is a model response error based on marker strings from backend
+					const isNoToolsUsedError = message.text === "MODEL_NO_TOOLS_USED"
+					const isNoAssistantMessagesError = message.text === "MODEL_NO_ASSISTANT_MESSAGES"
+
+					if (isNoToolsUsedError) {
+						return (
+							<ErrorRow
+								type="error"
+								title={t("chat:modelResponseIncomplete")}
+								message={t("chat:modelResponseErrors.noToolsUsed")}
+								errorDetails={t("chat:modelResponseErrors.noToolsUsedDetails")}
+							/>
+						)
+					}
+
+					if (isNoAssistantMessagesError) {
+						return (
+							<ErrorRow
+								type="error"
+								title={t("chat:modelResponseIncomplete")}
+								message={t("chat:modelResponseErrors.noAssistantMessages")}
+								errorDetails={t("chat:modelResponseErrors.noAssistantMessagesDetails")}
+							/>
+						)
+					}
+
+					// Fallback for generic errors
+					return <ErrorRow type="error" message={message.text || t("chat:error")} />
 				case "completion_result":
 					return (
 						<>
@@ -1549,6 +1580,7 @@ export const ChatRowContent = ({
 									ts={message?.ts}
 									onCancelAutoApproval={onFollowUpUnmount}
 									isAnswered={isFollowUpAnswered}
+									isFollowUpAutoApprovalPaused={isFollowUpAutoApprovalPaused}
 								/>
 							</div>
 						</>

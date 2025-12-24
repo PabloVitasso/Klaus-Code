@@ -202,11 +202,6 @@
 			"label": "Przeglądarka",
 			"description": "Automatycznie wykonuj akcje przeglądarki bez konieczności zatwierdzania. Uwaga: Dotyczy tylko gdy model obsługuje używanie komputera"
 		},
-		"retry": {
-			"label": "Ponów",
-			"description": "Automatycznie ponawiaj nieudane żądania API, gdy serwer zwraca odpowiedź z błędem",
-			"delayLabel": "Opóźnienie przed ponowieniem żądania"
-		},
 		"mcp": {
 			"label": "MCP",
 			"description": "Włącz automatyczne zatwierdzanie poszczególnych narzędzi MCP w widoku Serwerów MCP (wymaga zarówno tego ustawienia, jak i pola wyboru \"Zawsze zezwalaj\" narzędzia)"
@@ -236,10 +231,6 @@
 			"addButton": "Dodaj",
 			"autoDenied": "Polecenia z prefiksem `{{prefix}}` zostały zabronione przez użytkownika. Nie obchodź tego ograniczenia uruchamiając inne polecenie."
 		},
-		"updateTodoList": {
-			"label": "Todo",
-			"description": "Lista zadań jest automatycznie aktualizowana bez zatwierdzenia"
-		},
 		"apiRequestLimit": {
 			"title": "Maksymalna liczba żądań",
 			"description": "Automatycznie wykonaj tyle żądań API przed poproszeniem o zgodę na kontynuowanie zadania.",
@@ -259,6 +250,7 @@
 		"configProfile": "Profil konfiguracji",
 		"description": "Zapisz różne konfiguracje API, aby szybko przełączać się między dostawcami i ustawieniami.",
 		"apiProvider": "Dostawca API",
+		"apiProviderDocs": "Dokumentacja dostawcy",
 		"model": "Model",
 		"nameEmpty": "Nazwa nie może być pusta",
 		"nameExists": "Profil o tej nazwie już istnieje",
@@ -283,8 +275,6 @@
 		"vercelAiGatewayApiKey": "Klucz API Vercel AI Gateway",
 		"getVercelAiGatewayApiKey": "Uzyskaj klucz API Vercel AI Gateway",
 		"apiKeyStorageNotice": "Klucze API są bezpiecznie przechowywane w Tajnym Magazynie VSCode",
-		"glamaApiKey": "Klucz API Glama",
-		"getGlamaApiKey": "Uzyskaj klucz API Glama",
 		"useCustomBaseUrl": "Użyj niestandardowego URL bazowego",
 		"useReasoning": "Włącz rozumowanie",
 		"useHostHeader": "Użyj niestandardowego nagłówka Host",
@@ -312,6 +302,8 @@
 		"anthropic1MContextBetaDescription": "Rozszerza okno kontekstowe do 1 miliona tokenów dla Claude Sonnet 4",
 		"awsBedrock1MContextBetaLabel": "Włącz okno kontekstowe 1M (Beta)",
 		"awsBedrock1MContextBetaDescription": "Rozszerza okno kontekstowe do 1 miliona tokenów dla Claude Sonnet 4",
+		"vertex1MContextBetaLabel": "Włącz okno kontekstowe 1M (Beta)",
+		"vertex1MContextBetaDescription": "Rozszerza okno kontekstowe do 1 miliona tokenów dla Claude Sonnet 4",
 		"basetenApiKey": "Klucz API Baseten",
 		"getBasetenApiKey": "Uzyskaj klucz API Baseten",
 		"cerebrasApiKey": "Klucz API Cerebras",
@@ -380,6 +372,14 @@
 		"awsRegion": "Region AWS",
 		"awsCrossRegion": "Użyj wnioskowania międzyregionalnego",
 		"awsGlobalInference": "Użyj globalnej inferencji (automatyczny wybór optymalnego regionu AWS)",
+		"awsServiceTier": "Warstwa usługi",
+		"awsServiceTierStandard": "Standard",
+		"awsServiceTierStandardDesc": "Zrównoważona wydajność i koszt",
+		"awsServiceTierFlex": "Flex (50% zniżka)",
+		"awsServiceTierFlexDesc": "Niższy koszt, wyższe opóźnienie dla zadań niekrytycznych",
+		"awsServiceTierPriority": "Priority (75% premia)",
+		"awsServiceTierPriorityDesc": "Najszybsza wydajność dla aplikacji krytycznych",
+		"awsServiceTierNote": "Warstwy usługi wpływają na ceny i wydajność. Flex oferuje 50% zniżkę z wyższym opóźnieniem, Priority oferuje 25% lepszą wydajność z 75% premią.",
 		"awsBedrockVpc": {
 			"useCustomVpcEndpoint": "Użyj niestandardowego punktu końcowego VPC",
 			"vpcEndpointUrlPlaceholder": "Wprowadź URL punktu końcowego VPC (opcjonalnie)",
@@ -506,6 +506,7 @@
 			"none": "Brak",
 			"minimal": "Minimalny (najszybszy)",
 			"high": "Wysoki",
+			"xhigh": "Bardzo wysoki",
 			"medium": "Średni",
 			"low": "Niski"
 		},
@@ -825,6 +826,17 @@
 		"MULTIPLE_NATIVE_TOOL_CALLS": {
 			"name": "Równoległe wywołania narzędzi",
 			"description": "Po włączeniu protokół natywny może wykonywać wiele narzędzi w jednej turze wiadomości asystenta."
+		},
+		"CUSTOM_TOOLS": {
+			"name": "Włącz niestandardowe narzędzia",
+			"description": "Gdy włączone, Roo może ładować i używać niestandardowych narzędzi TypeScript/JavaScript z katalogu .roo/tools Twojego projektu lub ~/.roo/tools dla narzędzi globalnych. Uwaga: te narzędzia będą automatycznie zatwierdzane.",
+			"toolsHeader": "Dostępne niestandardowe narzędzia",
+			"noTools": "Nie załadowano niestandardowych narzędzi. Dodaj pliki .ts lub .js do katalogu .roo/tools swojego projektu lub ~/.roo/tools dla narzędzi globalnych.",
+			"refreshButton": "Odśwież",
+			"refreshing": "Odświeżanie...",
+			"refreshSuccess": "Narzędzia odświeżone pomyślnie",
+			"refreshError": "Nie udało się odświeżyć narzędzi",
+			"toolParameters": "Parametry"
 		}
 	},
 	"promptCaching": {
@@ -956,6 +968,10 @@
 		"collapseThinking": {
 			"label": "Domyślnie zwijaj komunikaty o myśleniu",
 			"description": "Gdy włączone, bloki myślenia będą domyślnie zwinięte, dopóki nie wejdziesz z nimi w interakcję"
+		},
+		"requireCtrlEnterToSend": {
+			"label": "Wymagaj {{primaryMod}}+Enter do wysyłania wiadomości",
+			"description": "Po włączeniu musisz nacisnąć {{primaryMod}}+Enter, aby wysłać wiadomości, zamiast tylko Enter"
 		}
 	}
 }

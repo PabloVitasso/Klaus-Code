@@ -237,6 +237,7 @@ vi.mock("../../../integrations/misc/extract-text", () => ({
 vi.mock("../../../api/providers/fetchers/modelCache", () => ({
 	getModels: vi.fn().mockResolvedValue({}),
 	flushModels: vi.fn(),
+	getModelsFromCache: vi.fn().mockReturnValue(undefined),
 }))
 
 vi.mock("../../../shared/modes", () => ({
@@ -308,6 +309,7 @@ vi.mock("../../../integrations/misc/extract-text", () => ({
 vi.mock("../../../api/providers/fetchers/modelCache", () => ({
 	getModels: vi.fn().mockResolvedValue({}),
 	flushModels: vi.fn(),
+	getModelsFromCache: vi.fn().mockReturnValue(undefined),
 }))
 
 vi.mock("../diff/strategies/multi-search-replace", () => ({
@@ -558,7 +560,6 @@ describe("ClineProvider", () => {
 			fuzzyMatchThreshold: 1.0,
 			mcpEnabled: true,
 			enableMcpServerCreation: false,
-			requestDelaySeconds: 5,
 			mode: defaultModeSlug,
 			customModes: [],
 			experiments: experimentDefault,
@@ -577,6 +578,7 @@ describe("ClineProvider", () => {
 			autoCondenseContextPercent: 100,
 			cloudIsAuthenticated: false,
 			sharingEnabled: false,
+			publicSharingEnabled: false,
 			profileThresholds: {},
 			hasOpenedModeSelector: false,
 			diagnosticsEnabled: true,
@@ -835,27 +837,6 @@ describe("ClineProvider", () => {
 		expect(mockPostMessage).toHaveBeenCalled()
 	})
 
-	test("requestDelaySeconds defaults to 10 seconds", async () => {
-		// Mock globalState.get to return undefined for requestDelaySeconds
-		;(mockContext.globalState.get as any).mockImplementation((key: string) => {
-			if (key === "requestDelaySeconds") {
-				return undefined
-			}
-			return null
-		})
-
-		const state = await provider.getState()
-		expect(state.requestDelaySeconds).toBe(10)
-	})
-
-	test("alwaysApproveResubmit defaults to false", async () => {
-		// Mock globalState.get to return undefined for alwaysApproveResubmit
-		;(mockContext.globalState.get as any).mockReturnValue(undefined)
-
-		const state = await provider.getState()
-		expect(state.alwaysApproveResubmit).toBe(false)
-	})
-
 	test("autoCondenseContext defaults to true", async () => {
 		// Mock globalState.get to return undefined for autoCondenseContext
 		;(mockContext.globalState.get as any).mockImplementation((key: string) =>
@@ -1024,22 +1005,6 @@ describe("ClineProvider", () => {
 		expect(mockContext.globalState.update).toHaveBeenCalledWith("showRooIgnoredFiles", false)
 		expect(mockPostMessage).toHaveBeenCalled()
 		expect((await provider.getState()).showRooIgnoredFiles).toBe(false)
-	})
-
-	test("handles request delay settings messages", async () => {
-		await provider.resolveWebviewView(mockWebviewView)
-		const messageHandler = (mockWebviewView.webview.onDidReceiveMessage as any).mock.calls[0][0]
-
-		// Test alwaysApproveResubmit
-		await messageHandler({ type: "updateSettings", updatedSettings: { alwaysApproveResubmit: true } })
-		expect(updateGlobalStateSpy).toHaveBeenCalledWith("alwaysApproveResubmit", true)
-		expect(mockContext.globalState.update).toHaveBeenCalledWith("alwaysApproveResubmit", true)
-		expect(mockPostMessage).toHaveBeenCalled()
-
-		// Test requestDelaySeconds
-		await messageHandler({ type: "updateSettings", updatedSettings: { requestDelaySeconds: 10 } })
-		expect(mockContext.globalState.update).toHaveBeenCalledWith("requestDelaySeconds", 10)
-		expect(mockPostMessage).toHaveBeenCalled()
 	})
 
 	test("handles updatePrompt message correctly", async () => {
@@ -2668,7 +2633,6 @@ describe("ClineProvider - Router Models", () => {
 			apiConfiguration: {
 				openRouterApiKey: "openrouter-key",
 				requestyApiKey: "requesty-key",
-				glamaApiKey: "glama-key",
 				unboundApiKey: "unbound-key",
 				litellmApiKey: "litellm-key",
 				litellmBaseUrl: "http://localhost:4000",
@@ -2698,7 +2662,6 @@ describe("ClineProvider - Router Models", () => {
 		// Verify getModels was called for each provider with correct options
 		expect(getModels).toHaveBeenCalledWith({ provider: "openrouter" })
 		expect(getModels).toHaveBeenCalledWith({ provider: "requesty", apiKey: "requesty-key" })
-		expect(getModels).toHaveBeenCalledWith({ provider: "glama" })
 		expect(getModels).toHaveBeenCalledWith({ provider: "unbound", apiKey: "unbound-key" })
 		expect(getModels).toHaveBeenCalledWith({ provider: "vercel-ai-gateway" })
 		expect(getModels).toHaveBeenCalledWith({ provider: "deepinfra" })
@@ -2722,7 +2685,6 @@ describe("ClineProvider - Router Models", () => {
 				deepinfra: mockModels,
 				openrouter: mockModels,
 				requesty: mockModels,
-				glama: mockModels,
 				unbound: mockModels,
 				roo: mockModels,
 				chutes: mockModels,
@@ -2745,7 +2707,6 @@ describe("ClineProvider - Router Models", () => {
 			apiConfiguration: {
 				openRouterApiKey: "openrouter-key",
 				requestyApiKey: "requesty-key",
-				glamaApiKey: "glama-key",
 				unboundApiKey: "unbound-key",
 				litellmApiKey: "litellm-key",
 				litellmBaseUrl: "http://localhost:4000",
@@ -2761,7 +2722,6 @@ describe("ClineProvider - Router Models", () => {
 		vi.mocked(getModels)
 			.mockResolvedValueOnce(mockModels) // openrouter success
 			.mockRejectedValueOnce(new Error("Requesty API error")) // requesty fail
-			.mockResolvedValueOnce(mockModels) // glama success
 			.mockRejectedValueOnce(new Error("Unbound API error")) // unbound fail
 			.mockResolvedValueOnce(mockModels) // vercel-ai-gateway success
 			.mockResolvedValueOnce(mockModels) // deepinfra success
@@ -2778,7 +2738,6 @@ describe("ClineProvider - Router Models", () => {
 				deepinfra: mockModels,
 				openrouter: mockModels,
 				requesty: {},
-				glama: mockModels,
 				unbound: {},
 				roo: mockModels,
 				chutes: {},
@@ -2838,7 +2797,6 @@ describe("ClineProvider - Router Models", () => {
 			apiConfiguration: {
 				openRouterApiKey: "openrouter-key",
 				requestyApiKey: "requesty-key",
-				glamaApiKey: "glama-key",
 				unboundApiKey: "unbound-key",
 				// No litellm config
 			},
@@ -2874,7 +2832,6 @@ describe("ClineProvider - Router Models", () => {
 			apiConfiguration: {
 				openRouterApiKey: "openrouter-key",
 				requestyApiKey: "requesty-key",
-				glamaApiKey: "glama-key",
 				unboundApiKey: "unbound-key",
 				// No litellm config
 			},
@@ -2902,7 +2859,6 @@ describe("ClineProvider - Router Models", () => {
 				deepinfra: mockModels,
 				openrouter: mockModels,
 				requesty: mockModels,
-				glama: mockModels,
 				unbound: mockModels,
 				roo: mockModels,
 				chutes: mockModels,

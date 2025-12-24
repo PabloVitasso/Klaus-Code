@@ -1,19 +1,22 @@
 import type { ToolName, ModeConfig } from "@roo-code/types"
+import { shouldUseSingleFileRead } from "@roo-code/types"
 
 import { TOOL_GROUPS, ALWAYS_AVAILABLE_TOOLS, DiffStrategy } from "../../../shared/tools"
+import { Mode, getModeConfig, getGroupName } from "../../../shared/modes"
+
+import { isToolAllowedForMode } from "../../tools/validateToolUse"
+
 import { McpHub } from "../../../services/mcp/McpHub"
-import { Mode, getModeConfig, isToolAllowedForMode, getGroupName } from "../../../shared/modes"
+import { CodeIndexManager } from "../../../services/code-index/manager"
 
 import { ToolArgs } from "./types"
 import { getExecuteCommandDescription } from "./execute-command"
 import { getReadFileDescription } from "./read-file"
 import { getSimpleReadFileDescription } from "./simple-read-file"
 import { getFetchInstructionsDescription } from "./fetch-instructions"
-import { shouldUseSingleFileRead } from "@roo-code/types"
 import { getWriteToFileDescription } from "./write-to-file"
 import { getSearchFilesDescription } from "./search-files"
 import { getListFilesDescription } from "./list-files"
-import { getListCodeDefinitionNamesDescription } from "./list-code-definition-names"
 import { getBrowserActionDescription } from "./browser-action"
 import { getAskFollowupQuestionDescription } from "./ask-followup-question"
 import { getAttemptCompletionDescription } from "./attempt-completion"
@@ -25,7 +28,6 @@ import { getCodebaseSearchDescription } from "./codebase-search"
 import { getUpdateTodoListDescription } from "./update-todo-list"
 import { getRunSlashCommandDescription } from "./run-slash-command"
 import { getGenerateImageDescription } from "./generate-image"
-import { CodeIndexManager } from "../../../services/code-index/manager"
 
 // Map of tool names to their description functions
 const toolDescriptionMap: Record<string, (args: ToolArgs) => string | undefined> = {
@@ -42,7 +44,6 @@ const toolDescriptionMap: Record<string, (args: ToolArgs) => string | undefined>
 	write_to_file: (args) => getWriteToFileDescription(args),
 	search_files: (args) => getSearchFilesDescription(args),
 	list_files: (args) => getListFilesDescription(args),
-	list_code_definition_names: (args) => getListCodeDefinitionNamesDescription(args),
 	browser_action: (args) => getBrowserActionDescription(args),
 	ask_followup_question: () => getAskFollowupQuestionDescription(),
 	attempt_completion: (args) => getAttemptCompletionDescription(args),
@@ -166,7 +167,6 @@ export {
 	getWriteToFileDescription,
 	getSearchFilesDescription,
 	getListFilesDescription,
-	getListCodeDefinitionNamesDescription,
 	getBrowserActionDescription,
 	getAskFollowupQuestionDescription,
 	getAttemptCompletionDescription,

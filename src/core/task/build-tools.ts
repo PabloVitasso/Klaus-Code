@@ -1,6 +1,13 @@
+import path from "path"
+
 import type OpenAI from "openai"
+
 import type { ProviderSettings, ModeConfig, ModelInfo } from "@roo-code/types"
+import { customToolRegistry, formatNative } from "@roo-code/core"
+
 import type { ClineProvider } from "../webview/ClineProvider"
+import { getRooDirectoriesForCwd } from "../../services/roo-config/index.js"
+
 import { getNativeTools, getMcpServerTools } from "../prompts/tools/native-tools"
 import { filterNativeToolsForMode, filterMcpToolsForMode } from "../prompts/tools/filter-tools-for-mode"
 
@@ -14,6 +21,7 @@ interface BuildToolsOptions {
 	maxReadFileLine: number
 	browserToolEnabled: boolean
 	modelInfo?: ModelInfo
+	diffEnabled: boolean
 }
 
 /**
@@ -34,28 +42,30 @@ export async function buildNativeToolsArray(options: BuildToolsOptions): Promise
 		maxReadFileLine,
 		browserToolEnabled,
 		modelInfo,
+		diffEnabled,
 	} = options
 
 	const mcpHub = provider.getMcpHub()
 
-	// Get CodeIndexManager for feature checking
+	// Get CodeIndexManager for feature checking.
 	const { CodeIndexManager } = await import("../../services/code-index/manager")
 	const codeIndexManager = CodeIndexManager.getInstance(provider.context, cwd)
 
-	// Build settings object for tool filtering
+	// Build settings object for tool filtering.
 	const filterSettings = {
 		todoListEnabled: apiConfiguration?.todoListEnabled ?? true,
 		browserToolEnabled: browserToolEnabled ?? true,
 		modelInfo,
+		diffEnabled,
 	}
 
-	// Determine if partial reads are enabled based on maxReadFileLine setting
+	// Determine if partial reads are enabled based on maxReadFileLine setting.
 	const partialReadsEnabled = maxReadFileLine !== -1
 
-	// Build native tools with dynamic read_file tool based on partialReadsEnabled
+	// Build native tools with dynamic read_file tool based on partialReadsEnabled.
 	const nativeTools = getNativeTools(partialReadsEnabled)
 
-	// Filter native tools based on mode restrictions
+	// Filter native tools based on mode restrictions.
 	const filteredNativeTools = filterNativeToolsForMode(
 		nativeTools,
 		mode,
@@ -66,9 +76,22 @@ export async function buildNativeToolsArray(options: BuildToolsOptions): Promise
 		mcpHub,
 	)
 
-	// Filter MCP tools based on mode restrictions
+	// Filter MCP tools based on mode restrictions.
 	const mcpTools = getMcpServerTools(mcpHub)
 	const filteredMcpTools = filterMcpToolsForMode(mcpTools, mode, customModes, experiments)
 
-	return [...filteredNativeTools, ...filteredMcpTools]
+	// Add custom tools if they are available and the experiment is enabled.
+	let nativeCustomTools: OpenAI.Chat.ChatCompletionFunctionTool[] = []
+
+	if (experiments?.customTools) {
+		const toolDirs = getRooDirectoriesForCwd(cwd).map((dir) => path.join(dir, "tools"))
+		await customToolRegistry.loadFromDirectoriesIfStale(toolDirs)
+		const customTools = customToolRegistry.getAllSerialized()
+
+		if (customTools.length > 0) {
+			nativeCustomTools = customTools.map(formatNative)
+		}
+	}
+
+	return [...filteredNativeTools, ...filteredMcpTools, ...nativeCustomTools]
 }
