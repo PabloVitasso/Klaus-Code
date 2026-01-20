@@ -2030,6 +2030,7 @@ export class ClineProvider
 			enterBehavior,
 			cloudUserInfo,
 			taskHistoryRetention,
+			taskHistorySize,
 			cloudIsAuthenticated,
 			sharingEnabled,
 			publicSharingEnabled,
@@ -2219,6 +2220,8 @@ export class ClineProvider
 			includeTaskHistoryInEnhance: includeTaskHistoryInEnhance ?? true,
 			// Task history retention setting for About tab dropdown
 			taskHistoryRetention: taskHistoryRetention ?? "never",
+			// Task history storage size info for the Settings > About page
+			taskHistorySize,
 			includeCurrentTime: includeCurrentTime ?? true,
 			includeCurrentCost: includeCurrentCost ?? true,
 			maxGitStatusFiles: maxGitStatusFiles ?? 0,
@@ -2439,6 +2442,8 @@ export class ClineProvider
 			customCondensingPrompt: stateValues.customCondensingPrompt,
 			// Task history retention selection
 			taskHistoryRetention: stateValues.taskHistoryRetention ?? "never",
+			// Task history storage size info
+			taskHistorySize: stateValues.taskHistorySize,
 			codebaseIndexModels: stateValues.codebaseIndexModels ?? EMBEDDING_MODEL_PROFILES,
 			codebaseIndexConfig: {
 				codebaseIndexEnabled: stateValues.codebaseIndexConfig?.codebaseIndexEnabled ?? false,
