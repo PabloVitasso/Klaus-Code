@@ -332,27 +332,13 @@
 	},
 	"announcement": {
 		"title": "Klaus Code {{version}} Released",
-		"support": "Please support Klaus Code by starring us on <githubLink>GitHub</githubLink>.",
-		"stealthModel": {
-			"feature": "<bold>Limited-time FREE stealth model</bold> - Code Supernova: Now upgraded with a <bold>1M token context window</bold>! A versatile agentic coding model that supports image inputs, accessible through Klaus Code Cloud.",
-			"note": "(Note: prompts and completions are logged by the model creator and used to improve the model)",
-			"connectButton": "Connect to Klaus Code Cloud",
-			"selectModel": "Select <code>roo/code-supernova</code> from the Klaus Code Cloud provider in Settings to get started.",
-			"goToSettingsButton": "Go to Settings"
-		},
 		"release": {
 			"heading": "What's New:",
-			"chatGptUsageLimits": "Added UI to track your ChatGPT usage limits in the OpenAI Codex provider.",
-			"claudeCodeRemoved": "Removed the deprecated Claude Code provider.",
-			"grokCodeFastFreeEnds": "Grok Code Fast is no longer free - thank you to xAI for the generous promotion!"
+			"item1": "Updated icon and branding",
+			"item2": "Initial Klaus Code release",
+			"item3": "Performance improvements and bug fixes"
 		},
-		"cloudAgents": {
-			"heading": "New in the Cloud:",
-			"specialized": "Introducing <bold>Explainer</bold>, <bold>Planner</bold>, and <bold>Coder</bold> - three specialized cloud agents to enhance your workflows.",
-			"description": "The agents work together in the cloud and can be triggered from the web or through Slack.",
-			"tryButton": "Try Cloud Agents"
-		},
-		"careers": "Also, <careersLink>we're hiring!</careersLink>"
+		"repo": "View the project on <repoLink>GitHub</repoLink>"
 	},
 	"reasoning": {
 		"thinking": "Thinking",

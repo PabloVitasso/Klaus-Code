@@ -1,6 +1,5 @@
 import { memo, type ReactNode, useState } from "react"
 import { Trans } from "react-i18next"
-import { SiDiscord, SiReddit, SiX } from "react-icons/si"
 import { VSCodeLink } from "@vscode/webview-ui-toolkit/react"
 
 import { Package } from "@roo/package"
@@ -40,48 +39,18 @@ const Announcement = ({ hideAnnouncement }: AnnouncementProps) => {
 					<DialogTitle>{t("chat:announcement.title", { version: Package.version })}</DialogTitle>
 				</DialogHeader>
 				<div>
-					{/* Regular Release Highlights */}
+					{/* Release Notes */}
 					<div className="mb-4">
 						<p className="mb-3">{t("chat:announcement.release.heading")}</p>
 						<ul className="list-disc list-inside text-sm space-y-1.5">
-							<li>{t("chat:announcement.release.chatGptUsageLimits")}</li>
-							<li>{t("chat:announcement.release.claudeCodeRemoved")}</li>
-							<li>{t("chat:announcement.release.grokCodeFastFreeEnds")}</li>
+							<li>{t("chat:announcement.release.item1")}</li>
+							<li>{t("chat:announcement.release.item2")}</li>
+							<li>{t("chat:announcement.release.item3")}</li>
 						</ul>
 					</div>
 
 					<div className="mt-4 text-sm text-center text-vscode-descriptionForeground">
-						<div className="flex items-center justify-center gap-4">
-							<SocialLink
-								icon={<SiX className="w-4 h-4" aria-hidden />}
-								label="X"
-								href="https://x.com/roocode"
-							/>
-							<SocialLink
-								icon={<SiDiscord className="w-4 h-4" aria-hidden />}
-								label="Discord"
-								href="https://discord.gg/rCQcvT7Fnt"
-							/>
-							<SocialLink
-								icon={<SiReddit className="w-4 h-4" aria-hidden />}
-								label="Reddit"
-								href="https://www.reddit.com/r/RooCode/"
-							/>
-						</div>
-					</div>
-
-					<div className="mt-3 text-sm text-center text-vscode-descriptionForeground">
-						<Trans i18nKey="chat:announcement.support" components={{ githubLink: <GitHubLink /> }} />
-					</div>
-
-					{/* Careers Section */}
-					<div className="mt-2 text-sm text-center">
-						<Trans
-							i18nKey="chat:announcement.careers"
-							components={{
-								careersLink: <CareersLink />,
-							}}
-						/>
+						<Trans i18nKey="chat:announcement.repo" components={{ repoLink: <RepoLink /> }} />
 					</div>
 				</div>
 			</DialogContent>
@@ -89,36 +58,12 @@ const Announcement = ({ hideAnnouncement }: AnnouncementProps) => {
 	)
 }
 
-const SocialLink = ({ icon, label, href }: { icon: ReactNode; label: string; href: string }) => (
+const RepoLink = ({ children }: { children?: ReactNode }) => (
 	<VSCodeLink
-		href={href}
-		className="inline-flex items-center gap-1"
+		href="https://github.com/PabloVitasso/Klaus-Code"
 		onClick={(e) => {
 			e.preventDefault()
-			vscode.postMessage({ type: "openExternal", url: href })
-		}}>
-		{icon}
-		<span className="sr-only">{label}</span>
-	</VSCodeLink>
-)
-
-const GitHubLink = ({ children }: { children?: ReactNode }) => (
-	<VSCodeLink
-		href="https://github.com/RooCodeInc/Roo-Code"
-		onClick={(e) => {
-			e.preventDefault()
-			vscode.postMessage({ type: "openExternal", url: "https://github.com/RooCodeInc/Roo-Code" })
-		}}>
-		{children}
-	</VSCodeLink>
-)
-
-const CareersLink = ({ children }: { children?: ReactNode }) => (
-	<VSCodeLink
-		href="https://careers.roocode.com"
-		onClick={(e) => {
-			e.preventDefault()
-			vscode.postMessage({ type: "openExternal", url: "https://careers.roocode.com" })
+			vscode.postMessage({ type: "openExternal", url: "https://github.com/PabloVitasso/Klaus-Code" })
 		}}>
 		{children}
 	</VSCodeLink>
