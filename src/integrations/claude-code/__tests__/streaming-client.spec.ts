@@ -45,8 +45,8 @@ describe("Claude Code Streaming Client", () => {
 			expect(CLAUDE_CODE_API_CONFIG.defaultBetas).toContain("fine-grained-tool-streaming-2025-05-14")
 		})
 
-		test("should have correct user agent", () => {
-			expect(CLAUDE_CODE_API_CONFIG.userAgent).toMatch(/^Roo-Code\/\d+\.\d+\.\d+$/)
+		test("should have correct user agent (allows pre-release suffixes)", () => {
+			expect(CLAUDE_CODE_API_CONFIG.userAgent).toMatch(/^Roo-Code\/\d+\.\d+\.\d+(-[a-zA-Z0-9.]+)?$/)
 		})
 	})
 
