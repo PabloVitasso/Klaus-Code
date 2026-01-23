@@ -335,8 +335,8 @@
 		"release": {
 			"heading": "What's New:",
 			"item1": "Updated icon and branding",
-			"item2": "Initial Klaus Code release",
-			"item3": "Performance improvements and bug fixes"
+			"item2": "Improved CI/CD pipeline",
+			"item3": "Bug fixes and performance improvements"
 		},
 		"repo": "View the project on <repoLink>GitHub</repoLink>"
 	},
