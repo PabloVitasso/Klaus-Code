@@ -26,6 +26,7 @@ Klaus Code is a fork of [Roo Code](https://github.com/RooCodeInc/Roo-Code) that 
 Klaus Code preserves full Claude Code OAuth integration that was removed from upstream Roo Code.
 
 **Files to watch when merging:**
+
 - `src/api/providers/claude-code.ts` - Main provider implementation
 - `src/integrations/claude-code/oauth.ts` - OAuth authentication flow
 - `src/integrations/claude-code/streaming-client.ts` - Streaming API client
@@ -37,27 +38,30 @@ Klaus Code preserves full Claude Code OAuth integration that was removed from up
 
 ### 2. Tool Name Prefixing Fix (CRITICAL)
 
-**Status**: ✅ Applied in Klaus Code | ⚠️  May or may not be in upstream
+**Status**: ✅ Applied in Klaus Code | ⚠️ May or may not be in upstream
 
 **Upstream PR**: [RooCodeInc/Roo-Code#10620](https://github.com/RooCodeInc/Roo-Code/pull/10620)
 **Klaus Code PR**: [PabloVitasso/Klaus-Code#10916](https://github.com/RooCodeInc/Roo-Code/pull/10916)
 **Commits**:
+
 - `6173606`: fix(claude-code): prefix tool names to bypass OAuth validation
 - `f578dfb`: fix: prefix tool_choice.name when type is tool
 
 **What it does**: Adds `oc_` prefix to tool names when sending to Claude Code API and strips the prefix from responses. This works around Anthropic's OAuth validation that rejects third-party tool names.
 
 **Files modified:**
+
 - `src/integrations/claude-code/streaming-client.ts`
-  - Added `TOOL_NAME_PREFIX = "oc_"` constant
-  - Added `prefixToolName()` and `stripToolNamePrefix()` helpers
-  - Added `prefixToolNames()` and `prefixToolNamesInMessages()` internal helpers
-  - Modified `createStreamingMessage()` to prefix/strip tool names
+    - Added `TOOL_NAME_PREFIX = "oc_"` constant
+    - Added `prefixToolName()` and `stripToolNamePrefix()` helpers
+    - Added `prefixToolNames()` and `prefixToolNamesInMessages()` internal helpers
+    - Modified `createStreamingMessage()` to prefix/strip tool names
 - `src/integrations/claude-code/__tests__/streaming-client.spec.ts`
-  - Unit tests for prefixing functions
-  - Integration tests for API request/response handling
+    - Unit tests for prefixing functions
+    - Integration tests for API request/response handling
 
 **Action when merging**:
+
 1. Check if upstream has merged this fix
 2. If not, ensure our changes to `streaming-client.ts` are preserved
 3. Run tests: `cd src && npx vitest run integrations/claude-code/__tests__/streaming-client.spec.ts`
@@ -68,6 +72,7 @@ Klaus Code preserves full Claude Code OAuth integration that was removed from up
 **Klaus Code** branding instead of **Roo Code**:
 
 **Files with branding:**
+
 - `package.json` - name: `klaus-code`
 - `src/package.json` - name, publisher, author, repository
 - All `package.nls*.json` files - Display names and descriptions
@@ -79,6 +84,7 @@ Klaus Code preserves full Claude Code OAuth integration that was removed from up
 ### 4. Version Numbering
 
 Klaus Code uses fork-specific versioning:
+
 - Format: `<upstream-version>-klaus.<fork-increment>`
 - Example: `3.42.0-klaus.1`
 
@@ -102,43 +108,48 @@ git branch -r | grep roocode
 ### Recommended Merge Process
 
 1. **Before merging**: Document current Klaus Code-specific state
-   ```bash
-   git log --oneline origin/main..HEAD > klaus-specific-commits.txt
-   git diff roocode/main HEAD -- src/integrations/claude-code/ > claude-code-diff.patch
-   ```
+
+    ```bash
+    git log --oneline origin/main..HEAD > klaus-specific-commits.txt
+    git diff roocode/main HEAD -- src/integrations/claude-code/ > claude-code-diff.patch
+    ```
 
 2. **Create merge branch**:
-   ```bash
-   git checkout -b merge-upstream-<date>
-   git fetch roocode
-   git merge roocode/main
-   ```
+
+    ```bash
+    git checkout -b merge-upstream-<date>
+    git fetch roocode
+    git merge roocode/main
+    ```
 
 3. **Resolve conflicts** - prioritize Klaus Code features:
-   - Claude Code provider files: Keep Klaus Code version
-   - Tool name prefixing: Keep Klaus Code version
-   - Branding: Keep Klaus Code version
-   - Other conflicts: Evaluate case-by-case
+
+    - Claude Code provider files: Keep Klaus Code version
+    - Tool name prefixing: Keep Klaus Code version
+    - Branding: Keep Klaus Code version
+    - Other conflicts: Evaluate case-by-case
 
 4. **Test after merge**:
-   ```bash
-   pnpm install
-   pnpm check-types
-   pnpm test
-   pnpm vsix
-   code --install-extension bin/klaus-code-*.vsix
-   ```
+
+    ```bash
+    pnpm install
+    pnpm check-types
+    pnpm test
+    pnpm vsix
+    code --install-extension bin/klaus-code-*.vsix
+    ```
 
 5. **Manual testing**:
-   - Test Claude Code OAuth login flow
-   - Test tool use with Claude Code provider
-   - Verify rate limit dashboard shows correctly
-   - Test other providers to ensure no regression
+
+    - Test Claude Code OAuth login flow
+    - Test tool use with Claude Code provider
+    - Verify rate limit dashboard shows correctly
+    - Test other providers to ensure no regression
 
 6. **Update version** in `src/package.json`:
-   ```json
-   "version": "<new-upstream-version>-klaus.1"
-   ```
+    ```json
+    "version": "<new-upstream-version>-klaus.1"
+    ```
 
 ---
 
@@ -203,6 +214,7 @@ pnpm install
 ```
 
 This will:
+
 - Install all workspace dependencies
 - Run bootstrap scripts
 - Set up husky git hooks
@@ -283,72 +295,128 @@ cd webview-ui && npx vitest run src/path/to/test.test.ts
 
 ## Creating a Release
 
-### 1. Build the VSIX
+### Release Checklist
+
+Before releasing, ensure you update the following files:
+
+1. **`webview-ui/src/i18n/locales/en/chat.json`** - Update `announcement.release` section with new release notes:
+
+    ```json
+    "announcement": {
+        "release": {
+            "heading": "What's New:",
+            "item1": "Description of change 1",
+            "item2": "Description of change 2",
+            "item3": "Description of change 3"
+        },
+        "repo": "View the project on <repoLink>GitHub</repoLink>"
+    }
+    ```
+
+2. **`webview-ui/src/components/chat/Announcement.tsx`** - Update the component if needed to match new release content
+
+3. **`src/core/webview/ClineProvider.ts`** - Update `latestAnnouncementId`:
+
+    ```typescript
+    public readonly latestAnnouncementId = "jan-2026-v3.43.0-klaus-code-release"
+    ```
+
+    Format: `MMM-YYYY-vX.Y.Z-klaus-code-release`
+
+4. **`src/package.json`** - Update version number:
+    ```json
+    "version": "3.43.0-klaus.1"
+    ```
+
+### Release Process
+
+#### 1. Identify Changes Since Last Release
+
+Get the last release tag:
 
 ```bash
-# Clean previous builds
-pnpm clean
+gh release list --limit 10
+```
 
-# Build everything
+View changes since last release:
+
+```bash
+git log <last-tag>..HEAD --oneline
+```
+
+#### 2. Summarize Changes
+
+Group changes by type:
+
+- **Added**: New features
+- **Changed**: Changes to existing functionality
+- **Fixed**: Bug fixes
+- **Removed**: Removed features
+
+#### 3. Create Release Branch
+
+```bash
+git checkout main
+git pull origin main
+git checkout -b release/v<version>
+```
+
+#### 4. Update Files
+
+1. Update version in `src/package.json`
+2. Update `webview-ui/src/i18n/locales/en/chat.json` with new release notes
+3. Update `src/core/webview/ClineProvider.ts` with new `latestAnnouncementId`
+4. Review and update `webview-ui/src/components/chat/Announcement.tsx` if needed
+
+#### 5. Commit and Push
+
+```bash
+git add src/package.json webview-ui/src/i18n/locales/en/chat.json src/core/webview/ClineProvider.ts
+git commit -m "chore: prepare release v<version>"
+git push origin release/v<version>
+```
+
+#### 6. Create Pull Request
+
+```bash
+gh pr create --title "Release v<version>" \
+    --body "Release preparation for v<version>." \
+    --base main --head release/v<version>
+```
+
+#### 7. Build and Test After Merge
+
+Once the release PR is merged to main:
+
+```bash
+# Clean and build
+pnpm clean
 pnpm build
 
-# Create VSIX package
+# Create VSIX
 pnpm vsix
+
+# Install locally
+code --install-extension bin/klaus-code-<version>.vsix --force
 ```
 
-### 2. Test the VSIX Locally
-
-#### Option A: Automated Installation
+#### 8. Create GitHub Release
 
 ```bash
-pnpm install:vsix
+# Create and push tag
+git checkout main
+git pull origin main
+git tag -a v<version> -m "Release v<version>"
+git push origin v<version>
 ```
 
-This will:
-- Uninstall any existing version
-- Build the latest VSIX
-- Install the new VSIX
-- Prompt you to restart VS Code
+Then create the GitHub release at https://github.com/PabloVitasso/Klaus-Code/releases:
 
-#### Option B: Manual Installation
-
-```bash
-# Install via VS Code CLI
-code --install-extension bin/klaus-code-3.42.0.vsix
-
-# Or use the VS Code UI:
-# 1. Open VS Code
-# 2. Extensions view (Ctrl+Shift+X)
-# 3. Click "..." → "Install from VSIX..."
-# 4. Select bin/klaus-code-3.42.0.vsix
-```
-
-### 3. Verify the Installation
-
-1. Open VS Code
-2. Check that "Klaus Code" appears in the activity bar
-3. Test core functionality:
-   - Create a new task
-   - Test the Claude Code provider (if configured)
-   - Verify settings panel loads
-
-### 4. Create a GitHub Release
-
-```bash
-# Tag the release
-git tag -a v3.42.0 -m "Release v3.42.0"
-
-# Push the tag
-git push origin v3.42.0
-```
-
-Then create a GitHub release:
-1. Go to https://github.com/PabloVitasso/Klaus-Code/releases
-2. Click "Draft a new release"
-3. Select the tag `v3.42.0`
-4. Upload `bin/klaus-code-3.42.0.vsix`
-5. Write release notes
-6. Publish
+1. Click "Draft a new release"
+2. Select the tag `v<version>`
+3. Upload the VSIX from `bin/klaus-code-<version>.vsix`
+4. Copy release notes from the changelog
+5. Publish
 
 ---
 
@@ -402,22 +470,26 @@ git merge roocode/main
 **If conflicts occur**, they will likely be in:
 
 **Critical files (preserve Klaus Code version):**
+
 - `src/integrations/claude-code/*` - Keep Klaus Code version entirely
 - `src/api/providers/claude-code.ts` - Keep Klaus Code version entirely
 - `packages/types/src/providers/claude-code.ts` - Keep Klaus Code version entirely
 - `webview-ui/src/components/settings/providers/ClaudeCode*.tsx` - Keep Klaus Code version
 
 **Branding files (preserve Klaus Code branding):**
+
 - `package.json`, `src/package.json` - Keep `klaus-code` name, `KlausCode` publisher
 - `*.nls*.json` - Keep "Klaus Code" display names
 - `webview-ui/src/i18n/locales/*/*.json` - Keep "Klaus Code" translations
 
 **Provider infrastructure (merge carefully):**
+
 - `src/api/index.ts` - Ensure Claude Code provider is included
 - `src/api/providers/index.ts` - Ensure Claude Code export is present
 - `src/core/config/ProviderSettingsManager.ts` - Preserve Claude Code handling
 
 **Resolution strategy:**
+
 ```bash
 # For Claude Code files, use ours
 git checkout --ours src/integrations/claude-code/
@@ -489,23 +561,26 @@ code --install-extension bin/klaus-code-*.vsix --force
 Open VS Code with the newly installed extension and test:
 
 1. **Claude Code OAuth Flow**:
-   - Go to Settings → API Provider
-   - Select "Claude Code"
-   - Click "Login with Claude Code"
-   - Verify OAuth flow completes successfully
+
+    - Go to Settings → API Provider
+    - Select "Claude Code"
+    - Click "Login with Claude Code"
+    - Verify OAuth flow completes successfully
 
 2. **Tool Use with Claude Code**:
-   - Create a new task
-   - Ask it to read a file or execute a command
-   - Verify tools work correctly (no OAuth rejection errors)
+
+    - Create a new task
+    - Ask it to read a file or execute a command
+    - Verify tools work correctly (no OAuth rejection errors)
 
 3. **Rate Limit Dashboard**:
-   - With Claude Code provider selected
-   - Verify rate limit info displays in settings
+
+    - With Claude Code provider selected
+    - Verify rate limit info displays in settings
 
 4. **Other Providers** (regression testing):
-   - Test at least one other provider (e.g., Anthropic API)
-   - Ensure no regressions in other functionality
+    - Test at least one other provider (e.g., Anthropic API)
+    - Ensure no regressions in other functionality
 
 #### 11. Push and Create PR
 
@@ -640,5 +715,5 @@ For more details, see [CLAUDE.md](CLAUDE.md) for AI-specific development guidanc
 
 ---
 
-*Last updated: 2026-01-23*
-*Divergence tracking added: 2026-01-23*
+_Last updated: 2026-01-23_
+_Divergence tracking added: 2026-01-23_
