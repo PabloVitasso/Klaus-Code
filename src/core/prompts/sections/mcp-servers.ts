@@ -1,12 +1,6 @@
-import { DiffStrategy } from "../../../shared/tools"
 import { McpHub } from "../../../services/mcp/McpHub"
 
-export async function getMcpServersSection(
-	mcpHub?: McpHub,
-	diffStrategy?: DiffStrategy,
-	enableMcpServerCreation?: boolean,
-	includeToolDescriptions: boolean = true,
-): Promise<string> {
+export async function getMcpServersSection(mcpHub?: McpHub, includeToolDescriptions: boolean = true): Promise<string> {
 	if (!mcpHub) {
 		return ""
 	}
@@ -70,18 +64,5 @@ ${toolAccessInstructions}
 
 ${connectedServers}`
 
-	if (!enableMcpServerCreation) {
-		return baseSection
-	}
-
-	return (
-		baseSection +
-		`
-## Creating an MCP Server
-
-The user may ask you something along the lines of "add a tool" that does some function, in other words to create an MCP server that provides tools and resources that may connect to external APIs for example. If they do, you should obtain detailed instructions on this topic using the fetch_instructions tool, like this:
-<fetch_instructions>
-<task>create_mcp_server</task>
-</fetch_instructions>`
-	)
+	return baseSection
 }

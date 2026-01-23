@@ -1448,10 +1448,6 @@ export const webviewMessageHandler = async (
 			}
 			break
 		}
-		case "enableMcpServerCreation":
-			await updateGlobalState("enableMcpServerCreation", message.bool ?? true)
-			await provider.postStateToWebview()
-			break
 		case "remoteControlEnabled":
 			try {
 				await CloudService.instance.updateUserSettings({ extensionBridgeEnabled: message.bool ?? false })

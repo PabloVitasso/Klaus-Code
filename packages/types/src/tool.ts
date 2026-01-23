@@ -32,7 +32,6 @@ export const toolNames = [
 	"attempt_completion",
 	"switch_mode",
 	"new_task",
-	"fetch_instructions",
 	"codebase_search",
 	"update_todo_list",
 	"run_slash_command",

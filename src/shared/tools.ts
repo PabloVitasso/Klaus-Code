@@ -100,7 +100,6 @@ export type NativeToolArgs = {
 	}
 	browser_action: BrowserActionParams
 	codebase_search: { query: string; path?: string }
-	fetch_instructions: { task: string }
 	generate_image: GenerateImageParams
 	run_slash_command: { command: string; args?: string }
 	search_files: { path: string; regex: string; file_pattern?: string | null }
@@ -162,11 +161,6 @@ export interface ExecuteCommandToolUse extends ToolUse<"execute_command"> {
 export interface ReadFileToolUse extends ToolUse<"read_file"> {
 	name: "read_file"
 	params: Partial<Pick<Record<ToolParamName, string>, "args" | "path" | "start_line" | "end_line" | "files">>
-}
-
-export interface FetchInstructionsToolUse extends ToolUse<"fetch_instructions"> {
-	name: "fetch_instructions"
-	params: Partial<Pick<Record<ToolParamName, string>, "task">>
 }
 
 export interface WriteToFileToolUse extends ToolUse<"write_to_file"> {
@@ -244,7 +238,6 @@ export type ToolGroupConfig = {
 export const TOOL_DISPLAY_NAMES: Record<ToolName, string> = {
 	execute_command: "run commands",
 	read_file: "read files",
-	fetch_instructions: "fetch instructions",
 	write_to_file: "write files",
 	apply_diff: "apply changes",
 	search_and_replace: "apply changes using search and replace",
@@ -270,7 +263,7 @@ export const TOOL_DISPLAY_NAMES: Record<ToolName, string> = {
 // Define available tool groups.
 export const TOOL_GROUPS: Record<ToolGroup, ToolGroupConfig> = {
 	read: {
-		tools: ["read_file", "fetch_instructions", "search_files", "list_files", "codebase_search"],
+		tools: ["read_file", "search_files", "list_files", "codebase_search"],
 	},
 	edit: {
 		tools: ["apply_diff", "write_to_file", "generate_image"],

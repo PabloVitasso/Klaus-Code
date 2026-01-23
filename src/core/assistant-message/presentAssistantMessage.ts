@@ -15,7 +15,6 @@ import { experiments, EXPERIMENT_IDS } from "../../shared/experiments"
 import { AskIgnoredError } from "../task/AskIgnoredError"
 import { Task } from "../task/Task"
 
-import { fetchInstructionsTool } from "../tools/FetchInstructionsTool"
 import { listFilesTool } from "../tools/ListFilesTool"
 import { readFileTool } from "../tools/ReadFileTool"
 import { writeToFileTool } from "../tools/WriteToFileTool"
@@ -364,8 +363,6 @@ export async function presentAssistantMessage(cline: Task) {
 							return readFileTool.getReadFileToolDescription(block.name, block.nativeArgs)
 						}
 						return readFileTool.getReadFileToolDescription(block.name, block.params)
-					case "fetch_instructions":
-						return `[${block.name} for '${block.params.task}']`
 					case "write_to_file":
 						return `[${block.name} for '${block.params.path}']`
 					case "apply_diff":
@@ -809,13 +806,6 @@ export async function presentAssistantMessage(cline: Task) {
 						pushToolResult,
 					})
 					break
-				case "fetch_instructions":
-					await fetchInstructionsTool.handle(cline, block as ToolUse<"fetch_instructions">, {
-						askApproval,
-						handleError,
-						pushToolResult,
-					})
-					break
 				case "list_files":
 					await listFilesTool.handle(cline, block as ToolUse<"list_files">, {
 						askApproval,
@@ -1090,7 +1080,6 @@ function containsXmlToolMarkup(text: string): boolean {
 		"codebase_search",
 		"edit_file",
 		"execute_command",
-		"fetch_instructions",
 		"generate_image",
 		"list_files",
 		"new_task",

@@ -212,7 +212,6 @@ describe("addCustomInstructions", () => {
 			undefined, // globalCustomInstructions
 			undefined, // diffEnabled
 			undefined, // experiments
-			true, // enableMcpServerCreation
 			undefined, // language
 			undefined, // rooIgnoreInstructions
 			undefined, // partialReadsEnabled
@@ -235,7 +234,6 @@ describe("addCustomInstructions", () => {
 			undefined, // globalCustomInstructions
 			undefined, // diffEnabled
 			undefined, // experiments
-			true, // enableMcpServerCreation
 			undefined, // language
 			undefined, // rooIgnoreInstructions
 			undefined, // partialReadsEnabled
@@ -244,7 +242,7 @@ describe("addCustomInstructions", () => {
 		expect(prompt).toMatchFileSnapshot("./__snapshots__/add-custom-instructions/ask-mode-prompt.snap")
 	})
 
-	it("should include MCP server creation info when enabled", async () => {
+	it("should include MCP server info when enabled", async () => {
 		const mockMcpHub = createMockMcpHub(true)
 
 		const prompt = await SYSTEM_PROMPT(
@@ -260,13 +258,14 @@ describe("addCustomInstructions", () => {
 			undefined, // globalCustomInstructions
 			undefined, // diffEnabled
 			undefined, // experiments
-			true, // enableMcpServerCreation
 			undefined, // language
 			undefined, // rooIgnoreInstructions
 			undefined, // partialReadsEnabled
 		)
 
-		expect(prompt).toContain("Creating an MCP Server")
+		// MCP server section should be present with connected servers info
+		expect(prompt).toContain("MCP SERVERS")
+		expect(prompt).toContain("Connected MCP Servers")
 		expect(prompt).toMatchFileSnapshot("./__snapshots__/add-custom-instructions/mcp-server-creation-enabled.snap")
 	})
 
@@ -286,7 +285,6 @@ describe("addCustomInstructions", () => {
 			undefined, // globalCustomInstructions
 			undefined, // diffEnabled
 			undefined, // experiments
-			false, // enableMcpServerCreation
 			undefined, // language
 			undefined, // rooIgnoreInstructions
 			undefined, // partialReadsEnabled
@@ -310,7 +308,6 @@ describe("addCustomInstructions", () => {
 			undefined, // globalCustomInstructions
 			undefined, // diffEnabled
 			undefined, // experiments
-			true, // enableMcpServerCreation
 			undefined, // language
 			undefined, // rooIgnoreInstructions
 			true, // partialReadsEnabled

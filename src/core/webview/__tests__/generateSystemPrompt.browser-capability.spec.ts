@@ -62,7 +62,6 @@ function makeProviderStub() {
 			mcpEnabled: false,
 			fuzzyMatchThreshold: 1.0,
 			experiments: {},
-			enableMcpServerCreation: false,
 			browserToolEnabled: true, // critical: enabled in settings
 			language: "en",
 			maxReadFileLine: -1,

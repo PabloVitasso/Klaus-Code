@@ -449,14 +449,6 @@ export class NativeToolCallParser {
 				}
 				break
 
-			case "fetch_instructions":
-				if (partialArgs.task !== undefined) {
-					nativeArgs = {
-						task: partialArgs.task,
-					}
-				}
-				break
-
 			case "generate_image":
 				if (partialArgs.prompt !== undefined || partialArgs.path !== undefined) {
 					nativeArgs = {
@@ -732,14 +724,6 @@ export class NativeToolCallParser {
 						nativeArgs = {
 							query: args.query,
 							path: args.path,
-						} as NativeArgsFor<TName>
-					}
-					break
-
-				case "fetch_instructions":
-					if (args.task !== undefined) {
-						nativeArgs = {
-							task: args.task,
 						} as NativeArgsFor<TName>
 					}
 					break

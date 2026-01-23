@@ -227,7 +227,6 @@ describe("SYSTEM_PROMPT", () => {
 			undefined, // globalCustomInstructions
 			undefined, // diffEnabled
 			experiments,
-			true, // enableMcpServerCreation
 			undefined, // language
 			undefined, // rooIgnoreInstructions
 			undefined, // partialReadsEnabled
@@ -250,7 +249,6 @@ describe("SYSTEM_PROMPT", () => {
 			undefined, // globalCustomInstructions
 			undefined, // diffEnabled
 			experiments,
-			true, // enableMcpServerCreation
 			undefined, // language
 			undefined, // rooIgnoreInstructions
 			undefined, // partialReadsEnabled
@@ -275,7 +273,6 @@ describe("SYSTEM_PROMPT", () => {
 			undefined, // globalCustomInstructions
 			undefined, // diffEnabled
 			experiments,
-			true, // enableMcpServerCreation
 			undefined, // language
 			undefined, // rooIgnoreInstructions
 			undefined, // partialReadsEnabled
@@ -298,7 +295,6 @@ describe("SYSTEM_PROMPT", () => {
 			undefined, // globalCustomInstructions
 			undefined, // diffEnabled
 			experiments,
-			true, // enableMcpServerCreation
 			undefined, // language
 			undefined, // rooIgnoreInstructions
 			undefined, // partialReadsEnabled
@@ -321,7 +317,6 @@ describe("SYSTEM_PROMPT", () => {
 			undefined, // globalCustomInstructions
 			undefined, // diffEnabled
 			experiments,
-			true, // enableMcpServerCreation
 			undefined, // language
 			undefined, // rooIgnoreInstructions
 			undefined, // partialReadsEnabled
@@ -344,7 +339,6 @@ describe("SYSTEM_PROMPT", () => {
 			undefined, // globalCustomInstructions
 			true, // diffEnabled
 			experiments,
-			true, // enableMcpServerCreation
 			undefined, // language
 			undefined, // rooIgnoreInstructions
 			undefined, // partialReadsEnabled
@@ -370,7 +364,6 @@ describe("SYSTEM_PROMPT", () => {
 			undefined, // globalCustomInstructions
 			false, // diffEnabled
 			experiments,
-			true, // enableMcpServerCreation
 			undefined, // language
 			undefined, // rooIgnoreInstructions
 			undefined, // partialReadsEnabled
@@ -396,7 +389,6 @@ describe("SYSTEM_PROMPT", () => {
 			undefined, // globalCustomInstructions
 			undefined, // diffEnabled
 			experiments,
-			true, // enableMcpServerCreation
 			undefined, // language
 			undefined, // rooIgnoreInstructions
 			undefined, // partialReadsEnabled
@@ -449,7 +441,6 @@ describe("SYSTEM_PROMPT", () => {
 			undefined, // globalCustomInstructions
 			undefined, // diffEnabled
 			undefined, // experiments
-			true, // enableMcpServerCreation
 			undefined, // language
 			undefined, // rooIgnoreInstructions
 			undefined, // partialReadsEnabled
@@ -510,7 +501,6 @@ describe("SYSTEM_PROMPT", () => {
 			"Global instructions", // globalCustomInstructions
 			undefined, // diffEnabled
 			experiments,
-			true, // enableMcpServerCreation
 			undefined, // language
 			undefined, // rooIgnoreInstructions
 			undefined, // partialReadsEnabled
@@ -548,7 +538,6 @@ describe("SYSTEM_PROMPT", () => {
 			undefined, // globalCustomInstructions
 			undefined, // diffEnabled
 			undefined, // experiments
-			false, // enableMcpServerCreation
 			undefined, // language
 			undefined, // rooIgnoreInstructions
 			undefined, // partialReadsEnabled
@@ -581,7 +570,6 @@ describe("SYSTEM_PROMPT", () => {
 			undefined, // globalCustomInstructions
 			undefined, // diffEnabled
 			undefined, // experiments
-			false, // enableMcpServerCreation
 			undefined, // language
 			undefined, // rooIgnoreInstructions
 			undefined, // partialReadsEnabled
@@ -612,7 +600,6 @@ describe("SYSTEM_PROMPT", () => {
 			undefined, // globalCustomInstructions
 			undefined, // diffEnabled
 			experiments,
-			true, // enableMcpServerCreation
 			undefined, // language
 			undefined, // rooIgnoreInstructions
 			undefined, // partialReadsEnabled
@@ -645,7 +632,6 @@ describe("SYSTEM_PROMPT", () => {
 			undefined, // globalCustomInstructions
 			undefined, // diffEnabled
 			experiments,
-			true, // enableMcpServerCreation
 			undefined, // language
 			undefined, // rooIgnoreInstructions
 			undefined, // partialReadsEnabled
@@ -678,7 +664,6 @@ describe("SYSTEM_PROMPT", () => {
 			undefined, // globalCustomInstructions
 			undefined, // diffEnabled
 			experiments,
-			true, // enableMcpServerCreation
 			undefined, // language
 			undefined, // rooIgnoreInstructions
 			undefined, // partialReadsEnabled
@@ -711,7 +696,6 @@ describe("SYSTEM_PROMPT", () => {
 			undefined, // globalCustomInstructions
 			undefined, // diffEnabled
 			experiments,
-			true, // enableMcpServerCreation
 			undefined, // language
 			undefined, // rooIgnoreInstructions
 			undefined, // partialReadsEnabled

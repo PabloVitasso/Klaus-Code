@@ -365,7 +365,6 @@ export type ExtensionState = Pick<
 	experiments: Experiments // Map of experiment IDs to their enabled state
 
 	mcpEnabled: boolean
-	enableMcpServerCreation: boolean
 
 	mode: string
 	customModes: ModeConfig[]
@@ -505,7 +504,6 @@ export interface WebviewMessage {
 		| "deleteMessageConfirm"
 		| "submitEditedMessage"
 		| "editMessageConfirm"
-		| "enableMcpServerCreation"
 		| "remoteControlEnabled"
 		| "taskSyncEnabled"
 		| "searchCommits"
@@ -786,7 +784,6 @@ export interface ClineSayTool {
 		| "newFileCreated"
 		| "codebaseSearch"
 		| "readFile"
-		| "fetchInstructions"
 		| "listFilesTopLevel"
 		| "listFilesRecursive"
 		| "searchFiles"

@@ -55,7 +55,6 @@ async function generatePrompt(
 	globalCustomInstructions?: string,
 	diffEnabled?: boolean,
 	experiments?: Record<string, boolean>,
-	enableMcpServerCreation?: boolean,
 	language?: string,
 	rooIgnoreInstructions?: string,
 	partialReadsEnabled?: boolean,
@@ -84,9 +83,7 @@ async function generatePrompt(
 
 	const [modesSection, mcpServersSection, skillsSection] = await Promise.all([
 		getModesSection(context),
-		shouldIncludeMcp
-			? getMcpServersSection(mcpHub, effectiveDiffStrategy, enableMcpServerCreation, false)
-			: Promise.resolve(""),
+		shouldIncludeMcp ? getMcpServersSection(mcpHub, false) : Promise.resolve(""),
 		getSkillsSection(skillsManager, mode as string),
 	])
 
@@ -135,7 +132,6 @@ export const SYSTEM_PROMPT = async (
 	globalCustomInstructions?: string,
 	diffEnabled?: boolean,
 	experiments?: Record<string, boolean>,
-	enableMcpServerCreation?: boolean,
 	language?: string,
 	rooIgnoreInstructions?: string,
 	partialReadsEnabled?: boolean,
@@ -208,7 +204,6 @@ ${customInstructions}`
 		globalCustomInstructions,
 		diffEnabled,
 		experiments,
-		enableMcpServerCreation,
 		language,
 		rooIgnoreInstructions,
 		partialReadsEnabled,
