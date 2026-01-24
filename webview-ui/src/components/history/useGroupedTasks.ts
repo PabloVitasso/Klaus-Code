@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from "react"
-import type { HistoryItem } from "@roo-code/types"
+import type { HistoryItem } from "@klaus-code/types"
 import type { DisplayHistoryItem, TaskGroup, GroupedTasksResult } from "./types"
 
 /**
