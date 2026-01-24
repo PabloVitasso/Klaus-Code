@@ -149,8 +149,8 @@ Tokens are valid for 90 days. The CLI will prompt you to re-authenticate when yo
 
 | Option                            | Description                                                                             | Default                       |
 | --------------------------------- | --------------------------------------------------------------------------------------- | ----------------------------- |
-| `[prompt]` | Your prompt (positional argument, optional) | None |
-| `-w, --workspace <path>` | Workspace path to operate in | Current directory |
+| `[prompt]`                        | Your prompt (positional argument, optional)                                             | None                          |
+| `-w, --workspace <path>`          | Workspace path to operate in                                                            | Current directory             |
 | `-e, --extension <path>`          | Path to the extension bundle directory                                                  | Auto-detected                 |
 | `-d, --debug`                     | Enable debug output (includes detailed debug information, prompts, paths, etc)          | `false`                       |
 | `-x, --exit-on-complete`          | Exit the process when task completes (useful for testing)                               | `false`                       |
@@ -167,7 +167,7 @@ Tokens are valid for 90 days. The CLI will prompt you to re-authenticate when yo
 
 | Command           | Description                        |
 | ----------------- | ---------------------------------- |
-| `roo auth login`  | Authenticate with Klaus Code Cloud   |
+| `roo auth login`  | Authenticate with Klaus Code Cloud |
 | `roo auth logout` | Clear stored authentication token  |
 | `roo auth status` | Show current authentication status |
 
@@ -185,8 +185,8 @@ The CLI will look for API keys in environment variables if not provided via `--a
 
 **Authentication Environment Variables:**
 
-| Variable          | Description                                                          |
-| ----------------- | -------------------------------------------------------------------- |
+| Variable          | Description                                                            |
+| ----------------- | ---------------------------------------------------------------------- |
 | `ROO_WEB_APP_URL` | Override the Klaus Code Cloud URL (default: `https://app.roocode.com`) |
 
 ## Architecture
