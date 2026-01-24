@@ -583,6 +583,29 @@ Before starting a merge, review the [Fork Divergence from Upstream](#fork-diverg
 
 This is the **recommended procedure** for merging upstream changes.
 
+**💡 Pro Tip - Batching Strategy:**
+
+You don't need to merge commits one-by-one. **Batch safe commits together:**
+
+1. **Identify HIGH RISK commits** (tool calling, provider changes, OAuth)
+2. **Batch all LOW/MEDIUM risk commits** into mega-batches
+3. **Merge HIGH RISK commits individually** for careful review
+
+Example from 2026-01-24 merge:
+
+- 21 commits total
+- Batched 18 safe commits → 1 merge cycle (86% done!)
+- Left 3 HIGH RISK commits for individual merging
+
+**Mega-Batch Command:**
+
+```bash
+# Skip HIGH RISK commits 8, 9, 16 and batch the rest
+git cherry-pick commit1 commit2 ... commit7 commit10 ... commit15 commit17 ... commit21
+```
+
+This saves time while maintaining safety on critical changes.
+
 #### Phase 1: Preparation
 
 **1. Create Tracking Document**
@@ -654,6 +677,35 @@ git cherry-pick abc1234567890abcdef1234567890abcdef1234
 # - For provider infrastructure: ensure Claude Code provider is included
 # - For branding: keep Klaus Code branding
 # - Document conflicts in tracking file
+```
+
+**💡 Lessons Learned - Branding Conflicts:**
+
+After cherry-picking commits, branding issues (`@roo-code` → `@klaus-code`) may appear in:
+
+- Import statements in TypeScript/TSX files
+- Type references
+
+**Quick fix with sed:**
+
+```bash
+# Find all files with wrong branding in imports
+find . -type f \( -name "*.ts" -o -name "*.tsx" \) -exec grep -l "@roo-code" {} \;
+
+# Fix all at once - safer to target specific import lines
+sed -i 's/@roo-code\/types/@klaus-code\/types/g' path/to/file.ts
+sed -i 's/@roo-code\/telemetry/@klaus-code\/telemetry/g' path/to/file.ts
+
+# Or fix all at once (use with caution):
+find src webview-ui -type f \( -name "*.ts" -o -name "*.tsx" \) \
+  -exec sed -i 's/@roo-code\//@klaus-code\//g' {} \;
+```
+
+**Always verify after bulk changes:**
+
+```bash
+pnpm check-types  # Catch any remaining branding issues
+grep -r "@roo-code" src/ webview-ui/  # Verify all fixed
 ```
 
 **3. Resolve Conflicts (if any)**
