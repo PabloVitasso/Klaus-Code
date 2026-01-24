@@ -559,9 +559,379 @@ gh release upload v3.42.0-klaus.2 bin/klaus-code-3.42.0-klaus.2.vsix \
 
 Klaus Code periodically merges improvements from upstream Roo Code. Follow this process to safely integrate upstream changes while preserving Klaus Code-specific features.
 
+### Merge Strategy
+
+We use a **commit-by-commit merge strategy** where each upstream commit is:
+
+1. Merged individually on its own branch
+2. Tested thoroughly with automated and manual tests
+3. Built into a test VSIX package
+4. Documented in a tracking file
+
+This approach provides:
+
+- **Granular control** - Easy to identify which commit causes issues
+- **Incremental testing** - Problems caught early before they compound
+- **Rollback safety** - Can skip problematic commits without blocking others
+- **Clear audit trail** - Each commit's impact is documented
+
 ### Pre-Merge Checklist
 
 Before starting a merge, review the [Fork Divergence from Upstream](#fork-divergence-from-upstream) section to understand what must be preserved.
+
+### Commit-by-Commit Merge Process
+
+This is the **recommended procedure** for merging upstream changes.
+
+#### Phase 1: Preparation
+
+**1. Create Tracking Document**
+
+```bash
+# Ensure you're on main and up to date
+git checkout main
+git pull origin main
+
+# Fetch latest from upstream
+git fetch roocode
+
+# Find the last merged commit (look for "Merge upstream" in history)
+git log --oneline --grep="Merge upstream" -n 1
+
+# Get the list of new commits (replace LAST_MERGED_COMMIT with actual hash)
+git log --format="%H|%h|%s|%an|%ad" --date=short --reverse LAST_MERGED_COMMIT..roocode/main
+
+# Create tracking document
+mkdir -p docs
+# Document name format: docs/YYYY.MM.DD-merge-upstream.md
+```
+
+**2. Populate Tracking Document**
+
+Create `docs/YYYY.MM.DD-merge-upstream.md` with:
+
+- List of all commits (oldest to newest)
+- Risk assessment for each commit:
+    - 🟢 **LOW RISK** - Safe, minimal conflicts expected
+    - 🟡 **MEDIUM RISK** - Review carefully, may affect related systems
+    - 🔴 **HIGH RISK** - Critical review, may impact Claude Code provider/OAuth
+- Files to check for each commit
+- Testing checklist
+- Merge status tracking (⏳ PENDING, ✅ MERGED, ⚠️ CONFLICT, ❌ FAILED)
+
+See [docs/2026.01.24-merge-upstream.md](docs/2026.01.24-merge-upstream.md) as a template.
+
+**3. Review Critical Areas**
+
+Before merging, review what must be protected:
+
+- Claude Code provider implementation
+- OAuth flow
+- Tool name prefixing (`oc_` prefix in streaming-client)
+- Klaus Code branding
+
+#### Phase 2: Individual Commit Merges
+
+For each commit in the tracking document:
+
+**1. Create Merge Branch**
+
+```bash
+# Branch naming: merge-upstream-<short-commit-hash>
+git checkout main
+git pull origin main
+git checkout -b merge-upstream-abc1234
+```
+
+**2. Cherry-Pick the Commit**
+
+```bash
+# Cherry-pick the specific commit from upstream
+git cherry-pick abc1234567890abcdef1234567890abcdef1234
+
+# If conflicts occur, resolve them carefully:
+# - For Claude Code files: prefer Klaus Code version
+# - For provider infrastructure: ensure Claude Code provider is included
+# - For branding: keep Klaus Code branding
+# - Document conflicts in tracking file
+```
+
+**3. Resolve Conflicts (if any)**
+
+**Critical files - preserve Klaus Code version:**
+
+```bash
+git checkout --ours src/integrations/claude-code/
+git checkout --ours src/api/providers/claude-code.ts
+# Manually review and resolve other conflicts
+```
+
+**Provider infrastructure - merge carefully:**
+
+- Check `src/api/index.ts` includes Claude Code provider
+- Verify `src/api/providers/index.ts` exports Claude Code
+- Ensure settings UI includes Claude Code
+
+**4. Verify Critical Features**
+
+```bash
+# Check Claude Code provider files exist
+ls src/integrations/claude-code/
+ls src/api/providers/claude-code.ts
+
+# Check tool name prefixing code is intact
+grep "TOOL_NAME_PREFIX" src/integrations/claude-code/streaming-client.ts
+grep "prefixToolName" src/integrations/claude-code/streaming-client.ts
+
+# Verify branding
+grep '"klaus-code"' src/package.json
+```
+
+**5. Run Automated Tests**
+
+```bash
+# Install dependencies (if package.json changed)
+pnpm install
+
+# Type checking
+pnpm check-types
+
+# Run all tests
+pnpm test
+
+# Run Claude Code specific tests
+cd src && npx vitest run integrations/claude-code/__tests__/
+cd ..
+```
+
+**6. Create Test Build**
+
+```bash
+# Clean and build
+pnpm clean
+pnpm build
+
+# Create VSIX with commit hash in filename
+pnpm vsix
+
+# Rename to include commit hash
+# Format: klaus-code-<version>-<commit-hash>.vsix
+mv bin/klaus-code-*.vsix bin/klaus-code-3.43.0-klaus.1-abc1234.vsix
+
+# Install for manual testing
+code --install-extension bin/klaus-code-3.43.0-klaus.1-abc1234.vsix --force
+```
+
+**7. Manual Testing**
+
+Test the following in VS Code with the installed extension:
+
+**Claude Code OAuth Flow:**
+
+- Settings → API Provider → Select "Claude Code"
+- Click "Login with Claude Code"
+- Verify OAuth completes successfully
+
+**Tool Use with Claude Code:**
+
+- Create a new task
+- Ask it to read a file: "What's in the README?"
+- Ask it to execute a command: "List the files in this directory"
+- Verify tools work (no OAuth rejection errors)
+- Check console for tool name prefixing (should see `oc_` prefix in requests)
+
+**Rate Limit Dashboard:**
+
+- With Claude Code provider selected
+- Verify rate limit info displays in settings
+
+**Regression Testing:**
+
+- Test another provider (e.g., Anthropic API)
+- Ensure no regressions in core functionality
+
+**8. Update Tracking Document**
+
+Mark the commit status:
+
+- ✅ **MERGED** - Successfully merged and tested
+- ⚠️ **CONFLICT** - Had conflicts, document resolution approach
+- ❌ **FAILED** - Merge caused test failures or critical issues
+
+Add notes about:
+
+- Conflicts encountered and how resolved
+- Test results
+- Any issues found
+- Manual testing observations
+
+**9. Push Branch (Optional)**
+
+```bash
+# Push the test branch for review or backup
+git push origin merge-upstream-abc1234
+```
+
+**10. Repeat for Next Commit**
+
+Start over at step 1 for the next commit in the tracking document.
+
+#### Phase 3: Final Integration
+
+Once all commits are merged individually:
+
+**1. Create Final Merge Branch**
+
+```bash
+git checkout main
+git pull origin main
+git checkout -b merge-upstream-YYYYMMDD-final
+```
+
+**2. Cherry-Pick All Merged Commits**
+
+```bash
+# Cherry-pick all commits in order
+git cherry-pick abc1234..xyz9876
+```
+
+**3. Update Version**
+
+Edit `src/package.json`:
+
+```json
+{
+	"version": "3.43.0-klaus.1"
+}
+```
+
+**4. Update Announcement**
+
+Update files for new release (see [Creating a Release](#creating-a-release)):
+
+- `webview-ui/src/i18n/locales/en/chat.json`
+- `src/core/webview/ClineProvider.ts` (`latestAnnouncementId`)
+
+**5. Final Testing**
+
+Run complete test suite one more time:
+
+```bash
+pnpm install
+pnpm check-types
+pnpm test
+cd src && npx vitest run integrations/claude-code/__tests__/
+cd ..
+pnpm clean && pnpm vsix
+code --install-extension bin/klaus-code-*.vsix --force
+```
+
+Perform full manual testing as described in Phase 2, step 7.
+
+**6. Commit and Push**
+
+```bash
+git add .
+git commit -m "chore: merge upstream Roo Code changes ($(date +%Y-%m-%d))
+
+Merged commits:
+- abc1234: Feature 1
+- def5678: Feature 2
+- xyz9876: Feature 3
+
+See docs/YYYY.MM.DD-merge-upstream.md for detailed tracking."
+
+git push origin merge-upstream-YYYYMMDD-final
+```
+
+**7. Create Pull Request**
+
+```bash
+gh pr create --base main \
+  --title "Merge upstream Roo Code changes ($(date +%Y-%m-%d))" \
+  --body "## Overview
+
+Merges upstream changes from Roo Code.
+
+## Tracking Document
+
+See \`docs/YYYY.MM.DD-merge-upstream.md\` for detailed commit-by-commit tracking.
+
+## Changes
+
+- X commits merged
+- Y high-risk commits reviewed carefully
+- All tests passing
+- Manual testing completed
+
+## Testing
+
+- [x] Type checking passed
+- [x] All automated tests passed
+- [x] Claude Code OAuth flow tested
+- [x] Tool use with Claude Code tested
+- [x] Rate limit dashboard tested
+- [x] Regression testing completed
+
+## Claude Code Provider
+
+- [x] Provider files unchanged/reviewed
+- [x] OAuth flow works correctly
+- [x] Tool name prefixing intact
+- [x] No regressions"
+```
+
+#### Phase 4: Handling Failed Commits
+
+If a commit cannot be merged safely:
+
+**1. Document the Issue**
+
+In the tracking document:
+
+- Mark as ❌ **FAILED**
+- Document why it failed
+- Note if it blocks other commits
+- Decide: Skip, fix later, or requires upstream discussion
+
+**2. Skip and Continue**
+
+```bash
+# Skip the problematic commit
+git cherry-pick --skip
+# Or abort and continue with next commit
+git cherry-pick --abort
+```
+
+**3. Create Issue for Follow-up**
+
+```bash
+gh issue create --title "Upstream commit abc1234 conflicts with Klaus Code" \
+  --body "Commit abc1234 from upstream cannot be merged cleanly.
+
+**Issue:** [description]
+**Impact:** [what features are affected]
+**Action needed:** [skip permanently / needs custom implementation / upstream discussion]"
+```
+
+### Rollback Procedure
+
+If merge causes critical issues:
+
+```bash
+# Abort ongoing cherry-pick
+git cherry-pick --abort
+
+# Or reset branch to main
+git checkout main
+git branch -D merge-upstream-abc1234
+
+# Document in tracking file why rollback was needed
+```
+
+### Legacy Bulk Merge Process (Not Recommended)
+
+The following bulk merge process can be used for simple merges but is **not recommended** for complex upstream changes. Use the commit-by-commit process above instead.
 
 ### Step-by-Step Merge Process
 
