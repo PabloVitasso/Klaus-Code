@@ -506,14 +506,11 @@ export async function* createStreamingMessage(options: StreamMessageOptions): As
 	}
 
 	// System prompt as array of content blocks (Claude Code format)
-	// Prepend billing header and Claude Code branding as required by the API
+	// Prepend Claude Code branding as required by the API
 	// Add cache_control to the last text block for prompt caching
 	// System prompt caching is preserved even when thinking parameters change
+	// Note: x-anthropic-billing-header is a reserved keyword and cannot be used in system prompt
 	body.system = [
-		{
-			type: "text",
-			text: `x-anthropic-billing-header: kc_version=${Package.version}; kc_entrypoint=vscode`,
-		},
 		{ type: "text", text: "You are Claude Code, Anthropic's official CLI for Claude." },
 		...(systemPrompt ? [{ type: "text", text: systemPrompt, cache_control: { type: "ephemeral" } }] : []),
 	]
@@ -845,16 +842,11 @@ export async function fetchRateLimitInfo(accessToken: string, email?: string): P
 
 	// Build minimal request body - use haiku for speed and lowest cost
 	// Match official CLI format: model, max_tokens, messages with "quota", and metadata with user_id
+	// Note: x-anthropic-billing-header is a reserved keyword and cannot be used in system prompt
 	const body: Record<string, unknown> = {
 		model: "claude-haiku-4-5",
 		max_tokens: 1,
-		system: [
-			{
-				type: "text",
-				text: `x-anthropic-billing-header: kc_version=${Package.version}; kc_entrypoint=vscode`,
-			},
-			{ type: "text", text: "You are Claude Code, Anthropic's official CLI for Claude." },
-		],
+		system: [{ type: "text", text: "You are Claude Code, Anthropic's official CLI for Claude." }],
 		messages: [{ role: "user", content: "quota" }], // Match official CLI message content
 	}
 

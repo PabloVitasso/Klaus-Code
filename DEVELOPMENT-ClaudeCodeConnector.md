@@ -103,20 +103,9 @@ const headers: Record<string, string> = {
 - Changed Accept from `text/event-stream` to `application/json`
 - Kept `prompt-caching-2024-07-31` and `fine-grained-tool-streaming-2025-05-14` betas (NOT used by official CLI, but enabled for Klaus Code's prompt caching and tool streaming functionality)
 
-**Billing Header in System Prompt:**
+**Note on Billing Headers:**
 
-Klaus Code also adds a billing header to the system prompt for usage tracking:
-
-```typescript
-body.system = [
-	{
-		type: "text",
-		text: `x-anthropic-billing-header: kc_version=${Package.version}; kc_entrypoint=vscode`,
-	},
-	{ type: "text", text: "You are Claude Code, Anthropic's official CLI for Claude." },
-	// ... rest of system prompt
-]
-```
+`x-anthropic-billing-header` is a reserved keyword in Anthropic's API and cannot be used in system prompts. Previous attempts to include billing metadata in system prompts will result in API errors. Billing/usage tracking is handled automatically by the API based on OAuth token and request headers.
 
 ## Tool Name Prefixing Mechanism
 
