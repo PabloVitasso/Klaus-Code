@@ -35,6 +35,7 @@ export const About = ({ telemetrySetting, setTelemetrySetting, debug, setDebug, 
 					{Package.sha
 						? `Version: ${Package.version} (${Package.sha.slice(0, 8)})`
 						: `Version: ${Package.version}`}
+					{Package.branch ? ` [${Package.branch}]` : ""}
 				</p>
 				<SearchableSetting
 					settingId="about-telemetry"

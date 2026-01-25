@@ -20,6 +20,18 @@ function getGitSha() {
 	return gitSha
 }
 
+function getGitBranch() {
+	let gitBranch: string | undefined = undefined
+
+	try {
+		gitBranch = execSync("git rev-parse --abbrev-ref HEAD").toString().trim()
+	} catch (_error) {
+		// Do nothing.
+	}
+
+	return gitBranch
+}
+
 const wasmPlugin = (): Plugin => ({
 	name: "wasm",
 	async load(id) {
@@ -57,6 +69,7 @@ export default defineConfig(({ mode }) => {
 
 	const pkg = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "src", "package.json"), "utf8"))
 	const gitSha = getGitSha()
+	const gitBranch = getGitBranch()
 
 	const define: Record<string, any> = {
 		"process.platform": JSON.stringify(process.platform),
@@ -65,6 +78,7 @@ export default defineConfig(({ mode }) => {
 		"process.env.PKG_VERSION": JSON.stringify(pkg.version),
 		"process.env.PKG_OUTPUT_CHANNEL": JSON.stringify("Roo-Code"),
 		...(gitSha ? { "process.env.PKG_SHA": JSON.stringify(gitSha) } : {}),
+		...(gitBranch ? { "process.env.PKG_BRANCH": JSON.stringify(gitBranch) } : {}),
 	}
 
 	// TODO: We can use `@klaus-code/build` to generate `define` once the
