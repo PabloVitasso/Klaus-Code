@@ -41,14 +41,12 @@ describe("useMcpToolTool", () => {
 	let mockAskApproval: ReturnType<typeof vi.fn>
 	let mockHandleError: ReturnType<typeof vi.fn>
 	let mockPushToolResult: ReturnType<typeof vi.fn>
-	let mockRemoveClosingTag: ReturnType<typeof vi.fn>
 	let mockProviderRef: any
 
 	beforeEach(() => {
 		mockAskApproval = vi.fn()
 		mockHandleError = vi.fn()
 		mockPushToolResult = vi.fn()
-		mockRemoveClosingTag = vi.fn((tag: string, value?: string) => value || "")
 
 		mockProviderRef = {
 			deref: vi.fn().mockReturnValue({
