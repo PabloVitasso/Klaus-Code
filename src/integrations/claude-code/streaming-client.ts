@@ -837,10 +837,15 @@ function parseRateLimitHeaders(headers: Headers): ClaudeCodeRateLimitInfo {
 /**
  * Fetch rate limit information by making a minimal API call
  * Uses a small request to get the response headers containing rate limit data
+ * Matches official Claude Code CLI quota check request format
  */
-export async function fetchRateLimitInfo(accessToken: string): Promise<ClaudeCodeRateLimitInfo> {
+export async function fetchRateLimitInfo(accessToken: string, email?: string): Promise<ClaudeCodeRateLimitInfo> {
+	// Import generateUserId for metadata
+	const { generateUserId } = await import("./oauth")
+
 	// Build minimal request body - use haiku for speed and lowest cost
-	const body = {
+	// Match official CLI format: model, max_tokens, messages with "quota", and metadata with user_id
+	const body: Record<string, unknown> = {
 		model: "claude-haiku-4-5",
 		max_tokens: 1,
 		system: [
@@ -850,7 +855,14 @@ export async function fetchRateLimitInfo(accessToken: string): Promise<ClaudeCod
 			},
 			{ type: "text", text: "You are Claude Code, Anthropic's official CLI for Claude." },
 		],
-		messages: [{ role: "user", content: "hi" }],
+		messages: [{ role: "user", content: "quota" }], // Match official CLI message content
+	}
+
+	// Add metadata with user_id if email is provided (matches official CLI)
+	if (email) {
+		body.metadata = {
+			user_id: generateUserId(email),
+		}
 	}
 
 	// Build headers matching Claude Code CLI exactly

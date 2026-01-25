@@ -3285,8 +3285,11 @@ export const webviewMessageHandler = async (
 					break
 				}
 
+				// Get email for user_id metadata (matches official Claude Code CLI)
+				const email = await claudeCodeOAuthManager.getEmail()
+
 				const { fetchRateLimitInfo } = await import("../../integrations/claude-code/streaming-client")
-				const rateLimits = await fetchRateLimitInfo(accessToken)
+				const rateLimits = await fetchRateLimitInfo(accessToken, email || undefined)
 
 				provider.postMessageToWebview({
 					type: "claudeCodeRateLimits",
