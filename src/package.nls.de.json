@@ -6,6 +6,7 @@
 	"command.fixCode.title": "Code Reparieren",
 	"command.improveCode.title": "Code Verbessern",
 	"command.addToContext.title": "Zum Kontext Hinzufügen",
+	"command.worktrees.title": "Worktrees",
 	"command.openInNewTab.title": "In Neuem Tab Öffnen",
 	"command.focusInput.title": "Eingabefeld Fokussieren",
 	"command.setCustomStoragePath.title": "Benutzerdefinierten Speicherpfad Festlegen",

@@ -6,6 +6,7 @@
 	"command.fixCode.title": "Sửa Mã",
 	"command.improveCode.title": "Cải Thiện Mã",
 	"command.addToContext.title": "Thêm vào Ngữ Cảnh",
+	"command.worktrees.title": "Worktrees",
 	"command.openInNewTab.title": "Mở trong Tab Mới",
 	"command.focusInput.title": "Tập Trung vào Trường Nhập",
 	"command.setCustomStoragePath.title": "Đặt Đường Dẫn Lưu Trữ Tùy Chỉnh",

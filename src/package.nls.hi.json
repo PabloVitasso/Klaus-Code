@@ -6,6 +6,7 @@
 	"command.fixCode.title": "कोड ठीक करें",
 	"command.improveCode.title": "कोड सुधारें",
 	"command.addToContext.title": "संदर्भ में जोड़ें",
+	"command.worktrees.title": "Worktrees",
 	"command.openInNewTab.title": "नए टैब में खोलें",
 	"command.focusInput.title": "इनपुट फ़ील्ड पर फोकस करें",
 	"command.setCustomStoragePath.title": "कस्टम स्टोरेज पाथ सेट करें",

@@ -12,6 +12,7 @@
 	"command.cloud.title": "Cloud",
 	"command.settings.title": "Настройки",
 	"command.documentation.title": "Документация",
+	"command.worktrees.title": "Worktrees",
 	"command.openInNewTab.title": "Открыть в новой вкладке",
 	"command.explainCode.title": "Объяснить код",
 	"command.fixCode.title": "Исправить код",

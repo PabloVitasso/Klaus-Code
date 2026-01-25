@@ -6,6 +6,7 @@
 	"command.fixCode.title": "Correggi Codice",
 	"command.improveCode.title": "Migliora Codice",
 	"command.addToContext.title": "Aggiungi al Contesto",
+	"command.worktrees.title": "Worktrees",
 	"command.openInNewTab.title": "Apri in Nuova Scheda",
 	"command.focusInput.title": "Focalizza Campo di Input",
 	"command.setCustomStoragePath.title": "Imposta Percorso di Archiviazione Personalizzato",

@@ -12,6 +12,7 @@
 	"command.cloud.title": "Cloud",
 	"command.settings.title": "Pengaturan",
 	"command.documentation.title": "Dokumentasi",
+	"command.worktrees.title": "Worktrees",
 	"command.openInNewTab.title": "Buka di Tab Baru",
 	"command.explainCode.title": "Jelaskan Kode",
 	"command.fixCode.title": "Perbaiki Kode",

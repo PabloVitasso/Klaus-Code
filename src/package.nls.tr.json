@@ -6,6 +6,7 @@
 	"command.fixCode.title": "Kodu Düzelt",
 	"command.improveCode.title": "Kodu İyileştir",
 	"command.addToContext.title": "Bağlama Ekle",
+	"command.worktrees.title": "Worktrees",
 	"command.openInNewTab.title": "Yeni Sekmede Aç",
 	"command.focusInput.title": "Giriş Alanına Odaklan",
 	"command.setCustomStoragePath.title": "Özel Depolama Yolunu Ayarla",

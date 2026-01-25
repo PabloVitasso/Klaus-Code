@@ -12,6 +12,7 @@
 	"command.cloud.title": "Cloud",
 	"command.settings.title": "設定",
 	"command.documentation.title": "ドキュメント",
+	"command.worktrees.title": "Worktrees",
 	"command.openInNewTab.title": "新しいタブで開く",
 	"command.explainCode.title": "コードの説明",
 	"command.fixCode.title": "コードの修正",
