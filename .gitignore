@@ -25,6 +25,7 @@ bin/
 
 # Docs
 docs/_site/
+docs/untracked/
 
 # Dotenv
 .env

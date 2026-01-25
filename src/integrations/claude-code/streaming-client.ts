@@ -244,14 +244,29 @@ function addMessageCacheBreakpoints(messages: Anthropic.Messages.MessageParam[])
 export const CLAUDE_CODE_API_CONFIG = {
 	endpoint: "https://api.anthropic.com/v1/messages",
 	version: "2023-06-01",
+	// Beta headers - includes all betas used by Klaus Code
+	// Note: prompt-caching-2024-07-31 and fine-grained-tool-streaming-2025-05-14 are NOT used
+	// by official Claude Code CLI but are kept here for Klaus Code functionality
 	defaultBetas: [
-		"prompt-caching-2024-07-31",
-		"claude-code-20250219",
-		"oauth-2025-04-20",
-		"interleaved-thinking-2025-05-14",
-		"fine-grained-tool-streaming-2025-05-14",
+		"prompt-caching-2024-07-31", // Klaus Code specific: enables prompt caching
+		"claude-code-20250219", // Required by official Claude Code API
+		"oauth-2025-04-20", // Required for OAuth authentication
+		"interleaved-thinking-2025-05-14", // Required for extended thinking
+		"fine-grained-tool-streaming-2025-05-14", // Klaus Code specific: enables detailed tool streaming
 	],
-	userAgent: `Roo-Code/${Package.version}`,
+	// Match Claude Code CLI user agent format
+	userAgent: `klaus-code/${Package.version} (vscode, extension)`,
+	// Application identifier for Claude Code API
+	xApp: "vscode-extension",
+	// Stainless SDK headers (hardcoded to emulate official Claude Code CLI)
+	stainlessHeaders: {
+		"X-Stainless-Lang": "js",
+		"X-Stainless-Package-Version": "0.70.0",
+		"X-Stainless-OS": process.platform === "win32" ? "Windows" : process.platform === "darwin" ? "MacOS" : "Linux",
+		"X-Stainless-Arch": process.arch === "x64" ? "x64" : process.arch === "arm64" ? "arm64" : process.arch,
+		"X-Stainless-Runtime": "node",
+		"X-Stainless-Runtime-Version": process.version,
+	} as const,
 } as const
 
 /**
@@ -491,10 +506,14 @@ export async function* createStreamingMessage(options: StreamMessageOptions): As
 	}
 
 	// System prompt as array of content blocks (Claude Code format)
-	// Prepend Claude Code branding as required by the API
+	// Prepend billing header and Claude Code branding as required by the API
 	// Add cache_control to the last text block for prompt caching
 	// System prompt caching is preserved even when thinking parameters change
 	body.system = [
+		{
+			type: "text",
+			text: `x-anthropic-billing-header: kc_version=${Package.version}; kc_entrypoint=vscode`,
+		},
 		{ type: "text", text: "You are Claude Code, Anthropic's official CLI for Claude." },
 		...(systemPrompt ? [{ type: "text", text: systemPrompt, cache_control: { type: "ephemeral" } }] : []),
 	]
@@ -515,14 +534,21 @@ export async function* createStreamingMessage(options: StreamMessageOptions): As
 		body.tool_choice = prefixToolChoice(toolChoice)
 	}
 
-	// Build minimal headers
+	// Build headers matching Claude Code CLI exactly
 	const headers: Record<string, string> = {
+		Accept: "application/json",
 		Authorization: `Bearer ${accessToken}`,
 		"Content-Type": "application/json",
+		"User-Agent": CLAUDE_CODE_API_CONFIG.userAgent,
 		"Anthropic-Version": CLAUDE_CODE_API_CONFIG.version,
 		"Anthropic-Beta": CLAUDE_CODE_API_CONFIG.defaultBetas.join(","),
-		Accept: "text/event-stream",
-		"User-Agent": CLAUDE_CODE_API_CONFIG.userAgent,
+		"x-app": CLAUDE_CODE_API_CONFIG.xApp,
+		"anthropic-dangerous-direct-browser-access": "true",
+		"accept-language": "*",
+		"sec-fetch-mode": "cors",
+		"accept-encoding": "br, gzip, deflate",
+		// Add Stainless SDK headers to emulate official Claude Code CLI
+		...CLAUDE_CODE_API_CONFIG.stainlessHeaders,
 	}
 
 	// Make the request
@@ -817,17 +843,31 @@ export async function fetchRateLimitInfo(accessToken: string): Promise<ClaudeCod
 	const body = {
 		model: "claude-haiku-4-5",
 		max_tokens: 1,
-		system: [{ type: "text", text: "You are Claude Code, Anthropic's official CLI for Claude." }],
+		system: [
+			{
+				type: "text",
+				text: `x-anthropic-billing-header: kc_version=${Package.version}; kc_entrypoint=vscode`,
+			},
+			{ type: "text", text: "You are Claude Code, Anthropic's official CLI for Claude." },
+		],
 		messages: [{ role: "user", content: "hi" }],
 	}
 
-	// Build minimal headers
+	// Build headers matching Claude Code CLI exactly
 	const headers: Record<string, string> = {
+		Accept: "application/json",
 		Authorization: `Bearer ${accessToken}`,
 		"Content-Type": "application/json",
+		"User-Agent": CLAUDE_CODE_API_CONFIG.userAgent,
 		"Anthropic-Version": CLAUDE_CODE_API_CONFIG.version,
 		"Anthropic-Beta": CLAUDE_CODE_API_CONFIG.defaultBetas.join(","),
-		"User-Agent": CLAUDE_CODE_API_CONFIG.userAgent,
+		"x-app": CLAUDE_CODE_API_CONFIG.xApp,
+		"anthropic-dangerous-direct-browser-access": "true",
+		"accept-language": "*",
+		"sec-fetch-mode": "cors",
+		"accept-encoding": "br, gzip, deflate",
+		// Add Stainless SDK headers to emulate official Claude Code CLI
+		...CLAUDE_CODE_API_CONFIG.stainlessHeaders,
 	}
 
 	// Make the request

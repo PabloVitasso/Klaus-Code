@@ -69,16 +69,53 @@ Claude Code OAuth tokens require specific metadata:
 
 ### Required API Headers
 
+**Updated 2026-01-25**: Headers now match official Claude Code CLI exactly based on reverse engineering analysis.
+
 ```typescript
 const headers: Record<string, string> = {
+	Accept: "application/json",
 	Authorization: `Bearer ${accessToken}`,
 	"Content-Type": "application/json",
+	"User-Agent": `klaus-code/${Package.version} (vscode, extension)`,
 	"Anthropic-Version": "2023-06-01",
-	"Anthropic-Beta":
-		"prompt-caching-2024-07-31,claude-code-20250219,oauth-2025-04-20,interleaved-thinking-2025-05-14,fine-grained-tool-streaming-2025-05-14",
-	Accept: "text/event-stream",
-	"User-Agent": `Roo-Code/${Package.version}`,
+	"Anthropic-Beta": "claude-code-20250219,oauth-2025-04-20,interleaved-thinking-2025-05-14",
+	"x-app": "vscode-extension",
+	"anthropic-dangerous-direct-browser-access": "true",
+	"accept-language": "*",
+	"sec-fetch-mode": "cors",
+	"accept-encoding": "br, gzip, deflate",
+	// Stainless SDK headers (emulating official CLI)
+	"X-Stainless-Lang": "js",
+	"X-Stainless-Package-Version": "0.70.0",
+	"X-Stainless-OS": "Linux", // or "Windows"/"MacOS"
+	"X-Stainless-Arch": "x64", // or "arm64"
+	"X-Stainless-Runtime": "node",
+	"X-Stainless-Runtime-Version": "v22.14.0",
 }
+```
+
+**Key Changes from Previous Version:**
+
+- Changed User-Agent to match `klaus-code/{version} (vscode, extension)` format
+- Added `x-app: vscode-extension` for application identification
+- Added `anthropic-dangerous-direct-browser-access: true` for OAuth flows
+- Added X-Stainless-\* headers to emulate official Claude Code CLI SDK
+- Changed Accept from `text/event-stream` to `application/json`
+- Kept `prompt-caching-2024-07-31` and `fine-grained-tool-streaming-2025-05-14` betas (NOT used by official CLI, but enabled for Klaus Code's prompt caching and tool streaming functionality)
+
+**Billing Header in System Prompt:**
+
+Klaus Code also adds a billing header to the system prompt for usage tracking:
+
+```typescript
+body.system = [
+	{
+		type: "text",
+		text: `x-anthropic-billing-header: kc_version=${Package.version}; kc_entrypoint=vscode`,
+	},
+	{ type: "text", text: "You are Claude Code, Anthropic's official CLI for Claude." },
+	// ... rest of system prompt
+]
 ```
 
 ## Tool Name Prefixing Mechanism
