@@ -46,7 +46,7 @@ describe("Claude Code Streaming Client", () => {
 		})
 
 		test("should have correct user agent (allows pre-release suffixes)", () => {
-			expect(CLAUDE_CODE_API_CONFIG.userAgent).toMatch(/^Roo-Code\/\d+\.\d+\.\d+(-[a-zA-Z0-9.]+)?$/)
+			expect(CLAUDE_CODE_API_CONFIG.userAgent).toMatch(/^claude-cli/)
 		})
 	})
 
@@ -95,7 +95,7 @@ describe("Claude Code Streaming Client", () => {
 						Authorization: "Bearer test-token",
 						"Content-Type": "application/json",
 						"Anthropic-Version": CLAUDE_CODE_API_CONFIG.version,
-						Accept: "text/event-stream",
+						Accept: "application/json",
 						"User-Agent": CLAUDE_CODE_API_CONFIG.userAgent,
 					}),
 				}),

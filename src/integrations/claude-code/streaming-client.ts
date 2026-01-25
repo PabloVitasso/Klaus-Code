@@ -255,7 +255,7 @@ export const CLAUDE_CODE_API_CONFIG = {
 		"fine-grained-tool-streaming-2025-05-14", // Klaus Code specific: enables detailed tool streaming
 	],
 	// Match Claude Code CLI user agent format
-	userAgent: `klaus-code/${Package.version} (vscode, extension)`,
+	userAgent: `claude-cli/${Package.version} (external, cli)`,
 	// Application identifier for Claude Code API
 	xApp: "vscode-extension",
 	// Stainless SDK headers (hardcoded to emulate official Claude Code CLI)
@@ -549,7 +549,7 @@ export async function* createStreamingMessage(options: StreamMessageOptions): As
 	}
 
 	// Make the request
-	const response = await fetch(`${CLAUDE_CODE_API_CONFIG.endpoint}?beta=true`, {
+	const response = await fetch(CLAUDE_CODE_API_CONFIG.endpoint, {
 		method: "POST",
 		headers,
 		body: JSON.stringify(body),
@@ -875,7 +875,7 @@ export async function fetchRateLimitInfo(accessToken: string, email?: string): P
 	}
 
 	// Make the request
-	const response = await fetch(`${CLAUDE_CODE_API_CONFIG.endpoint}?beta=true`, {
+	const response = await fetch(CLAUDE_CODE_API_CONFIG.endpoint, {
 		method: "POST",
 		headers,
 		body: JSON.stringify(body),
