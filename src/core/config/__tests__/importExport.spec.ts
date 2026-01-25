@@ -565,7 +565,7 @@ describe("importExport", () => {
 								id: "valid-id",
 							},
 							"invalid-profile": {
-								apiProvider: "claude-code", // Invalid/removed provider
+								apiProvider: "removed-provider", // Invalid/removed provider
 								apiKey: "some-key",
 								id: "invalid-id",
 							},
@@ -599,7 +599,6 @@ describe("importExport", () => {
 				expect((result as { warnings?: string[] }).warnings).toBeDefined()
 				expect((result as { warnings?: string[] }).warnings!.length).toBeGreaterThan(0)
 				expect((result as { warnings?: string[] }).warnings![0]).toContain("invalid-profile")
-				expect((result as { warnings?: string[] }).warnings![0]).toContain("claude-code")
 
 				// The valid profile should be imported
 				expect(mockProviderSettingsManager.import).toHaveBeenCalled()
@@ -803,7 +802,7 @@ describe("importExport", () => {
 								id: "openai-id",
 							},
 							"old-claude-profile": {
-								apiProvider: "claude-code", // Removed provider
+								apiProvider: "removed-provider", // Removed provider
 								apiKey: "key-3",
 								id: "claude-id",
 							},

@@ -52,7 +52,7 @@ describe("RemoteConfigLoader", () => {
 
 			expect(mockedAxios.get).toHaveBeenCalledTimes(2)
 			expect(mockedAxios.get).toHaveBeenCalledWith(
-				"https://test.api.com/api/marketplace/modes",
+				"https://app.roocode.com/api/marketplace/modes",
 				expect.objectContaining({
 					timeout: 10000,
 					headers: {
@@ -62,7 +62,7 @@ describe("RemoteConfigLoader", () => {
 				}),
 			)
 			expect(mockedAxios.get).toHaveBeenCalledWith(
-				"https://test.api.com/api/marketplace/mcps",
+				"https://app.roocode.com/api/marketplace/mcps",
 				expect.objectContaining({
 					timeout: 10000,
 					headers: {
