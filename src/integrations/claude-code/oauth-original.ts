@@ -183,7 +183,6 @@ export async function exchangeCodeForTokens(
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
-			"User-Agent:": "axios/1.8.4",
 		},
 		body: JSON.stringify(body),
 		signal: AbortSignal.timeout(30000),
@@ -228,7 +227,6 @@ export async function refreshAccessToken(credentials: ClaudeCodeCredentials): Pr
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
-			"User-Agent:": "axios/1.8.4",
 		},
 		body: JSON.stringify(body),
 		signal: AbortSignal.timeout(30000),
