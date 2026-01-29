@@ -539,17 +539,11 @@
 		"zod": "3.25.76"
 	},
 	"devDependencies": {
-<<<<<<< HEAD
+		"@ai-sdk/openai-compatible": "^1.0.0",
+		"@openrouter/ai-sdk-provider": "^2.0.4",
 		"@klaus-code/build": "workspace:^",
 		"@klaus-code/config-eslint": "workspace:^",
 		"@klaus-code/config-typescript": "workspace:^",
-=======
-		"@ai-sdk/openai-compatible": "^1.0.0",
-		"@openrouter/ai-sdk-provider": "^2.0.4",
-		"@roo-code/build": "workspace:^",
-		"@roo-code/config-eslint": "workspace:^",
-		"@roo-code/config-typescript": "workspace:^",
->>>>>>> roocode/main
 		"@types/clone-deep": "^4.0.4",
 		"@types/debug": "^4.1.12",
 		"@types/diff": "^5.2.1",
