@@ -325,6 +325,10 @@
 			"description": "Bağlam penceresi sınırında kalmak için eski mesajlar konuşmadan kaldırıldı. Bu, yoğunlaştırmaya kıyasla hızlı ancak daha az bağlam koruyucu bir yaklaşımdır."
 		}
 	},
+	"skill": {
+		"wantsToLoad": "Roo bir beceri yüklemek istiyor",
+		"didLoad": "Roo bir beceri yükledi"
+	},
 	"followUpSuggest": {
 		"copyToInput": "Giriş alanına kopyala (veya Shift + tıklama)",
 		"timerPrefix": "Otomatik onay etkinleştirildi. {{seconds}}s içinde seçim yapılıyor…"
@@ -341,7 +345,7 @@
 		},
 		"release": {
 			"heading": "Yenilikler:",
-			"intelligentContextCondensation": "Akıllı Bağlam Yoğunlaştırma v2: Bağlam penceresini yöneten algoritmanın tamamen yeniden yazılması. Artık görevleri Roo'nun kalitesini kaybetmeden daha uzun süre çalıştırabilirsiniz."
+			"smartCodeFolding": "Smart Code Folding: Bağlam yoğunlaştırması şimdi dosyalarınızın hafif bir haritasını korur—fonksiyon imzaları, sınıf bildirimleri ve tür tanımları. Bu, yoğunlaştırmadan sonra daha iyi devamlılık ve önceki çalışmaya atıfta bulunurken daha akıllı düzenlemeler sağlar."
 		},
 		"cloudAgents": {
 			"heading": "Cloud'daki yenilikler:",
@@ -505,5 +509,8 @@
 		"serversPart_other": "{{count}} MCP sunucusu",
 		"messageTemplate": "{{servers}} üzerinden {{tools}} etkinleştirilmiş durumda. Bu kadar fazlası modeli kafası karışabilir ve hatalara neden olabilir. {{threshold}} altında tutmaya çalış.",
 		"openMcpSettings": "MCP Ayarlarını Aç"
+	},
+	"readCommandOutput": {
+		"title": "Roo read command output"
 	}
 }

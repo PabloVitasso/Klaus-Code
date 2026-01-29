@@ -53,10 +53,8 @@ async function generatePrompt(
 	customModeConfigs?: ModeConfig[],
 	globalCustomInstructions?: string,
 	experiments?: Record<string, boolean>,
-	enableMcpServerCreation?: boolean,
 	language?: string,
 	rooIgnoreInstructions?: string,
-	partialReadsEnabled?: boolean,
 	settings?: SystemPromptSettings,
 	todoList?: TodoItem[],
 	modelId?: string,
@@ -92,9 +90,9 @@ async function generatePrompt(
 
 ${markdownFormattingSection()}
 
-${getSharedToolUseSection(experiments)}${toolsCatalog}
+${getSharedToolUseSection()}${toolsCatalog}
 
- ${getToolUseGuidelinesSection(experiments)}
+	${getToolUseGuidelinesSection()}
 
 ${getCapabilitiesSection(cwd, shouldIncludeMcp ? mcpHub : undefined)}
 
@@ -127,10 +125,8 @@ export const SYSTEM_PROMPT = async (
 	customModes?: ModeConfig[],
 	globalCustomInstructions?: string,
 	experiments?: Record<string, boolean>,
-	enableMcpServerCreation?: boolean,
 	language?: string,
 	rooIgnoreInstructions?: string,
-	partialReadsEnabled?: boolean,
 	settings?: SystemPromptSettings,
 	todoList?: TodoItem[],
 	modelId?: string,
@@ -196,10 +192,8 @@ ${customInstructions}`
 		customModes,
 		globalCustomInstructions,
 		experiments,
-		enableMcpServerCreation,
 		language,
 		rooIgnoreInstructions,
-		partialReadsEnabled,
 		settings,
 		todoList,
 		modelId,

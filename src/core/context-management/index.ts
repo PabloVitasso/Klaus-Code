@@ -1,12 +1,13 @@
 import { Anthropic } from "@anthropic-ai/sdk"
 import crypto from "crypto"
 
-import { TelemetryService } from "@klaus-code/telemetry"
+import { TelemetryService } from "@roo-code/telemetry"
 
 import { ApiHandler, ApiHandlerCreateMessageMetadata } from "../../api"
 import { MAX_CONDENSE_THRESHOLD, MIN_CONDENSE_THRESHOLD, summarizeConversation, SummarizeResponse } from "../condense"
 import { ApiMessage } from "../task-persistence/apiMessages"
-import { ANTHROPIC_DEFAULT_MAX_TOKENS } from "@klaus-code/types"
+import { ANTHROPIC_DEFAULT_MAX_TOKENS } from "@roo-code/types"
+import { RooIgnoreController } from "../ignore/RooIgnoreController"
 
 /**
  * Context Management
@@ -222,6 +223,12 @@ export type ContextManagementOptions = {
 	metadata?: ApiHandlerCreateMessageMetadata
 	/** Optional environment details string to include in the condensed summary */
 	environmentDetails?: string
+	/** Optional array of file paths read by Roo during the task (will be folded via tree-sitter) */
+	filesReadByRoo?: string[]
+	/** Optional current working directory for resolving file paths (required if filesReadByRoo is provided) */
+	cwd?: string
+	/** Optional controller for file access validation */
+	rooIgnoreController?: RooIgnoreController
 }
 
 export type ContextManagementResult = SummarizeResponse & {
@@ -252,6 +259,9 @@ export async function manageContext({
 	currentProfileId,
 	metadata,
 	environmentDetails,
+	filesReadByRoo,
+	cwd,
+	rooIgnoreController,
 }: ContextManagementOptions): Promise<ContextManagementResult> {
 	let error: string | undefined
 	let errorDetails: string | undefined
@@ -297,16 +307,19 @@ export async function manageContext({
 		const contextPercent = (100 * prevContextTokens) / contextWindow
 		if (contextPercent >= effectiveThreshold || prevContextTokens > allowedTokens) {
 			// Attempt to intelligently condense the context
-			const result = await summarizeConversation(
+			const result = await summarizeConversation({
 				messages,
 				apiHandler,
 				systemPrompt,
 				taskId,
-				true, // automatic trigger
+				isAutomaticTrigger: true,
 				customCondensingPrompt,
 				metadata,
 				environmentDetails,
-			)
+				filesReadByRoo,
+				cwd,
+				rooIgnoreController,
+			})
 			if (result.error) {
 				error = result.error
 				errorDetails = result.errorDetails

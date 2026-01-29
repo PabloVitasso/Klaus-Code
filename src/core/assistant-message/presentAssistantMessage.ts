@@ -1,10 +1,10 @@
 import { serializeError } from "serialize-error"
 import { Anthropic } from "@anthropic-ai/sdk"
 
-import type { ToolName, ClineAsk, ToolProgressStatus } from "@klaus-code/types"
-import { ConsecutiveMistakeError } from "@klaus-code/types"
-import { TelemetryService } from "@klaus-code/telemetry"
-import { customToolRegistry } from "@klaus-code/core"
+import type { ToolName, ClineAsk, ToolProgressStatus } from "@roo-code/types"
+import { ConsecutiveMistakeError, TelemetryEventName } from "@roo-code/types"
+import { TelemetryService } from "@roo-code/telemetry"
+import { customToolRegistry } from "@roo-code/core"
 
 import { t } from "../../i18n"
 
@@ -14,9 +14,9 @@ import type { ToolParamName, ToolResponse, ToolUse, McpToolUse } from "../../sha
 import { AskIgnoredError } from "../task/AskIgnoredError"
 import { Task } from "../task/Task"
 
-import { fetchInstructionsTool } from "../tools/FetchInstructionsTool"
 import { listFilesTool } from "../tools/ListFilesTool"
 import { readFileTool } from "../tools/ReadFileTool"
+import { readCommandOutputTool } from "../tools/ReadCommandOutputTool"
 import { writeToFileTool } from "../tools/WriteToFileTool"
 import { searchAndReplaceTool } from "../tools/SearchAndReplaceTool"
 import { searchReplaceTool } from "../tools/SearchReplaceTool"
@@ -33,6 +33,7 @@ import { attemptCompletionTool, AttemptCompletionCallbacks } from "../tools/Atte
 import { newTaskTool } from "../tools/NewTaskTool"
 import { updateTodoListTool } from "../tools/UpdateTodoListTool"
 import { runSlashCommandTool } from "../tools/RunSlashCommandTool"
+import { skillTool } from "../tools/SkillTool"
 import { generateImageTool } from "../tools/GenerateImageTool"
 import { applyDiffTool as applyDiffToolClass } from "../tools/ApplyDiffTool"
 import { isValidToolName, validateToolUse } from "../tools/validateToolUse"
@@ -125,21 +126,6 @@ export async function presentAssistantMessage(cline: Task) {
 				break
 			}
 
-			if (cline.didAlreadyUseTool) {
-				const toolCallId = mcpBlock.id
-				const errorMessage = `MCP tool [${mcpBlock.name}] was not executed because a tool has already been used in this message. Only one tool may be used per message.`
-
-				if (toolCallId) {
-					cline.pushToolResultToUserContent({
-						type: "tool_result",
-						tool_use_id: toolCallId,
-						content: errorMessage,
-						is_error: true,
-					})
-				}
-				break
-			}
-
 			// Track if we've already pushed a tool result
 			let hasToolResult = false
 			const toolCallId = mcpBlock.id
@@ -193,7 +179,6 @@ export async function presentAssistantMessage(cline: Task) {
 				}
 
 				hasToolResult = true
-				cline.didAlreadyUseTool = true
 			}
 
 			const toolDescription = () => `[mcp_tool: ${mcpBlock.serverName}/${mcpBlock.toolName}]`
@@ -362,8 +347,6 @@ export async function presentAssistantMessage(cline: Task) {
 							return readFileTool.getReadFileToolDescription(block.name, block.nativeArgs)
 						}
 						return readFileTool.getReadFileToolDescription(block.name, block.params)
-					case "fetch_instructions":
-						return `[${block.name} for '${block.params.task}']`
 					case "write_to_file":
 						return `[${block.name} for '${block.params.path}']`
 					case "apply_diff":
@@ -395,8 +378,10 @@ export async function presentAssistantMessage(cline: Task) {
 						return `[${block.name}]`
 					case "switch_mode":
 						return `[${block.name} to '${block.params.mode_slug}'${block.params.reason ? ` because: ${block.params.reason}` : ""}]`
-					case "codebase_search": // Add case for the new tool
+					case "codebase_search":
 						return `[${block.name} for '${block.params.query}']`
+					case "read_command_output":
+						return `[${block.name} for '${block.params.artifact_id}']`
 					case "update_todo_list":
 						return `[${block.name}]`
 					case "new_task": {
@@ -407,6 +392,8 @@ export async function presentAssistantMessage(cline: Task) {
 					}
 					case "run_slash_command":
 						return `[${block.name} for '${block.params.command}'${block.params.args ? ` with args: ${block.params.args}` : ""}]`
+					case "skill":
+						return `[${block.name} for '${block.params.skill}'${block.params.args ? ` with args: ${block.params.args}` : ""}]`
 					case "generate_image":
 						return `[${block.name} for '${block.params.path}']`
 					default:
@@ -420,21 +407,6 @@ export async function presentAssistantMessage(cline: Task) {
 				const errorMessage = !block.partial
 					? `Skipping tool ${toolDescription()} due to user rejecting a previous tool.`
 					: `Tool ${toolDescription()} was interrupted and not executed due to user rejecting a previous tool.`
-
-				cline.pushToolResultToUserContent({
-					type: "tool_result",
-					tool_use_id: toolCallId,
-					content: errorMessage,
-					is_error: true,
-				})
-
-				break
-			}
-
-			if (cline.didAlreadyUseTool) {
-				// Ignore any content after a tool has already been used.
-				// For native tool calling, we must send a tool_result for every tool_use to avoid API errors
-				const errorMessage = `Tool [${block.name}] was not executed because a tool has already been used in this message. Only one tool may be used per message. You must assess the first tool's result before proceeding to use the next tool.`
 
 				cline.pushToolResultToUserContent({
 					type: "tool_result",
@@ -530,7 +502,6 @@ export async function presentAssistantMessage(cline: Task) {
 				}
 
 				hasToolResult = true
-				cline.didAlreadyUseTool = true
 			}
 
 			const askApproval = async (
@@ -629,6 +600,15 @@ export async function presentAssistantMessage(cline: Task) {
 				const recordName = isCustomTool ? "custom_tool" : block.name
 				cline.recordToolUsage(recordName)
 				TelemetryService.instance.captureToolUsage(cline.taskId, recordName)
+
+				// Track legacy format usage for read_file tool (for migration monitoring)
+				if (block.name === "read_file" && block.usedLegacyFormat) {
+					const modelInfo = cline.api.getModel()
+					TelemetryService.instance.captureEvent(TelemetryEventName.READ_FILE_LEGACY_FORMAT_USED, {
+						taskId: cline.taskId,
+						model: modelInfo?.id,
+					})
+				}
 			}
 
 			// Validate tool use before execution - ONLY for complete (non-partial) blocks.
@@ -789,13 +769,6 @@ export async function presentAssistantMessage(cline: Task) {
 						pushToolResult,
 					})
 					break
-				case "fetch_instructions":
-					await fetchInstructionsTool.handle(cline, block as ToolUse<"fetch_instructions">, {
-						askApproval,
-						handleError,
-						pushToolResult,
-					})
-					break
 				case "list_files":
 					await listFilesTool.handle(cline, block as ToolUse<"list_files">, {
 						askApproval,
@@ -833,6 +806,13 @@ export async function presentAssistantMessage(cline: Task) {
 						pushToolResult,
 					})
 					break
+				case "read_command_output":
+					await readCommandOutputTool.handle(cline, block as ToolUse<"read_command_output">, {
+						askApproval,
+						handleError,
+						pushToolResult,
+					})
+					break
 				case "use_mcp_tool":
 					await useMcpToolTool.handle(cline, block as ToolUse<"use_mcp_tool">, {
 						askApproval,
@@ -862,6 +842,7 @@ export async function presentAssistantMessage(cline: Task) {
 					})
 					break
 				case "new_task":
+					await checkpointSaveAndMark(cline)
 					await newTaskTool.handle(cline, block as ToolUse<"new_task">, {
 						askApproval,
 						handleError,
@@ -886,6 +867,13 @@ export async function presentAssistantMessage(cline: Task) {
 				}
 				case "run_slash_command":
 					await runSlashCommandTool.handle(cline, block as ToolUse<"run_slash_command">, {
+						askApproval,
+						handleError,
+						pushToolResult,
+					})
+					break
+				case "skill":
+					await skillTool.handle(cline, block as ToolUse<"skill">, {
 						askApproval,
 						handleError,
 						pushToolResult,
@@ -1070,10 +1058,10 @@ function containsXmlToolMarkup(text: string): boolean {
 		"codebase_search",
 		"edit_file",
 		"execute_command",
-		"fetch_instructions",
 		"generate_image",
 		"list_files",
 		"new_task",
+		"read_command_output",
 		"read_file",
 		"search_and_replace",
 		"search_files",

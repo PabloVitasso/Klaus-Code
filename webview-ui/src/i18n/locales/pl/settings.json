@@ -41,7 +41,8 @@
 		"ui": "UI",
 		"experimental": "Eksperymentalne",
 		"language": "Język",
-		"about": "O Klaus Code"
+		"about": "O Klaus Code",
+		"skills": "Skills"
 	},
 	"about": {
 		"bugReport": {
@@ -59,7 +60,7 @@
 		"contact": {
 			"label": "Musisz z nami porozmawiać? Napisz"
 		},
-		"community": "Chcesz wskazówek lub po prostu porozmawiać z innymi użytkownikami Klaus Code? Dołącz do <redditLink>reddit.com/r/Klaus Code</redditLink> lub <discordLink>discord.tbd</discordLink>",
+		"community": "Chcesz wskazówek lub po prostu porozmawiać z innymi użytkownikami Klaus Code? Dołącz do <redditLink>reddit.com/r/RooCode</redditLink> lub <discordLink>discord.gg/roocode</discordLink>",
 		"contactAndCommunity": "Kontakt i Społeczność",
 		"manageSettings": "Zarządzaj Ustawieniami",
 		"debugMode": {
@@ -725,6 +726,15 @@
 			"label": "Limit znaków terminala",
 			"description": "Zastępuje limit linii, aby zapobiec problemom z pamięcią, narzucając twardy limit rozmiaru wyjścia. W przypadku przekroczenia zachowuje początek i koniec i pokazuje symbol zastępczy Roo tam, gdzie treść jest pomijana. <0>Dowiedz się więcej</0>"
 		},
+		"outputPreviewSize": {
+			"label": "Rozmiar podglądu wyjścia polecenia",
+			"description": "Kontroluje, ile wyjścia polecenia Roo widzi bezpośrednio. Pełne wyjście jest zawsze zapisywane i dostępne w razie potrzeby.",
+			"options": {
+				"small": "Mały (5KB)",
+				"medium": "Średni (10KB)",
+				"large": "Duży (20KB)"
+			}
+		},
 		"shellIntegrationTimeout": {
 			"label": "Limit czasu integracji powłoki terminala",
 			"description": "Jak długo czekać na integrację powłoki VS Code przed wykonaniem poleceń. Zwiększ, jeśli twoja powłoka wolno się uruchamia lub widzisz błędy 'Integracja Powłoki Niedostępna'. <0>Dowiedz się więcej</0>"
@@ -736,10 +746,6 @@
 		"commandDelay": {
 			"label": "Opóźnienie polecenia terminala",
 			"description": "Dodaje krótką pauzę po każdym poleceniu, aby terminal VS Code mógł opróżnić całe wyjście (bash/zsh: PROMPT_COMMAND sleep; PowerShell: start-sleep). Używaj tylko gdy widzisz brakujące wyjście końcowe; w przeciwnym razie zostaw na 0. <0>Dowiedz się więcej</0>"
-		},
-		"compressProgressBar": {
-			"label": "Kompresuj wyjście paska postępu",
-			"description": "Zwija paski postępu/spinnery, aby zachować tylko stan końcowy (oszczędza tokeny). <0>Dowiedz się więcej</0>"
 		},
 		"powershellCounter": {
 			"label": "Włącz obejście licznika PowerShell",
@@ -842,10 +848,6 @@
 			"name": "Włącz polecenia slash inicjowane przez model",
 			"description": "Gdy włączone, Roo może uruchamiać twoje polecenia slash w celu wykonywania przepływów pracy."
 		},
-		"MULTIPLE_NATIVE_TOOL_CALLS": {
-			"name": "Równoległe wywołania narzędzi",
-			"description": "Po włączeniu protokół natywny może wykonywać wiele narzędzi w jednej turze wiadomości asystenta."
-		},
 		"CUSTOM_TOOLS": {
 			"name": "Włącz niestandardowe narzędzia",
 			"description": "Gdy włączone, Roo może ładować i używać niestandardowych narzędzi TypeScript/JavaScript z katalogu .roo/tools Twojego projektu lub ~/.roo/tools dla narzędzi globalnych. Uwaga: te narzędzia będą automatycznie zatwierdzane.",
@@ -898,7 +900,7 @@
 		"simplifiedExplanation": "Można dostosować szczegółowe ustawienia modelu później."
 	},
 	"footer": {
-		"feedback": "Jeśli masz jakiekolwiek pytania lub opinie, śmiało otwórz zgłoszenie na <githubLink>github.com/Klaus CodeInc/Roo-Code</githubLink> lub dołącz do <redditLink>reddit.com/r/Klaus Code</redditLink> lub <discordLink>discord.tbd</discordLink>",
+		"feedback": "Jeśli masz jakiekolwiek pytania lub opinie, śmiało otwórz zgłoszenie na <githubLink>github.com/RooCodeInc/Roo-Code</githubLink> lub dołącz do <redditLink>reddit.com/r/RooCode</redditLink> lub <discordLink>discord.gg/roocode</discordLink>",
 		"telemetry": {
 			"label": "Zezwól na anonimowe raportowanie błędów i użycia",
 			"description": "Pomóż ulepszyć Klaus Code, wysyłając anonimowe dane użytkowania i raporty błędów. Ta telemetria nie zbiera kodu, promptów ani danych osobowych. Zobacz naszą <privacyLink>politykę prywatności</privacyLink>, aby uzyskać więcej szczegółów. Możesz to wyłączyć w dowolnym momencie."
@@ -991,6 +993,51 @@
 		"requireCtrlEnterToSend": {
 			"label": "Wymagaj {{primaryMod}}+Enter do wysyłania wiadomości",
 			"description": "Po włączeniu musisz nacisnąć {{primaryMod}}+Enter, aby wysłać wiadomości, zamiast tylko Enter"
+		}
+	},
+	"skills": {
+		"description": "Zarządzaj umiejętnościami, które dostarczają kontekstowe instrukcje dla agenta. Umiejętności są automatycznie stosowane, gdy są istotne dla Twoich zadań. <DocsLink>Dowiedz się więcej</DocsLink>",
+		"projectSkills": "Umiejętności Projektu",
+		"globalSkills": "Umiejętności Globalne",
+		"noProjectSkills": "Brak skonfigurowanych umiejętności projektu. Utwórz jedną, aby dodać możliwości agenta specyficzne dla projektu.",
+		"noGlobalSkills": "Brak skonfigurowanych umiejętności globalnych. Utwórz jedną, aby dodać możliwości agenta dostępne we wszystkich projektach.",
+		"addSkill": "Dodaj Umiejętność",
+		"editSkill": "Edytuj umiejętność",
+		"deleteSkill": "Usuń umiejętność",
+		"deleteDialog": {
+			"title": "Usuń Umiejętność",
+			"description": "Czy na pewno chcesz usunąć umiejętność \"{{name}}\"? Tej akcji nie można cofnąć.",
+			"confirm": "Usuń",
+			"cancel": "Anuluj"
+		},
+		"createDialog": {
+			"title": "Utwórz Nową Umiejętność",
+			"description": "Zdefiniuj nowy szablon umiejętności, który dostarcza kontekstowe instrukcje dla agenta.",
+			"nameLabel": "Nazwa",
+			"namePlaceholder": "moja-nazwa-umiejetnosci",
+			"nameHint": "Tylko małe litery, cyfry i myślniki (1-64 znaki)",
+			"descriptionLabel": "Opis",
+			"descriptionPlaceholder": "Opisz, kiedy ta umiejętność powinna być użyta...",
+			"descriptionHint": "Wyjaśnij, co robi ta umiejętność i kiedy agent powinien ją zastosować (1-1024 znaki)",
+			"sourceLabel": "Lokalizacja",
+			"sourceHint": "Wybierz, czy ta umiejętność jest dostępna globalnie, czy tylko w tym projekcie",
+			"modeLabel": "Tryb (opcjonalnie)",
+			"modePlaceholder": "Dowolny tryb",
+			"modeHint": "Ogranicz tę umiejętność do określonego trybu",
+			"modeAny": "Dowolny tryb",
+			"create": "Utwórz",
+			"cancel": "Anuluj"
+		},
+		"source": {
+			"global": "Globalnie (dostępne we wszystkich projektach)",
+			"project": "Projekt (tylko ten obszar roboczy)"
+		},
+		"validation": {
+			"nameRequired": "Nazwa jest wymagana",
+			"nameTooLong": "Nazwa musi mieć maksymalnie 64 znaki",
+			"nameInvalid": "Nazwa musi zawierać 1-64 małe litery, cyfry lub myślniki",
+			"descriptionRequired": "Opis jest wymagany",
+			"descriptionTooLong": "Opis musi mieć maksymalnie 1024 znaki"
 		}
 	}
 }

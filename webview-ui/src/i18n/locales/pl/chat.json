@@ -324,6 +324,10 @@
 			"description": "Starsze wiadomości zostały usunięte z konwersacji, aby pozostać w granicach okna kontekstu. To szybsze, ale mniej zachowujące kontekst podejście w porównaniu z kondensacją."
 		}
 	},
+	"skill": {
+		"wantsToLoad": "Roo chce załadować umiejętność",
+		"didLoad": "Roo załadował umiejętność"
+	},
 	"followUpSuggest": {
 		"copyToInput": "Kopiuj do pola wprowadzania (lub Shift + kliknięcie)",
 		"timerPrefix": "Automatyczne zatwierdzanie włączone. Zaznaczanie za {{seconds}}s…"
@@ -340,7 +344,7 @@
 		},
 		"release": {
 			"heading": "Co nowego:",
-			"intelligentContextCondensation": "Inteligentna Kondensacja Kontekstu v2: Całkowite przerobienie algorytmu zarządzającego oknem kontekstu. Teraz możesz wykonywać zadania dłużej bez utraty jakości działania Roo."
+			"smartCodeFolding": "Smart Code Folding: Kondensacja kontekstu teraz zachowuje lekką mapę twoich plików—sygnatury funkcji, deklaracje klas i definicje typów. Zapewnia to lepszą ciągłość po kondensacji i mądrzejsze edycje przy odwoływaniu się do poprzedniej pracy."
 		},
 		"cloudAgents": {
 			"heading": "Nowości w chmurze:",
@@ -504,5 +508,8 @@
 		"serversPart_other": "{{count}} serwerów MCP",
 		"messageTemplate": "Masz {{tools}} włączonych przez {{servers}}. Taka duża liczba może zamieszać model i prowadzić do błędów. Staraj się, aby była poniżej {{threshold}}.",
 		"openMcpSettings": "Otwórz ustawienia MCP"
+	},
+	"readCommandOutput": {
+		"title": "Roo read command output"
 	}
 }

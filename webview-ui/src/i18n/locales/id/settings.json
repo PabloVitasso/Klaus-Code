@@ -41,7 +41,8 @@
 		"ui": "UI",
 		"experimental": "Eksperimental",
 		"language": "Bahasa",
-		"about": "Tentang Klaus Code"
+		"about": "Tentang Klaus Code",
+		"skills": "Skills"
 	},
 	"about": {
 		"bugReport": {
@@ -59,7 +60,7 @@
 		"contact": {
 			"label": "Perlu bicara dengan kami? Tulis"
 		},
-		"community": "Ingin tips atau hanya nongkrong dengan pengguna Klaus Code lainnya? Bergabunglah dengan <redditLink>reddit.com/r/Klaus Code</redditLink> atau <discordLink>discord.tbd</discordLink>",
+		"community": "Ingin tips atau hanya nongkrong dengan pengguna Klaus Code lainnya? Bergabunglah dengan <redditLink>reddit.com/r/RooCode</redditLink> atau <discordLink>discord.gg/roocode</discordLink>",
 		"contactAndCommunity": "Kontak & Komunitas",
 		"manageSettings": "Kelola Pengaturan",
 		"debugMode": {
@@ -729,6 +730,15 @@
 			"label": "Batas karakter terminal",
 			"description": "Override batas baris untuk mencegah masalah memori dengan memberlakukan cap keras pada ukuran output. Jika terlampaui, simpan awal dan akhir lalu tampilkan placeholder ke Roo di mana konten dilewati. <0>Pelajari lebih lanjut</0>"
 		},
+		"outputPreviewSize": {
+			"label": "Ukuran pratinjau keluaran perintah",
+			"description": "Mengontrol seberapa banyak keluaran perintah yang dilihat Roo secara langsung. Keluaran lengkap selalu disimpan dan dapat diakses saat diperlukan.",
+			"options": {
+				"small": "Kecil (5KB)",
+				"medium": "Sedang (10KB)",
+				"large": "Besar (20KB)"
+			}
+		},
 		"shellIntegrationTimeout": {
 			"label": "Timeout integrasi shell terminal",
 			"description": "Waktu tunggu integrasi shell VS Code sebelum menjalankan perintah. Naikkan jika shell lambat start atau muncul error 'Shell Integration Unavailable'. <0>Pelajari lebih lanjut</0>"
@@ -740,10 +750,6 @@
 		"commandDelay": {
 			"label": "Delay perintah terminal",
 			"description": "Tambahkan jeda singkat setelah setiap perintah agar VS Code terminal bisa flush semua output (bash/zsh: PROMPT_COMMAND sleep; PowerShell: start-sleep). Gunakan hanya jika output ekor hilang; jika tidak biarkan di 0. <0>Pelajari lebih lanjut</0>"
-		},
-		"compressProgressBar": {
-			"label": "Kompres keluaran bilah kemajuan",
-			"description": "Menciutkan bilah kemajuan/spinner sehingga hanya status akhir yang disimpan (menghemat token). <0>Pelajari lebih lanjut</0>"
 		},
 		"powershellCounter": {
 			"label": "Aktifkan solusi penghitung PowerShell",
@@ -871,10 +877,6 @@
 			"name": "Aktifkan perintah slash yang dimulai model",
 			"description": "Ketika diaktifkan, Roo dapat menjalankan perintah slash Anda untuk mengeksekusi alur kerja."
 		},
-		"MULTIPLE_NATIVE_TOOL_CALLS": {
-			"name": "Panggilan tool paralel",
-			"description": "Ketika diaktifkan, protokol native dapat mengeksekusi beberapa tool dalam satu giliran pesan asisten."
-		},
 		"CUSTOM_TOOLS": {
 			"name": "Aktifkan tool kustom",
 			"description": "Ketika diaktifkan, Roo dapat memuat dan menggunakan tool TypeScript/JavaScript kustom dari direktori .roo/tools proyek Anda atau ~/.roo/tools untuk tool global. Catatan: tool ini akan disetujui otomatis.",
@@ -927,7 +929,7 @@
 		"simplifiedExplanation": "Anda dapat menyesuaikan pengaturan model terperinci nanti."
 	},
 	"footer": {
-		"feedback": "Jika kamu punya pertanyaan atau feedback, jangan ragu untuk membuka issue di <githubLink>github.com/Klaus CodeInc/Roo-Code</githubLink> atau bergabung <redditLink>reddit.com/r/Klaus Code</redditLink> atau <discordLink>discord.tbd</discordLink>",
+		"feedback": "Jika kamu punya pertanyaan atau feedback, jangan ragu untuk membuka issue di <githubLink>github.com/RooCodeInc/Roo-Code</githubLink> atau bergabung <redditLink>reddit.com/r/RooCode</redditLink> atau <discordLink>discord.gg/roocode</discordLink>",
 		"telemetry": {
 			"label": "Izinkan pelaporan error dan penggunaan anonim",
 			"description": "Bantu tingkatkan Klaus Code dengan mengirimkan data penggunaan anonim dan laporan error. Telemetri ini tidak mengumpulkan kode, prompt, atau informasi pribadi. Lihat <privacyLink>kebijakan privasi</privacyLink> kami untuk detail lebih lanjut. Anda dapat menonaktifkannya kapan saja."
@@ -1020,6 +1022,51 @@
 		"requireCtrlEnterToSend": {
 			"label": "Memerlukan {{primaryMod}}+Enter untuk mengirim pesan",
 			"description": "Ketika diaktifkan, kamu harus menekan {{primaryMod}}+Enter untuk mengirim pesan alih-alih hanya Enter"
+		}
+	},
+	"skills": {
+		"description": "Kelola skills yang memberikan instruksi kontekstual kepada agen. Skills diterapkan secara otomatis saat relevan dengan tugas Anda. <DocsLink>Pelajari lebih lanjut</DocsLink>",
+		"projectSkills": "Skills Proyek",
+		"globalSkills": "Skills Global",
+		"noProjectSkills": "Tidak ada skills proyek yang dikonfigurasi. Buat satu untuk menambahkan kemampuan agen khusus proyek.",
+		"noGlobalSkills": "Tidak ada skills global yang dikonfigurasi. Buat satu untuk menambahkan kemampuan agen yang tersedia di semua proyek.",
+		"addSkill": "Tambahkan Skill",
+		"editSkill": "Edit skill",
+		"deleteSkill": "Hapus skill",
+		"deleteDialog": {
+			"title": "Hapus Skill",
+			"description": "Apakah Anda yakin ingin menghapus skill \"{{name}}\"? Tindakan ini tidak dapat dibatalkan.",
+			"confirm": "Hapus",
+			"cancel": "Batal"
+		},
+		"createDialog": {
+			"title": "Buat Skill Baru",
+			"description": "Tentukan template skill baru yang memberikan instruksi kontekstual kepada agen.",
+			"nameLabel": "Nama",
+			"namePlaceholder": "nama-skill-saya",
+			"nameHint": "Hanya huruf kecil, angka, dan tanda hubung (1-64 karakter)",
+			"descriptionLabel": "Deskripsi",
+			"descriptionPlaceholder": "Jelaskan kapan skill ini harus digunakan...",
+			"descriptionHint": "Jelaskan apa yang dilakukan skill ini dan kapan agen harus menerapkannya (1-1024 karakter)",
+			"sourceLabel": "Lokasi",
+			"sourceHint": "Pilih apakah skill ini tersedia secara global atau hanya di proyek ini",
+			"modeLabel": "Mode (opsional)",
+			"modePlaceholder": "Mode apa saja",
+			"modeHint": "Batasi skill ini ke mode tertentu",
+			"modeAny": "Mode apa saja",
+			"create": "Buat",
+			"cancel": "Batal"
+		},
+		"source": {
+			"global": "Global (tersedia di semua proyek)",
+			"project": "Proyek (workspace ini saja)"
+		},
+		"validation": {
+			"nameRequired": "Nama diperlukan",
+			"nameTooLong": "Nama harus 64 karakter atau kurang",
+			"nameInvalid": "Nama harus 1-64 huruf kecil, angka, atau tanda hubung",
+			"descriptionRequired": "Deskripsi diperlukan",
+			"descriptionTooLong": "Deskripsi harus 1024 karakter atau kurang"
 		}
 	}
 }

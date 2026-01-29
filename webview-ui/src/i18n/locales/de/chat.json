@@ -324,6 +324,10 @@
 			"description": "Ältere Nachrichten wurden aus der Konversation entfernt, um innerhalb des Kontextfenster-Limits zu bleiben. Dies ist ein schnellerer, aber weniger kontexterhaltender Ansatz im Vergleich zur Komprimierung."
 		}
 	},
+	"skill": {
+		"wantsToLoad": "Roo möchte eine Fähigkeit laden",
+		"didLoad": "Roo hat eine Fähigkeit geladen"
+	},
 	"followUpSuggest": {
 		"copyToInput": "In Eingabefeld kopieren (oder Shift + Klick)",
 		"timerPrefix": "Automatische Genehmigung aktiviert. Wähle in {{seconds}}s…"
@@ -340,7 +344,7 @@
 		},
 		"release": {
 			"heading": "Was ist neu:",
-			"intelligentContextCondensation": "Intelligente Kontextkomprimierung v2: Eine komplette Überarbeitung des Algorithmus zur Verwaltung des Kontextfensters. Jetzt können Sie Aufgaben länger ausführen, ohne dass Roo an Qualität verliert."
+			"smartCodeFolding": "Intelligentes Code-Folding: Kontextkomprimierung bewahrt jetzt eine leichte Karte deiner Dateien—Funktionssignaturen, Klassendeklarationen und Typdefinitionen. Dies ermöglicht bessere Kontinuität nach der Komprimierung und intelligentere Bearbeitungen beim Verweisen auf vorherige Arbeiten."
 		},
 		"cloudAgents": {
 			"heading": "Neu in der Cloud:",
@@ -504,5 +508,8 @@
 		"serversPart_other": "{{count}} MCP-Server",
 		"messageTemplate": "Du hast {{tools}} über {{servers}} aktiviert. Eine so hohe Anzahl kann das Modell verwirren und zu Fehlern führen. Versuche, es unter {{threshold}} zu halten.",
 		"openMcpSettings": "MCP-Einstellungen öffnen"
+	},
+	"readCommandOutput": {
+		"title": "Roo las Befehlsausgabe"
 	}
 }

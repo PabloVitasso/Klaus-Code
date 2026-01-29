@@ -325,6 +325,10 @@
 			"description": "为保持在上下文窗口限制内，已从对话中移除较旧的消息。与压缩相比，这是一种快速但上下文保留较少的方法。"
 		}
 	},
+	"skill": {
+		"wantsToLoad": "Roo 想要加载技能",
+		"didLoad": "Roo 加载了技能"
+	},
 	"followUpSuggest": {
 		"copyToInput": "复制到输入框（或按住Shift点击）",
 		"timerPrefix": "自动批准已启用。{{seconds}}秒后选择中…"
@@ -341,7 +345,7 @@
 		},
 		"release": {
 			"heading": "新增功能：",
-			"intelligentContextCondensation": "智能上下文压缩 v2：对管理上下文窗口的算法进行了完全重构。现在您可以更长时间地运行任务，而 Roo 不会变得迟钝。"
+			"smartCodeFolding": "智能代码折叠：上下文压缩现在保留文件的轻量级映射——函数签名、类声明和类型定义。 这在压缩后提供更好的连续性，引用之前工作时编辑更聪明。"
 		},
 		"cloudAgents": {
 			"heading": "云端新功能：",
@@ -505,5 +509,8 @@
 		"serversPart_other": "{{count}} 个 MCP 服务",
 		"messageTemplate": "你通过 {{servers}} 启用了 {{tools}}。这么多数量会混淆模型并导致错误。建议将其保持在 {{threshold}} 以下。",
 		"openMcpSettings": "打开 MCP 设置"
+	},
+	"readCommandOutput": {
+		"title": "Roo read command output"
 	}
 }

@@ -26,7 +26,7 @@
 		"shareSuccessOrganization": "Organization link copied to clipboard",
 		"shareSuccessPublic": "Public link copied to clipboard",
 		"openInCloud": "Open task in Klaus Code Cloud",
-		"openInCloudIntro": "Keep monitoring or interacting with Klaus from anywhere. Scan, click or copy to open.",
+		"openInCloudIntro": "Keep monitoring or interacting with Roo from anywhere. Scan, click or copy to open.",
 		"openApiHistory": "Open API History",
 		"openUiHistory": "Open UI History",
 		"backToParentTask": "Parent task"
@@ -107,7 +107,7 @@
 		"placeholder": "Edit your message..."
 	},
 	"scrollToBottom": "Scroll to bottom of chat",
-	"about": "Klaus is a whole AI dev team in your editor",
+	"about": "Roo is a whole AI dev team in your editor",
 	"docs": "Check our <DocsLink>docs</DocsLink> to get started",
 	"onboarding": "What would you like to do?",
 	"rooTips": {
@@ -117,7 +117,7 @@
 		},
 		"modelAgnostic": {
 			"title": "Bring your own model, no markup or lock-in",
-			"description": "Use your own provider key or even run local inference — Klaus doesn't charge for it"
+			"description": "Use your own provider key or even run local inference — Roo doesn't charge for it"
 		}
 	},
 	"selectMode": "Select mode for interaction",
@@ -127,7 +127,7 @@
 		"title": "Modes",
 		"marketplace": "Mode Marketplace",
 		"settings": "Mode Settings",
-		"description": "Specialized personas that tailor Klaus's behavior.",
+		"description": "Specialized personas that tailor Roo's behavior.",
 		"searchPlaceholder": "Search modes...",
 		"noResults": "No results found"
 	},
@@ -203,45 +203,46 @@
 			"description": "Older messages were removed from the conversation to stay within the context window limit. This is a fast but less context-preserving approach compared to condensation."
 		}
 	},
-	"instructions": {
-		"wantsToFetch": "Klaus wants to fetch detailed instructions to assist with the current task"
+	"skill": {
+		"wantsToLoad": "Roo wants to load a skill",
+		"didLoad": "Roo loaded a skill"
 	},
 	"fileOperations": {
-		"wantsToRead": "Klaus wants to read this file",
-		"wantsToReadMultiple": "Klaus wants to read multiple files",
-		"wantsToReadAndXMore": "Klaus wants to read this file and {{count}} more",
-		"wantsToReadOutsideWorkspace": "Klaus wants to read this file outside of the workspace",
-		"didRead": "Klaus read this file",
-		"wantsToEdit": "Klaus wants to edit this file",
-		"wantsToEditOutsideWorkspace": "Klaus wants to edit this file outside of the workspace",
-		"wantsToEditProtected": "Klaus wants to edit a protected configuration file",
-		"wantsToApplyBatchChanges": "Klaus wants to apply changes to multiple files",
-		"wantsToGenerateImage": "Klaus wants to generate an image",
-		"wantsToGenerateImageOutsideWorkspace": "Klaus wants to generate an image outside of the workspace",
-		"wantsToGenerateImageProtected": "Klaus wants to generate an image in a protected location",
-		"didGenerateImage": "Klaus generated an image",
-		"wantsToCreate": "Klaus wants to create a new file",
-		"wantsToInsert": "Klaus wants to insert content into this file",
-		"wantsToInsertWithLineNumber": "Klaus wants to insert content into this file at line {{lineNumber}}",
-		"wantsToInsertAtEnd": "Klaus wants to append content to the end of this file"
+		"wantsToRead": "Roo wants to read this file",
+		"wantsToReadMultiple": "Roo wants to read multiple files",
+		"wantsToReadAndXMore": "Roo wants to read this file and {{count}} more",
+		"wantsToReadOutsideWorkspace": "Roo wants to read this file outside of the workspace",
+		"didRead": "Roo read this file",
+		"wantsToEdit": "Roo wants to edit this file",
+		"wantsToEditOutsideWorkspace": "Roo wants to edit this file outside of the workspace",
+		"wantsToEditProtected": "Roo wants to edit a protected configuration file",
+		"wantsToApplyBatchChanges": "Roo wants to apply changes to multiple files",
+		"wantsToGenerateImage": "Roo wants to generate an image",
+		"wantsToGenerateImageOutsideWorkspace": "Roo wants to generate an image outside of the workspace",
+		"wantsToGenerateImageProtected": "Roo wants to generate an image in a protected location",
+		"didGenerateImage": "Roo generated an image",
+		"wantsToCreate": "Roo wants to create a new file",
+		"wantsToInsert": "Roo wants to insert content into this file",
+		"wantsToInsertWithLineNumber": "Roo wants to insert content into this file at line {{lineNumber}}",
+		"wantsToInsertAtEnd": "Roo wants to append content to the end of this file"
 	},
 	"directoryOperations": {
-		"wantsToViewTopLevel": "Klaus wants to view the top level files in this directory",
-		"didViewTopLevel": "Klaus viewed the top level files in this directory",
-		"wantsToViewTopLevelOutsideWorkspace": "Klaus wants to view the top level files in this directory (outside workspace)",
-		"didViewTopLevelOutsideWorkspace": "Klaus viewed the top level files in this directory (outside workspace)",
-		"wantsToViewRecursive": "Klaus wants to recursively view all files in this directory",
-		"didViewRecursive": "Klaus recursively viewed all files in this directory",
-		"wantsToViewRecursiveOutsideWorkspace": "Klaus wants to recursively view all files in this directory (outside workspace)",
-		"didViewRecursiveOutsideWorkspace": "Klaus recursively viewed all files in this directory (outside workspace)",
-		"wantsToSearch": "Klaus wants to search this directory for <code>{{regex}}</code>",
-		"didSearch": "Klaus searched this directory for <code>{{regex}}</code>",
-		"wantsToSearchOutsideWorkspace": "Klaus wants to search this directory (outside workspace) for <code>{{regex}}</code>",
-		"didSearchOutsideWorkspace": "Klaus searched this directory (outside workspace) for <code>{{regex}}</code>"
+		"wantsToViewTopLevel": "Roo wants to view the top level files in this directory",
+		"didViewTopLevel": "Roo viewed the top level files in this directory",
+		"wantsToViewTopLevelOutsideWorkspace": "Roo wants to view the top level files in this directory (outside workspace)",
+		"didViewTopLevelOutsideWorkspace": "Roo viewed the top level files in this directory (outside workspace)",
+		"wantsToViewRecursive": "Roo wants to recursively view all files in this directory",
+		"didViewRecursive": "Roo recursively viewed all files in this directory",
+		"wantsToViewRecursiveOutsideWorkspace": "Roo wants to recursively view all files in this directory (outside workspace)",
+		"didViewRecursiveOutsideWorkspace": "Roo recursively viewed all files in this directory (outside workspace)",
+		"wantsToSearch": "Roo wants to search this directory for <code>{{regex}}</code>",
+		"didSearch": "Roo searched this directory for <code>{{regex}}</code>",
+		"wantsToSearchOutsideWorkspace": "Roo wants to search this directory (outside workspace) for <code>{{regex}}</code>",
+		"didSearchOutsideWorkspace": "Roo searched this directory (outside workspace) for <code>{{regex}}</code>"
 	},
 	"codebaseSearch": {
-		"wantsToSearch": "Klaus wants to search the codebase for <code>{{query}}</code>",
-		"wantsToSearchWithPath": "Klaus wants to search the codebase for <code>{{query}}</code> in <code>{{path}}</code>",
+		"wantsToSearch": "Roo wants to search the codebase for <code>{{query}}</code>",
+		"wantsToSearchWithPath": "Roo wants to search the codebase for <code>{{query}}</code> in <code>{{path}}</code>",
 		"didSearch_one": "Found 1 result",
 		"didSearch_other": "Found {{count}} results",
 		"resultTooltip": "Similarity score: {{score}} (click to open file)"
@@ -266,24 +267,24 @@
 	"response": "Response",
 	"arguments": "Arguments",
 	"text": {
-		"rooSaid": "Klaus said"
+		"rooSaid": "Roo said"
 	},
 	"feedback": {
 		"youSaid": "You said"
 	},
 	"mcp": {
-		"wantsToUseTool": "Klaus wants to use a tool on the {{serverName}} MCP server",
-		"wantsToAccessResource": "Klaus wants to access a resource on the {{serverName}} MCP server"
+		"wantsToUseTool": "Roo wants to use a tool on the {{serverName}} MCP server",
+		"wantsToAccessResource": "Roo wants to access a resource on the {{serverName}} MCP server"
 	},
 	"modes": {
-		"wantsToSwitch": "Klaus wants to switch to {{mode}} mode",
-		"wantsToSwitchWithReason": "Klaus wants to switch to {{mode}} mode because: {{reason}}",
-		"didSwitch": "Klaus switched to {{mode}} mode",
-		"didSwitchWithReason": "Klaus switched to {{mode}} mode because: {{reason}}"
+		"wantsToSwitch": "Roo wants to switch to {{mode}} mode",
+		"wantsToSwitchWithReason": "Roo wants to switch to {{mode}} mode because: {{reason}}",
+		"didSwitch": "Roo switched to {{mode}} mode",
+		"didSwitchWithReason": "Roo switched to {{mode}} mode because: {{reason}}"
 	},
 	"subtasks": {
-		"wantsToCreate": "Klaus wants to create a new subtask in {{mode}} mode",
-		"wantsToFinish": "Klaus wants to mark this as completed",
+		"wantsToCreate": "Roo wants to create a new subtask in {{mode}} mode",
+		"wantsToFinish": "Roo wants to mark this as completed",
 		"newTaskContent": "Subtask Instructions",
 		"resultContent": "Subtask completed",
 		"defaultResult": "Please continue to the next task.",
@@ -291,7 +292,7 @@
 		"goToSubtask": "View task"
 	},
 	"questions": {
-		"hasQuestion": "Klaus has a question"
+		"hasQuestion": "Roo has a question"
 	},
 	"taskCompleted": "Task Completed",
 	"error": "Error",
@@ -308,12 +309,12 @@
 		"copyToClipboard": "Copy basic error info",
 		"copied": "Copied!",
 		"diagnostics": "Get detailed error info",
-		"proxyProvider": "You seem to be using a proxy-based provider. Make sure to check its logs and to ensure it's not rewriting Klaus's requests."
+		"proxyProvider": "You seem to be using a proxy-based provider. Make sure to check its logs and to ensure it's not rewriting Roo's requests."
 	},
 	"diffError": {
 		"title": "Edit Unsuccessful"
 	},
-	"troubleMessage": "Klaus is having trouble...",
+	"troubleMessage": "Roo is having trouble...",
 	"powershell": {
 		"issues": "It seems like you're having Windows PowerShell issues, please see this"
 	},
@@ -346,9 +347,7 @@
 		},
 		"release": {
 			"heading": "What's New:",
-			"intelligentContextCondensation": "Intelligent Context Condensing v2: A complete rework of the algorithm used to manage the context window. Now you can run tasks for longer without Klaus getting dumber.",
-			"upstreamCommits": "Merged 25 upstream Klaus Code commits including MCP wildcard support, fuzzy matching for tool names, and worktree UI improvements.",
-			"stability": "Improved stability and performance across the codebase."
+			"smartCodeFolding": "Smart Code Folding: Context condensation now preserves a lightweight map of your files: function signatures, class declarations, and type definitions. This provides better continuity after condensing and smarter edits when referencing previous work."
 		},
 		"cloudAgents": {
 			"heading": "New in the Cloud:",
@@ -374,7 +373,7 @@
 	"browser": {
 		"session": "Browser Session",
 		"active": "Active",
-		"KlausWantsToUse": "Klaus wants to use the browser",
+		"rooWantsToUse": "Roo wants to use the browser",
 		"consoleLogs": "Console Logs",
 		"noNewLogs": "(No new logs)",
 		"screenshot": "Browser screenshot",
@@ -426,12 +425,12 @@
 	"ask": {
 		"autoApprovedRequestLimitReached": {
 			"title": "Auto-Approved Request Limit Reached",
-			"description": "Klaus has reached the auto-approved limit of {{count}} API request(s). Would you like to reset the count and proceed with the task?",
+			"description": "Roo has reached the auto-approved limit of {{count}} API request(s). Would you like to reset the count and proceed with the task?",
 			"button": "Reset and Continue"
 		},
 		"autoApprovedCostLimitReached": {
 			"title": "Auto-Approved Cost Limit Reached",
-			"description": "Klaus has reached the auto-approved cost limit of ${{count}}. Would you like to reset the cost and proceed with the task?",
+			"description": "Roo has reached the auto-approved cost limit of ${{count}}. Would you like to reset the cost and proceed with the task?",
 			"button": "Reset and Continue"
 		}
 	},
@@ -469,8 +468,8 @@
 		}
 	},
 	"slashCommand": {
-		"wantsToRun": "Klaus wants to run a slash command",
-		"didRun": "Klaus ran a slash command"
+		"wantsToRun": "Roo wants to run a slash command",
+		"didRun": "Roo ran a slash command"
 	},
 	"queuedMessages": {
 		"title": "Queued Messages",
@@ -497,5 +496,8 @@
 		"serversPart_other": "{{count}} MCP servers",
 		"messageTemplate": "You have {{tools}} enabled via {{servers}}. Such a high number can confuse the model and lead to errors. Try to keep it below {{threshold}}.",
 		"openMcpSettings": "Open MCP Settings"
+	},
+	"readCommandOutput": {
+		"title": "Roo read command output"
 	}
 }

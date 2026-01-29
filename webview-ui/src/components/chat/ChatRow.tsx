@@ -649,7 +649,13 @@ export const ChatRowContent = ({
 							<ToolUseBlock>
 								<ToolUseBlockHeader
 									className="group"
-									onClick={() => vscode.postMessage({ type: "openFile", text: tool.content })}>
+									onClick={() =>
+										vscode.postMessage({
+											type: "openFile",
+											text: tool.content,
+											values: tool.startLine ? { line: tool.startLine } : undefined,
+										})
+									}>
 									{tool.path?.startsWith(".") && <span>.</span>}
 									<PathTooltip content={formatPathTooltip(tool.path, tool.reason)}>
 										<span className="whitespace-nowrap overflow-hidden text-ellipsis text-left mr-2 rtl">
@@ -666,24 +672,75 @@ export const ChatRowContent = ({
 						</div>
 					</>
 				)
-			case "fetchInstructions":
+			case "skill": {
+				const skillInfo = tool
 				return (
 					<>
 						<div style={headerStyle}>
-							{toolIcon("file-code")}
-							<span style={{ fontWeight: "bold" }}>{t("chat:instructions.wantsToFetch")}</span>
+							{toolIcon("book")}
+							<span style={{ fontWeight: "bold" }}>
+								{message.type === "ask" ? t("chat:skill.wantsToLoad") : t("chat:skill.didLoad")}
+							</span>
 						</div>
-						<div className="pl-6">
-							<CodeAccordian
-								code={tool.content}
-								language="markdown"
-								isLoading={message.partial}
-								isExpanded={isExpanded}
-								onToggleExpand={handleToggleExpand}
-							/>
+						<div
+							style={{
+								marginTop: "4px",
+								backgroundColor: "var(--vscode-editor-background)",
+								border: "1px solid var(--vscode-editorGroup-border)",
+								borderRadius: "4px",
+								overflow: "hidden",
+								cursor: "pointer",
+							}}
+							onClick={handleToggleExpand}>
+							<ToolUseBlockHeader
+								className="group"
+								style={{
+									display: "flex",
+									alignItems: "center",
+									justifyContent: "space-between",
+									padding: "10px 12px",
+								}}>
+								<div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+									<span style={{ fontWeight: "500", fontSize: "var(--vscode-font-size)" }}>
+										{skillInfo.skill}
+									</span>
+									{skillInfo.source && (
+										<VSCodeBadge style={{ fontSize: "calc(var(--vscode-font-size) - 2px)" }}>
+											{skillInfo.source}
+										</VSCodeBadge>
+									)}
+								</div>
+								<span
+									className={`codicon codicon-chevron-${isExpanded ? "up" : "down"} opacity-0 group-hover:opacity-100 transition-opacity duration-200`}></span>
+							</ToolUseBlockHeader>
+							{isExpanded && (skillInfo.args || skillInfo.description) && (
+								<div
+									style={{
+										padding: "12px 16px",
+										borderTop: "1px solid var(--vscode-editorGroup-border)",
+										display: "flex",
+										flexDirection: "column",
+										gap: "8px",
+									}}>
+									{skillInfo.description && (
+										<div style={{ color: "var(--vscode-descriptionForeground)" }}>
+											{skillInfo.description}
+										</div>
+									)}
+									{skillInfo.args && (
+										<div>
+											<span style={{ fontWeight: "500" }}>Arguments: </span>
+											<span style={{ color: "var(--vscode-descriptionForeground)" }}>
+												{skillInfo.args}
+											</span>
+										</div>
+									)}
+								</div>
+							)}
 						</div>
 					</>
 				)
+			}
 			case "listFilesTopLevel":
 				return (
 					<>
@@ -1474,6 +1531,51 @@ export const ChatRowContent = ({
 										</ToolUseBlock>
 									</div>
 								</>
+							)
+						}
+						case "readCommandOutput": {
+							const formatBytes = (bytes: number) => {
+								if (bytes < 1024) return `${bytes} B`
+								if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+								return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+							}
+
+							// Determine if this is a search operation
+							const isSearch = sayTool.searchPattern !== undefined
+
+							let infoText = ""
+							if (isSearch) {
+								// Search mode: show pattern and match count
+								const matchText =
+									sayTool.matchCount !== undefined
+										? sayTool.matchCount === 1
+											? "1 match"
+											: `${sayTool.matchCount} matches`
+										: ""
+								infoText = `search: "${sayTool.searchPattern}"${matchText ? ` • ${matchText}` : ""}`
+							} else if (
+								sayTool.readStart !== undefined &&
+								sayTool.readEnd !== undefined &&
+								sayTool.totalBytes !== undefined
+							) {
+								// Read mode: show byte range
+								infoText = `${formatBytes(sayTool.readStart)} - ${formatBytes(sayTool.readEnd)} of ${formatBytes(sayTool.totalBytes)}`
+							} else if (sayTool.totalBytes !== undefined) {
+								infoText = formatBytes(sayTool.totalBytes)
+							}
+
+							return (
+								<div style={headerStyle}>
+									<FileCode2 className="w-4 shrink-0" aria-label="Read command output icon" />
+									<span style={{ fontWeight: "bold" }}>{t("chat:readCommandOutput.title")}</span>
+									{infoText && (
+										<span
+											className="text-xs ml-1"
+											style={{ color: "var(--vscode-descriptionForeground)" }}>
+											({infoText})
+										</span>
+									)}
+								</div>
 							)
 						}
 						default:

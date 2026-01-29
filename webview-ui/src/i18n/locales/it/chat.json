@@ -324,6 +324,10 @@
 			"description": "I messaggi più vecchi sono stati rimossi dalla conversazione per rimanere entro il limite della finestra di contesto. Questo è un approccio veloce ma meno conservativo del contesto rispetto alla condensazione."
 		}
 	},
+	"skill": {
+		"wantsToLoad": "Roo vuole caricare una competenza",
+		"didLoad": "Roo ha caricato una competenza"
+	},
 	"followUpSuggest": {
 		"copyToInput": "Copia nell'input (o Shift + clic)",
 		"timerPrefix": "Approvazione automatica abilitata. Selezione tra {{seconds}}s…"
@@ -340,7 +344,7 @@
 		},
 		"release": {
 			"heading": "Novità:",
-			"intelligentContextCondensation": "Condensazione Intelligente del Contesto v2: Una rielaborazione completa dell'algoritmo utilizzato per gestire la finestra di contesto. Ora puoi eseguire attività più a lungo senza che Roo perda qualità."
+			"smartCodeFolding": "Smart Code Folding: La condensazione del contesto mantiene ora una mappa leggera dei tuoi file—firme di funzione, dichiarazioni di classe e definizioni di tipo. Questo fornisce una migliore continuità dopo la condensazione e modifiche più intelligenti quando si fa riferimento al lavoro precedente."
 		},
 		"cloudAgents": {
 			"heading": "Novità nel Cloud:",
@@ -504,5 +508,8 @@
 		"serversPart_other": "{{count}} server MCP",
 		"messageTemplate": "Hai {{tools}} abilitate via {{servers}}. Un numero così alto può confondere il modello e portare a errori. Prova a mantenerlo sotto {{threshold}}.",
 		"openMcpSettings": "Apri impostazioni MCP"
+	},
+	"readCommandOutput": {
+		"title": "Roo read command output"
 	}
 }

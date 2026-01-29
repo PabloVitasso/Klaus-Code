@@ -324,6 +324,10 @@
 			"description": "S'han eliminat missatges més antics de la conversa per mantenir-se dins del límit de la finestra de context. Aquest és un enfocament ràpid però menys conservador del context en comparació amb la condensació."
 		}
 	},
+	"skill": {
+		"wantsToLoad": "En Roo vol carregar una habilitat",
+		"didLoad": "En Roo ha carregat una habilitat"
+	},
 	"followUpSuggest": {
 		"copyToInput": "Copiar a l'entrada (o Shift + clic)",
 		"timerPrefix": "Aprovació automàtica habilitada. Seleccionant en {{seconds}}s…"
@@ -340,7 +344,7 @@
 		},
 		"release": {
 			"heading": "Què hi ha de nou:",
-			"intelligentContextCondensation": "Condensació Intel·ligent de Context v2: Una reelaboració completa de l'algorisme que gestiona la finestra de context. Ara pots executar tasques durant més temps sense que Roo perdi qualitat."
+			"smartCodeFolding": "Plegament intel·ligent de codi: La condensació de context ara preserva un mapa lleuger dels teus fitxers—signatures de funcions, declaracions de classe i definicions de tipus. Això proporciona millor continuïtat després de condensar i edicions més intel·ligents quan es fa referència a feina anterior."
 		},
 		"cloudAgents": {
 			"heading": "Novetats al núvol:",
@@ -504,5 +508,8 @@
 		"serversPart_other": "{{count}} servidors MCP",
 		"messageTemplate": "Tens {{tools}} habilitades via {{servers}}. Un nombre tant alt pot confondre el model i portar a errors. Intenta mantenir-lo per sota de {{threshold}}.",
 		"openMcpSettings": "Obrir configuració de MCP"
+	},
+	"readCommandOutput": {
+		"title": "Roo read command output"
 	}
 }

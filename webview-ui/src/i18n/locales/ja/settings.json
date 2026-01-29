@@ -41,7 +41,8 @@
 		"ui": "UI",
 		"experimental": "実験的",
 		"language": "言語",
-		"about": "Klaus Codeについて"
+		"about": "Klaus Codeについて",
+		"skills": "Skills"
 	},
 	"about": {
 		"bugReport": {
@@ -59,7 +60,7 @@
 		"contact": {
 			"label": "お問い合わせが必要ですか？メールを送信"
 		},
-		"community": "ヒントが欲しいですか、または他のKlaus Codeユーザーと交流したいですか？<redditLink>reddit.com/r/Klaus Code</redditLink>または<discordLink>discord.tbd</discordLink>に参加してください",
+		"community": "ヒントが欲しいですか、または他のKlaus Codeユーザーと交流したいですか？<redditLink>reddit.com/r/RooCode</redditLink>または<discordLink>discord.gg/roocode</discordLink>に参加してください",
 		"contactAndCommunity": "お問い合わせとコミュニティ",
 		"manageSettings": "設定を管理",
 		"debugMode": {
@@ -725,6 +726,15 @@
 			"label": "ターミナル文字制限",
 			"description": "出力サイズにハードキャップを適用してメモリ問題を防ぐため、行制限を上書きします。超過した場合、最初と最後を保持し、コンテンツがスキップされた箇所にRooにプレースホルダーを表示します。<0>詳細情報</0>"
 		},
+		"outputPreviewSize": {
+			"label": "コマンド出力プレビューサイズ",
+			"description": "Rooが直接確認できるコマンド出力の量を制御します。完全な出力は常に保存され、必要に応じてアクセス可能です。",
+			"options": {
+				"small": "小 (5KB)",
+				"medium": "中 (10KB)",
+				"large": "大 (20KB)"
+			}
+		},
 		"shellIntegrationTimeout": {
 			"label": "ターミナルシェル統合タイムアウト",
 			"description": "コマンドを実行する前�����VS Codeシェル統合を待機する時間。シェルが遅く起動する場合や「シェル統合が利用できません」というエラーが表示される場合は、この値を増やしてください。<0>詳細</0>"
@@ -736,10 +746,6 @@
 		"commandDelay": {
 			"label": "ターミナルコマンド遅延",
 			"description": "VS Codeターミナルがすべての出力をフラッシュできるよう、各コマンド後に短い一時停止を追加します（bash/zsh: PROMPT_COMMAND sleep; PowerShell: start-sleep）。末尾出力が欠落している場合のみ使用；それ以外は0のままにします。<0>詳細情報</0>"
-		},
-		"compressProgressBar": {
-			"label": "プログレスバー出力を圧���������",
-			"description": "プログレスバー/スピナーを折りたたんで、最終状態のみを保持します（トークンを節約します）。<0>詳細情報</0>"
 		},
 		"powershellCounter": {
 			"label": "PowerShellカウンターの回避策を有効にする",
@@ -842,10 +848,6 @@
 			"name": "モデル開始スラッシュコマンドを有効にする",
 			"description": "有効にすると、Rooがワークフローを実行するためにあなたのスラッシュコマンドを実行できます。"
 		},
-		"MULTIPLE_NATIVE_TOOL_CALLS": {
-			"name": "並列ツール呼び出し",
-			"description": "有効にすると、ネイティブプロトコルは単一のアシスタントメッセージターンで複数のツールを実行できます。"
-		},
 		"CUSTOM_TOOLS": {
 			"name": "カスタムツールを有効化",
 			"description": "有効にすると、Rooはプロジェクトの.roo/toolsディレクトリまたはグローバルツール用の~/.roo/toolsからカスタムTypeScript/JavaScriptツールを読み込んで使用できます。注意：これらのツールは自動的に承認されます。",
@@ -898,7 +900,7 @@
 		"simplifiedExplanation": "詳細なモデル設定は後で調整できます。"
 	},
 	"footer": {
-		"feedback": "質問やフィードバックがある場合は、<githubLink>github.com/Klaus CodeInc/Roo-Code</githubLink>で問題を開くか、<redditLink>reddit.com/r/Klaus Code</redditLink>や<discordLink>discord.tbd</discordLink>に参加してください",
+		"feedback": "質問やフィードバックがある場合は、<githubLink>github.com/RooCodeInc/Roo-Code</githubLink>で問題を開くか、<redditLink>reddit.com/r/RooCode</redditLink>や<discordLink>discord.gg/roocode</discordLink>に参加してください",
 		"telemetry": {
 			"label": "匿名のエラーと使用状況レポートを許可",
 			"description": "匿名の使用データとエラーレポートを送信してKlaus Codeの改善にご協力ください。このテレメトリはコード、プロンプト、個人情報を収集しません。詳細については<privacyLink>プライバシーポリシー</privacyLink>をご覧ください。"
@@ -991,6 +993,51 @@
 		"requireCtrlEnterToSend": {
 			"label": "メッセージを送信するには{{primaryMod}}+Enterが必要",
 			"description": "有効にすると、Enterだけでなく{{primaryMod}}+Enterを押してメッセージを送信する必要があります"
+		}
+	},
+	"skills": {
+		"description": "エージェントにコンテキスト指示を提供するスキルを管理します。スキルはタスクに関連する場合に自動的に適用されます。<DocsLink>詳細を見る</DocsLink>",
+		"projectSkills": "プロジェクトスキル",
+		"globalSkills": "グローバルスキル",
+		"noProjectSkills": "プロジェクトスキルが設定されていません。プロジェクト固有のエージェント機能を追加するには、作成してください。",
+		"noGlobalSkills": "グローバルスキルが設定されていません。すべてのプロジェクトで利用可能なエージェント機能を追加するには、作成してください。",
+		"addSkill": "スキルを追加",
+		"editSkill": "スキルを編集",
+		"deleteSkill": "スキルを削除",
+		"deleteDialog": {
+			"title": "スキルを削除",
+			"description": "スキル「{{name}}」を削除してもよろしいですか？この操作は元に戻せません。",
+			"confirm": "削除",
+			"cancel": "キャンセル"
+		},
+		"createDialog": {
+			"title": "新しいスキルを作成",
+			"description": "エージェントにコンテキスト指示を提供する新しいスキルテンプレートを定義します。",
+			"nameLabel": "名前",
+			"namePlaceholder": "my-skill-name",
+			"nameHint": "小文字、数字、ハイフンのみ（1〜64文字）",
+			"descriptionLabel": "説明",
+			"descriptionPlaceholder": "このスキルをいつ使用するか説明してください...",
+			"descriptionHint": "このスキルが何をするか、エージェントがいつ適用すべきかを説明してください（1〜1024文字）",
+			"sourceLabel": "場所",
+			"sourceHint": "このスキルがグローバルに利用可能か、このプロジェクトのみかを選択してください",
+			"modeLabel": "モード（オプション）",
+			"modePlaceholder": "全てのモード",
+			"modeHint": "このスキルを特定のモードに制限する",
+			"modeAny": "全てのモード",
+			"create": "作成",
+			"cancel": "キャンセル"
+		},
+		"source": {
+			"global": "グローバル（すべてのプロジェクトで利用可能）",
+			"project": "プロジェクト（このワークスペースのみ）"
+		},
+		"validation": {
+			"nameRequired": "名前は必須です",
+			"nameTooLong": "名前は64文字以内である必要があります",
+			"nameInvalid": "名前は1〜64文字の小文字、数字、またはハイフンである必要があります",
+			"descriptionRequired": "説明は必須です",
+			"descriptionTooLong": "説明は1024文字以内である必要があります"
 		}
 	}
 }
