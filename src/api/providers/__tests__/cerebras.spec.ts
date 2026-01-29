@@ -25,7 +25,7 @@ vi.mock("@ai-sdk/cerebras", () => ({
 
 import type { Anthropic } from "@anthropic-ai/sdk"
 
-import { cerebrasDefaultModelId, cerebrasModels, type CerebrasModelId } from "@roo-code/types"
+import { cerebrasDefaultModelId, cerebrasModels, type CerebrasModelId } from "@klaus-code/types"
 
 import type { ApiHandlerOptions } from "../../../shared/api"
 

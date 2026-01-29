@@ -2,7 +2,7 @@ import { Anthropic } from "@anthropic-ai/sdk"
 import { createCerebras } from "@ai-sdk/cerebras"
 import { streamText, generateText, ToolSet } from "ai"
 
-import { cerebrasModels, cerebrasDefaultModelId, type CerebrasModelId, type ModelInfo } from "@roo-code/types"
+import { cerebrasModels, cerebrasDefaultModelId, type CerebrasModelId, type ModelInfo } from "@klaus-code/types"
 
 import type { ApiHandlerOptions } from "../../shared/api"
 

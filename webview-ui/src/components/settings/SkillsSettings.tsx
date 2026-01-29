@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from "react"
 import { Plus, Globe, Folder } from "lucide-react"
 import { Trans } from "react-i18next"
 
-import type { SkillMetadata } from "@roo-code/types"
+import type { SkillMetadata } from "@klaus-code/types"
 
 import { useAppTranslation } from "@/i18n/TranslationContext"
 import { useExtensionState } from "@/context/ExtensionStateContext"

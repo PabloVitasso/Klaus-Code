@@ -2,7 +2,7 @@ import { Anthropic } from "@anthropic-ai/sdk"
 import { createDeepSeek } from "@ai-sdk/deepseek"
 import { streamText, generateText, ToolSet } from "ai"
 
-import { deepSeekModels, deepSeekDefaultModelId, DEEP_SEEK_DEFAULT_TEMPERATURE, type ModelInfo } from "@roo-code/types"
+import { deepSeekModels, deepSeekDefaultModelId, DEEP_SEEK_DEFAULT_TEMPERATURE, type ModelInfo } from "@klaus-code/types"
 
 import type { ApiHandlerOptions } from "../../shared/api"
 

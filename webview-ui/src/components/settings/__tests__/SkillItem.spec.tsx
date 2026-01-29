@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from "@/utils/test-utils"
 
-import type { SkillMetadata } from "@roo-code/types"
+import type { SkillMetadata } from "@klaus-code/types"
 
 import { SkillItem } from "../SkillItem"
 
