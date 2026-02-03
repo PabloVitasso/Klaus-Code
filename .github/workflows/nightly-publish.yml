@@ -21,6 +21,13 @@ jobs:
         uses: ./.github/actions/setup-node-pnpm
         with:
           install-args: '--frozen-lockfile'
+      - name: Cache Turbo build artifacts
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-
       - name: Forge numeric Nightly version
         id: version
         env:
@@ -40,8 +47,10 @@ jobs:
             fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2));
             console.log(`🔖 Nightly version set to ${pkg.version}`);
           EOF
+      - name: Build dependencies
+        run: pnpm build
       - name: Build VSIX
-        run: pnpm vsix:nightly # Produces bin/roo-code-nightly-0.0.[count].vsix
+        run: pnpm vsix:nightly # Produces bin/klaus-code-nightly-0.0.[count].vsix
       - name: Publish to VS Code Marketplace
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
