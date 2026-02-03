@@ -579,6 +579,113 @@ This approach provides:
 
 Before starting a merge, review the [Fork Divergence from Upstream](#fork-divergence-from-upstream) section to understand what must be preserved.
 
+### Quick Merge Process (Recommended for Most Merges)
+
+For straightforward upstream merges without critical conflicts, use this streamlined process:
+
+**1. Fetch and Create Merge Branch**
+
+```bash
+git fetch roocode
+git checkout -b merge-upstream-$(date +%Y%m%d)
+```
+
+**2. Attempt Merge**
+
+```bash
+git merge roocode/main --no-edit
+```
+
+**3. Resolve Delete Conflicts**
+
+If you see "deleted by us" or "deleted by them" conflicts:
+
+```bash
+# Remove files we intentionally deleted (like web-roo-code app)
+git rm apps/web-roo-code/...  # (list all deleted-by-us files)
+
+# Remove files upstream deleted
+git rm <files-deleted-by-them>
+```
+
+**4. Resolve Content Conflicts (Critical Files)**
+
+For `src/package.json`:
+- Keep Klaus Code publisher: `"publisher": "KlausCode"`
+- Update version with Klaus suffix: `"3.X.Y-klaus.1"`
+
+For `src/core/webview/ClineProvider.ts`:
+- Update `latestAnnouncementId` with new date and version
+
+For `webview-ui/src/components/chat/Announcement.tsx`:
+- Keep the generic `item1`, `item2`, `item3` translation keys
+
+For other conflicts:
+- Accept upstream version (`git checkout --theirs <file>`)
+- Branding will be fixed automatically in next step
+
+**5. Run Branding Fix Script**
+
+```bash
+./scripts/merge-upstream-fix-branding.sh
+```
+
+This script automatically:
+- ✓ Replaces all `@roo-code/` imports with `@klaus-code/`
+- ✓ Fixes package.json dependencies
+- ✓ Verifies Claude Code provider files are present
+- ✓ Verifies tool name prefixing code is intact
+- ✓ Checks branding in key files
+- ✓ Reports any remaining issues
+
+**6. Stage Changes and Verify**
+
+```bash
+git add -A
+pnpm check-types
+```
+
+**7. Complete Merge**
+
+```bash
+git commit -m "chore: merge upstream Roo Code changes ($(date +%Y-%m-%d))
+
+Merged N commits from upstream Roo Code main branch.
+
+Key changes:
+- [List major changes from upstream]
+
+Klaus Code specific changes preserved:
+- Claude Code OAuth provider and tool name prefixing
+- Klaus Code branding (@klaus-code imports)
+- Version bumped to 3.X.Y-klaus.1"
+```
+
+**8. Build and Test**
+
+```bash
+pnpm install
+pnpm check-types
+pnpm vsix
+
+# Install and test
+code --install-extension bin/klaus-code-*.vsix --force
+
+# Run critical tests
+cd src && npx vitest run integrations/claude-code/__tests__/
+```
+
+**9. Push and Create PR**
+
+```bash
+git push origin merge-upstream-$(date +%Y%m%d)
+gh pr create --base main --title "Merge upstream Roo Code changes ($(date +%Y-%m-%d))" --body "..."
+```
+
+**Estimated time**: 10-15 minutes for typical merge with ~30 commits.
+
+---
+
 ### Commit-by-Commit Merge Process
 
 This is the **recommended procedure** for merging upstream changes.
@@ -1188,6 +1295,43 @@ git reset --hard origin/main
 # Restore from backup
 git apply ~/klaus-code-diff-backup.patch
 ```
+
+---
+
+## Helper Scripts
+
+Klaus Code includes helper scripts to automate common development tasks:
+
+### Branding Fix Script
+
+**Location**: `scripts/merge-upstream-fix-branding.sh`
+
+**Purpose**: Automatically fixes Klaus Code branding after merging from upstream Roo Code.
+
+**Usage**:
+
+```bash
+./scripts/merge-upstream-fix-branding.sh
+```
+
+**What it does**:
+
+- Replaces all `@roo-code/` imports with `@klaus-code/` in source files
+- Fixes package.json dependencies
+- Verifies critical Klaus Code files are preserved:
+  - Claude Code provider files
+  - Tool name prefixing code (`oc_` prefix)
+  - Branding in key configuration files
+- Reports detailed status of all operations
+- Continues on errors (won't fail completely if one step fails)
+
+**When to use**:
+
+- After merging upstream changes from Roo Code
+- When you see TypeScript errors about `@roo-code/types` imports
+- To verify Klaus Code-specific features are intact after a merge
+
+**Safe to run multiple times** - the script is idempotent and won't break anything if run repeatedly.
 
 ---
 
