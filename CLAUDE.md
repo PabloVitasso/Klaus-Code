@@ -4,6 +4,23 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **For human developers**: See [DEVELOPMENT.md](DEVELOPMENT.md) for complete build instructions, environment setup, and release procedures.
 
+## Initial Context - Read These First
+
+When starting work on Klaus Code, read these documentation files for comprehensive context:
+
+1. **[DEVELOPMENT.md](DEVELOPMENT.md)** - Complete development guide
+   - Build and release procedures
+   - Upstream merge process with helper scripts
+   - Fork-specific divergences from Roo Code
+   - Testing and deployment workflows
+
+2. **[DEVELOPMENT-ClaudeCodeConnector.md](DEVELOPMENT-ClaudeCodeConnector.md)** - Claude Code OAuth provider
+   - Tool name prefixing mechanism (`oc_` prefix)
+   - OAuth authentication architecture
+   - Critical implementation details for Klaus Code's main differentiator
+
+These docs provide essential context for understanding Klaus Code's architecture and unique features.
+
 ## Project Overview
 
 Klaus Code is an AI-powered VS Code extension that assists with coding tasks. It's a TypeScript monorepo using pnpm workspaces and Turborepo.
