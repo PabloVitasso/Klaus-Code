@@ -1,9 +1,9 @@
-name: Nightly Publish
+name: Weekly Release
 
 on:
-  push:
-    branches: [main]
-  workflow_dispatch: # Allows manual triggering.
+  schedule:
+    - cron: '0 0 * * 0' # Run every Sunday at midnight UTC
+  workflow_dispatch: # Allows manual triggering
 
 jobs:
   publish-nightly:

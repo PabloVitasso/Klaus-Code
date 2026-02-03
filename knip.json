@@ -3,11 +3,14 @@
 	"ignore": [
 		"**/__tests__/**",
 		"apps/vscode-e2e/**",
+		"apps/web-roo-code/**",
 		"src/extension/api.ts",
 		"src/activate/**",
 		"src/workers/countTokens.ts",
 		"src/extension.ts",
-		"scripts/**",
+		"src/integrations/claude-code/oauth-original.ts",
+		"src/integrations/claude-code/streaming-client.original.ts",
+		"scripts/**"
 	],
 	"workspaces": {
 		"src": {

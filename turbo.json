@@ -2,7 +2,9 @@
 	"$schema": "https://turbo.build/schema.json",
 	"tasks": {
 		"lint": {},
-		"check-types": {},
+		"check-types": {
+			"dependsOn": ["@klaus-code/types#build"]
+		},
 		"test": {
 			"dependsOn": ["@klaus-code/types#build"]
 		},
