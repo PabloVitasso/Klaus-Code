@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     permissions:
-      contents: read # No tags pushed → read is enough.
+      contents: write # Required for creating releases
 
     steps:
       - name: Checkout code
@@ -51,6 +51,22 @@ jobs:
         run: pnpm build
       - name: Build VSIX
         run: pnpm vsix:nightly # Produces bin/klaus-code-nightly-0.0.[count].vsix
+      - name: Create GitHub Pre-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          NIGHTLY_VERSION="0.0.${{ steps.version.outputs.number }}"
+          VSIX_FILE=$(ls bin/*.vsix | head -n1)
+          VSIX_FILENAME=$(basename "$VSIX_FILE")
+
+          # Create pre-release with the VSIX
+          gh release create "nightly-v${NIGHTLY_VERSION}" \
+            --title "Nightly Build v${NIGHTLY_VERSION}" \
+            --notes "Automated nightly build from commit ${{ github.sha }}" \
+            --prerelease \
+            "$VSIX_FILE"
+
+          echo "Created nightly pre-release v${NIGHTLY_VERSION} with ${VSIX_FILENAME}"
       # - name: Publish to VS Code Marketplace
       #   env:
       #     VSCE_PAT: ${{ secrets.VSCE_PAT }}
