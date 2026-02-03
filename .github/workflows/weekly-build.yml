@@ -1,4 +1,4 @@
-name: Weekly Release
+name: Weekly Build
 
 on:
   schedule:
@@ -6,7 +6,7 @@ on:
   workflow_dispatch: # Allows manual triggering
 
 jobs:
-  publish-nightly:
+  publish-weekly:
     runs-on: ubuntu-latest
 
     permissions:
@@ -28,7 +28,7 @@ jobs:
           key: ${{ runner.os }}-turbo-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-turbo-
-      - name: Forge numeric Nightly version
+      - name: Forge numeric Weekly version
         id: version
         env:
           RUN_NUMBER: ${{ github.run_number }}
@@ -45,7 +45,7 @@ jobs:
             const [maj, min] = pkg.version.split('.');
             pkg.version = `${maj}.${min}.${process.env.VERSION_NUMBER}`;
             fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2));
-            console.log(`🔖 Nightly version set to ${pkg.version}`);
+            console.log(`🔖 Weekly version set to ${pkg.version}`);
           EOF
       - name: Build dependencies
         run: pnpm build
@@ -55,18 +55,18 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          NIGHTLY_VERSION="0.0.${{ steps.version.outputs.number }}"
+          WEEKLY_VERSION="0.0.${{ steps.version.outputs.number }}"
           VSIX_FILE=$(ls bin/*.vsix | head -n1)
           VSIX_FILENAME=$(basename "$VSIX_FILE")
 
           # Create pre-release with the VSIX
-          gh release create "nightly-v${NIGHTLY_VERSION}" \
-            --title "Nightly Build v${NIGHTLY_VERSION}" \
-            --notes "Automated nightly build from commit ${{ github.sha }}" \
+          gh release create "weekly-v${WEEKLY_VERSION}" \
+            --title "Weekly Build v${WEEKLY_VERSION}" \
+            --notes "Automated weekly build from commit ${{ github.sha }}" \
             --prerelease \
             "$VSIX_FILE"
 
-          echo "Created nightly pre-release v${NIGHTLY_VERSION} with ${VSIX_FILENAME}"
+          echo "Created weekly pre-release v${WEEKLY_VERSION} with ${VSIX_FILENAME}"
       # - name: Publish to VS Code Marketplace
       #   env:
       #     VSCE_PAT: ${{ secrets.VSCE_PAT }}
