@@ -71,6 +71,16 @@ export const claudeCodeModels = {
 		reasoningEffort: "medium",
 		description: "Claude Opus 4.5 - Most capable with thinking",
 	},
+	"claude-opus-4-6": {
+		maxTokens: 128_000, // 128K max tokens (4x more than Opus 4.5)
+		contextWindow: 200_000, // 200K base context (extensible to 1M with beta flag)
+		supportsImages: true,
+		supportsPromptCache: true,
+		supportsReasoningBudget: true,
+		supportsReasoningEffort: ["disable", "low", "medium", "high"],
+		reasoningEffort: "medium",
+		description: "Claude Opus 4.6 - Most capable with extended output",
+	},
 } as const satisfies Record<string, ModelInfo>
 
 // Claude Code - Only models that work with Claude Code OAuth tokens
@@ -84,7 +94,9 @@ export const claudeCodeDefaultModelId: ClaudeCodeModelId = "claude-sonnet-4-5"
  * Order matters - more specific patterns should come first.
  */
 const MODEL_FAMILY_PATTERNS: Array<{ pattern: RegExp; target: ClaudeCodeModelId }> = [
-	// Opus models (any version) → claude-opus-4-5
+	// Opus 4.6 (specific version) → claude-opus-4-6
+	{ pattern: /opus.*4[._-]?6/i, target: "claude-opus-4-6" },
+	// Opus models (any other version) → claude-opus-4-5
 	{ pattern: /opus/i, target: "claude-opus-4-5" },
 	// Haiku models (any version) → claude-haiku-4-5
 	{ pattern: /haiku/i, target: "claude-haiku-4-5" },
@@ -98,6 +110,7 @@ const MODEL_FAMILY_PATTERNS: Array<{ pattern: RegExp; target: ClaudeCodeModelId 
  * This function handles backward compatibility for legacy model names
  * that may include version numbers or date suffixes. It maps:
  * - claude-sonnet-4-5-20250929, claude-sonnet-4-20250514, claude-3-7-sonnet-20250219, claude-3-5-sonnet-20241022 → claude-sonnet-4-5
+ * - claude-opus-4-6-20260205 → claude-opus-4-6
  * - claude-opus-4-5-20251101, claude-opus-4-1-20250805, claude-opus-4-20250514 → claude-opus-4-5
  * - claude-haiku-4-5-20251001, claude-3-5-haiku-20241022 → claude-haiku-4-5
  *
