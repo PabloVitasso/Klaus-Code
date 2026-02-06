@@ -531,6 +531,12 @@ export async function* createStreamingMessage(options: StreamMessageOptions): As
 		body.tool_choice = prefixToolChoice(toolChoice)
 	}
 
+	// Build beta headers - add 1M context beta for claude-opus-4-6-1m
+	const betas: string[] = [...CLAUDE_CODE_API_CONFIG.defaultBetas]
+	if (model === "claude-opus-4-6-1m") {
+		betas.push("context-1m-2025-08-07")
+	}
+
 	// Build headers matching Claude Code CLI exactly
 	const headers: Record<string, string> = {
 		Accept: "application/json",
@@ -538,7 +544,7 @@ export async function* createStreamingMessage(options: StreamMessageOptions): As
 		"Content-Type": "application/json",
 		"User-Agent": CLAUDE_CODE_API_CONFIG.userAgent,
 		"Anthropic-Version": CLAUDE_CODE_API_CONFIG.version,
-		"Anthropic-Beta": CLAUDE_CODE_API_CONFIG.defaultBetas.join(","),
+		"Anthropic-Beta": betas.join(","),
 		"x-app": CLAUDE_CODE_API_CONFIG.xApp,
 		"anthropic-dangerous-direct-browser-access": "true",
 		"accept-language": "*",
@@ -857,6 +863,14 @@ export async function fetchRateLimitInfo(accessToken: string, email?: string): P
 		}
 	}
 
+	// Build beta headers - add 1M context beta for claude-opus-4-6-1m
+	// (Note: fetchRateLimitInfo uses haiku-4-5 so this won't trigger, but kept for consistency)
+	const betas: string[] = [...CLAUDE_CODE_API_CONFIG.defaultBetas]
+	const model = body.model as string
+	if (model === "claude-opus-4-6-1m") {
+		betas.push("context-1m-2025-08-07")
+	}
+
 	// Build headers matching Claude Code CLI exactly
 	const headers: Record<string, string> = {
 		Accept: "application/json",
@@ -864,7 +878,7 @@ export async function fetchRateLimitInfo(accessToken: string, email?: string): P
 		"Content-Type": "application/json",
 		"User-Agent": CLAUDE_CODE_API_CONFIG.userAgent,
 		"Anthropic-Version": CLAUDE_CODE_API_CONFIG.version,
-		"Anthropic-Beta": CLAUDE_CODE_API_CONFIG.defaultBetas.join(","),
+		"Anthropic-Beta": betas.join(","),
 		"x-app": CLAUDE_CODE_API_CONFIG.xApp,
 		"anthropic-dangerous-direct-browser-access": "true",
 		"accept-language": "*",

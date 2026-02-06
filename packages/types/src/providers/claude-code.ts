@@ -73,13 +73,23 @@ export const claudeCodeModels = {
 	},
 	"claude-opus-4-6": {
 		maxTokens: 128_000, // 128K max tokens (4x more than Opus 4.5)
-		contextWindow: 200_000, // 200K base context (extensible to 1M with beta flag)
+		contextWindow: 200_000, // 200K base context
 		supportsImages: true,
 		supportsPromptCache: true,
 		supportsReasoningBudget: true,
 		supportsReasoningEffort: ["disable", "low", "medium", "high"],
 		reasoningEffort: "medium",
 		description: "Claude Opus 4.6 - Most capable with extended output",
+	},
+	"claude-opus-4-6-1m": {
+		maxTokens: 128_000, // 128K max tokens
+		contextWindow: 1_000_000, // 1M context with beta flag (requires eligible subscription)
+		supportsImages: true,
+		supportsPromptCache: true,
+		supportsReasoningBudget: true,
+		supportsReasoningEffort: ["disable", "low", "medium", "high"],
+		reasoningEffort: "medium",
+		description: "Claude Opus 4.6 [1M] - Extended context (beta)",
 	},
 } as const satisfies Record<string, ModelInfo>
 
