@@ -375,4 +375,8 @@ export class ClaudeCodeHandler implements ApiHandler, SingleCompletionHandler {
 
 		return result
 	}
+
+	isAiSdkProvider(): boolean {
+		return false
+	}
 }

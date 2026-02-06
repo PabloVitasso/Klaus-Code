@@ -3,7 +3,8 @@
 # Automatically fixes Klaus Code branding after merging from upstream Roo Code
 # Safe to run multiple times - only fixes what needs fixing
 
-set -e
+# Note: We don't use 'set -e' because we want to continue on errors
+# and report them at the end
 
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -44,8 +45,8 @@ echo ""
 echo -e "${BLUE}[1/6] Fixing @roo-code imports...${NC}"
 echo ""
 
-# Find files with @roo-code imports
-FILES_WITH_ROO_CODE=$(find src packages apps -type f \( -name "*.ts" -o -name "*.tsx" -o -name "*.js" \) ! -path "*/node_modules/*" ! -path "*/.next/*" -exec grep -l "@roo-code/" {} \; 2>/dev/null || true)
+# Find files with @roo-code imports (including webview-ui)
+FILES_WITH_ROO_CODE=$(find src packages apps webview-ui -type f \( -name "*.ts" -o -name "*.tsx" -o -name "*.js" \) ! -path "*/node_modules/*" ! -path "*/.next/*" ! -path "*/dist/*" -exec grep -l "@roo-code/" {} \; 2>/dev/null || true)
 
 if [ -z "$FILES_WITH_ROO_CODE" ]; then
     print_status "No @roo-code imports found - already clean!"
@@ -143,7 +144,7 @@ echo ""
 echo -e "${BLUE}[6/6] Checking for remaining @roo-code references...${NC}"
 echo ""
 
-REMAINING=$(grep -r "@roo-code/" src/ packages/ apps/ --include="*.ts" --include="*.tsx" --include="*.js" --include="*.json" --exclude-dir=node_modules --exclude-dir=.next 2>/dev/null | grep -v "^Binary" | wc -l || echo "0")
+REMAINING=$(grep -r "@roo-code/" src/ packages/ apps/ webview-ui/ --include="*.ts" --include="*.tsx" --include="*.js" --include="*.json" --exclude-dir=node_modules --exclude-dir=.next --exclude-dir=dist 2>/dev/null | grep -v "^Binary" | wc -l || echo "0")
 
 if [ "$REMAINING" -eq 0 ]; then
     print_status "No remaining @roo-code references found"
@@ -151,7 +152,7 @@ else
     print_warning "Found $REMAINING remaining @roo-code references (may be in comments/docs)"
     echo ""
     print_info "Showing first 10 occurrences:"
-    grep -r "@roo-code/" src/ packages/ apps/ --include="*.ts" --include="*.tsx" --include="*.js" --include="*.json" --exclude-dir=node_modules --exclude-dir=.next 2>/dev/null | head -10 || true
+    grep -r "@roo-code/" src/ packages/ apps/ webview-ui/ --include="*.ts" --include="*.tsx" --include="*.js" --include="*.json" --exclude-dir=node_modules --exclude-dir=.next --exclude-dir=dist 2>/dev/null | head -10 || true
 fi
 
 # Summary
@@ -166,14 +167,22 @@ echo -e "Errors:         ${RED}$ERRORS${NC}"
 echo ""
 
 if [ $ERRORS -gt 0 ]; then
-    echo -e "${YELLOW}⚠ Script completed with $ERRORS error(s)${NC}"
-    echo -e "${YELLOW}Please review errors above and fix manually if needed${NC}"
+    echo -e "${RED}✗ Script completed with $ERRORS critical error(s)${NC}"
+    echo -e "${YELLOW}Please review errors above and fix manually${NC}"
+    echo ""
     exit 1
 else
     echo -e "${GREEN}✓ All branding fixes applied successfully!${NC}"
+    echo ""
+    if [ $FIXED_FILES -eq 0 ]; then
+        echo -e "${BLUE}No files needed fixing - branding already correct!${NC}"
+    else
+        echo -e "${GREEN}Fixed $FIXED_FILES file(s)${NC}"
+    fi
     echo ""
     echo -e "${BLUE}Next steps:${NC}"
     echo "  1. Run: pnpm check-types"
     echo "  2. Run: pnpm test"
     echo "  3. If tests pass, stage changes: git add -A"
+    echo ""
 fi

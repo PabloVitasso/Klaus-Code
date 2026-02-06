@@ -41,7 +41,7 @@
 		"ui": "UI",
 		"experimental": "Eksperimental",
 		"language": "Bahasa",
-		"about": "Tentang Klaus Code",
+		"about": "Tentang Roo Code",
 		"skills": "Skills"
 	},
 	"about": {
@@ -60,7 +60,7 @@
 		"contact": {
 			"label": "Perlu bicara dengan kami? Tulis"
 		},
-		"community": "Ingin tips atau hanya nongkrong dengan pengguna Klaus Code lainnya? Bergabunglah dengan <redditLink>reddit.com/r/RooCode</redditLink> atau <discordLink>discord.gg/roocode</discordLink>",
+		"community": "Ingin tips atau hanya nongkrong dengan pengguna Roo Code lainnya? Bergabunglah dengan <redditLink>reddit.com/r/RooCode</redditLink> atau <discordLink>discord.gg/roocode</discordLink>",
 		"contactAndCommunity": "Kontak & Komunitas",
 		"manageSettings": "Kelola Pengaturan",
 		"debugMode": {
@@ -69,7 +69,39 @@
 		}
 	},
 	"slashCommands": {
-		"description": "Kelola perintah slash kamu untuk mengeksekusi alur kerja dan tindakan kustom dengan cepat. <DocsLink>Pelajari lebih lanjut</DocsLink>"
+		"description": "Kelola perintah slash kamu untuk mengeksekusi alur kerja dan tindakan kustom dengan cepat. <DocsLink>Pelajari lebih lanjut</DocsLink>",
+		"workspaceCommands": "Perintah Ruang Kerja",
+		"globalCommands": "Perintah Global",
+		"noWorkspaceCommands": "Tidak ada perintah di proyek ini belum.",
+		"noGlobalCommands": "Tidak ada perintah global belum.",
+		"addCommand": "Tambahkan Perintah Slash",
+		"editCommand": "Edit perintah",
+		"deleteCommand": "Hapus perintah",
+		"deleteDialog": {
+			"title": "Hapus Perintah",
+			"description": "Apakah Anda yakin ingin menghapus perintah \"{{name}}\"? Tindakan ini tidak dapat dibatalkan.",
+			"confirm": "Hapus",
+			"cancel": "Batal"
+		},
+		"createDialog": {
+			"title": "Buat Perintah Slash Baru",
+			"nameLabel": "Nama",
+			"namePlaceholder": "my-command-name",
+			"nameHint": "Hanya huruf kecil, angka, tanda hubung dan garis bawah",
+			"sourceLabel": "Lokasi",
+			"create": "Buat",
+			"cancel": "Batal"
+		},
+		"source": {
+			"global": "Global (tersedia di semua ruang kerja)",
+			"project": "Ruang Kerja"
+		},
+		"validation": {
+			"nameRequired": "Nama diperlukan",
+			"nameTooLong": "Nama harus 64 karakter atau kurang",
+			"nameInvalid": "Nama hanya dapat berisi huruf, angka, tanda hubung, dan garis bawah"
+		},
+		"footer": "Gunakan perintah slash untuk akses cepat ke prompt dan alur kerja yang sering digunakan."
 	},
 	"prompts": {
 		"description": "Konfigurasi support prompt yang digunakan untuk aksi cepat seperti meningkatkan prompt, menjelaskan kode, dan memperbaiki masalah. Prompt ini membantu Roo memberikan bantuan yang lebih baik untuk tugas pengembangan umum."
@@ -242,13 +274,8 @@
 			"addButton": "Tambah",
 			"autoDenied": "Perintah dengan awalan `{{prefix}}` telah dilarang oleh pengguna. Jangan menghindari pembatasan ini dengan menjalankan perintah lain."
 		},
-		"showMenu": {
-			"label": "Tampilkan menu auto-approve di tampilan chat",
-			"description": "Ketika diaktifkan, menu auto-approve akan ditampilkan di bagian bawah tampilan chat, memungkinkan akses cepat ke pengaturan auto-approve"
-		},
 		"apiRequestLimit": {
 			"title": "Permintaan Maks",
-			"description": "Secara otomatis membuat sejumlah permintaan API ini sebelum meminta persetujuan untuk melanjutkan tugas.",
 			"unlimited": "Tidak terbatas"
 		},
 		"selectOptionsFirst": "Pilih setidaknya satu opsi di bawah ini untuk mengaktifkan persetujuan otomatis",
@@ -343,11 +370,11 @@
 		"getAnthropicApiKey": "Dapatkan Anthropic API Key",
 		"anthropicUseAuthToken": "Kirim Anthropic API Key sebagai Authorization header alih-alih X-Api-Key",
 		"anthropic1MContextBetaLabel": "Aktifkan jendela konteks 1M (Beta)",
-		"anthropic1MContextBetaDescription": "Memperluas jendela konteks menjadi 1 juta token untuk Claude Sonnet 4",
+		"anthropic1MContextBetaDescription": "Memperluas jendela konteks menjadi 1 juta token untuk Claude Sonnet 4 / 4.5 / Claude Opus 4.6",
 		"awsBedrock1MContextBetaLabel": "Aktifkan jendela konteks 1M (Beta)",
-		"awsBedrock1MContextBetaDescription": "Memperluas jendela konteks menjadi 1 juta token untuk Claude Sonnet 4",
+		"awsBedrock1MContextBetaDescription": "Memperluas jendela konteks menjadi 1 juta token untuk Claude Sonnet 4 / 4.5 / Claude Opus 4.6",
 		"vertex1MContextBetaLabel": "Aktifkan jendela konteks 1M (Beta)",
-		"vertex1MContextBetaDescription": "Memperluas jendela konteks menjadi 1 juta token untuk Claude Sonnet 4",
+		"vertex1MContextBetaDescription": "Memperluas jendela konteks menjadi 1 juta token untuk Claude Sonnet 4 / 4.5 / Claude Opus 4.6",
 		"basetenApiKey": "Baseten API Key",
 		"getBasetenApiKey": "Dapatkan Baseten API Key",
 		"cerebrasApiKey": "Cerebras API Key",
@@ -462,7 +489,7 @@
 			"draftModelDesc": "Draft model harus dari keluarga model yang sama agar speculative decoding bekerja dengan benar.",
 			"selectDraftModel": "Pilih Draft Model",
 			"noModelsFound": "Tidak ada draft model ditemukan. Pastikan LM Studio berjalan dengan Server Mode diaktifkan.",
-			"description": "LM Studio memungkinkan kamu menjalankan model secara lokal di komputer. Untuk instruksi cara memulai, lihat <a>panduan quickstart</a> mereka. Kamu juga perlu memulai fitur <b>local server</b> LM Studio untuk menggunakannya dengan ekstensi ini. <span>Catatan:</span> Klaus Code menggunakan prompt kompleks dan bekerja terbaik dengan model Claude. Model yang kurang mampu mungkin tidak bekerja seperti yang diharapkan."
+			"description": "LM Studio memungkinkan kamu menjalankan model secara lokal di komputer. Untuk instruksi cara memulai, lihat <a>panduan quickstart</a> mereka. Kamu juga perlu memulai fitur <b>local server</b> LM Studio untuk menggunakannya dengan ekstensi ini. <span>Catatan:</span> Roo Code menggunakan prompt kompleks dan bekerja terbaik dengan model Claude. Model yang kurang mampu mungkin tidak bekerja seperti yang diharapkan."
 		},
 		"ollama": {
 			"baseUrl": "Base URL (opsional)",
@@ -472,15 +499,15 @@
 			"numCtx": "Ukuran Jendela Konteks (num_ctx)",
 			"numCtxHelp": "Ganti ukuran jendela konteks default model. Biarkan kosong untuk menggunakan konfigurasi Modelfile model. Nilai minimum adalah 128.",
 			"description": "Ollama memungkinkan kamu menjalankan model secara lokal di komputer. Untuk instruksi cara memulai, lihat panduan quickstart mereka.",
-			"warning": "Catatan: Klaus Code menggunakan prompt kompleks dan bekerja terbaik dengan model Claude. Model yang kurang mampu mungkin tidak bekerja seperti yang diharapkan."
+			"warning": "Catatan: Roo Code menggunakan prompt kompleks dan bekerja terbaik dengan model Claude. Model yang kurang mampu mungkin tidak bekerja seperti yang diharapkan."
 		},
 		"unboundApiKey": "Unbound API Key",
 		"getUnboundApiKey": "Dapatkan Unbound API Key",
 		"unboundRefreshModelsSuccess": "Daftar model diperbarui! Kamu sekarang dapat memilih dari model terbaru.",
 		"unboundInvalidApiKey": "API key tidak valid. Silakan periksa API key kamu dan coba lagi.",
 		"roo": {
-			"authenticatedMessage": "Terautentikasi dengan aman melalui akun Klaus Code Cloud Anda.",
-			"connectButton": "Hubungkan ke Klaus Code Cloud"
+			"authenticatedMessage": "Terautentikasi dengan aman melalui akun Roo Code Cloud Anda.",
+			"connectButton": "Hubungkan ke Roo Code Cloud"
 		},
 		"openRouter": {
 			"providerRouting": {
@@ -490,7 +517,7 @@
 			}
 		},
 		"customModel": {
-			"capabilities": "Konfigurasi kemampuan dan harga untuk model kustom yang kompatibel dengan OpenAI. Hati-hati saat menentukan kemampuan model, karena dapat mempengaruhi performa Klaus Code.",
+			"capabilities": "Konfigurasi kemampuan dan harga untuk model kustom yang kompatibel dengan OpenAI. Hati-hati saat menentukan kemampuan model, karena dapat mempengaruhi performa Roo Code.",
 			"maxTokens": {
 				"label": "Token Output Maksimum",
 				"description": "Jumlah maksimum token yang dapat dihasilkan model dalam respons. (Tentukan -1 untuk membiarkan server mengatur token maksimum.)"
@@ -647,7 +674,6 @@
 				"label": "Pesan diagnostik maksimum",
 				"description": "Jumlah maksimum pesan diagnostik yang akan disertakan per file. Batas ini berlaku untuk penyertaan otomatis (ketika checkbox diaktifkan) dan penyebutan manual @problems. Nilai yang lebih tinggi memberikan lebih banyak konteks tetapi meningkatkan penggunaan token.",
 				"resetTooltip": "Reset ke nilai default (50)",
-				"unlimited": "Pesan diagnostik tidak terbatas",
 				"unlimitedLabel": "Tak terbatas"
 			},
 			"delayAfterWrite": {
@@ -803,27 +829,6 @@
 		}
 	},
 	"experimental": {
-		"warning": "⚠️",
-		"autoCondenseContextPercent": {
-			"label": "Ambang batas untuk memicu kondensasi konteks cerdas",
-			"description": "Ketika context window mencapai ambang batas ini, Roo akan secara otomatis mengondensasikannya."
-		},
-		"condensingApiConfiguration": {
-			"label": "Konfigurasi API untuk Kondensasi Konteks",
-			"description": "Pilih konfigurasi API mana yang akan digunakan untuk operasi kondensasi konteks. Biarkan tidak dipilih untuk menggunakan konfigurasi aktif saat ini.",
-			"useCurrentConfig": "Default"
-		},
-		"customCondensingPrompt": {
-			"label": "Prompt Kondensasi Konteks Kustom",
-			"description": "Kustomisasi system prompt yang digunakan untuk kondensasi konteks. Biarkan kosong untuk menggunakan prompt default.",
-			"placeholder": "Masukkan prompt kondensasi kustom kamu di sini...\n\nKamu dapat menggunakan struktur yang sama dengan prompt default:\n- Previous Conversation\n- Current Work\n- Key Technical Concepts\n- Relevant Files and Code\n- Problem Solving\n- Pending Tasks and Next Steps",
-			"reset": "Reset ke Default",
-			"hint": "Kosong = gunakan prompt default"
-		},
-		"AUTO_CONDENSE_CONTEXT": {
-			"name": "Secara cerdas mengondensasi context window",
-			"description": "Kondensasi konteks cerdas menggunakan panggilan LLM untuk merangkum percakapan masa lalu ketika context window tugas mencapai ambang batas yang telah ditetapkan, daripada menghapus pesan lama ketika konteks penuh."
-		},
 		"DIFF_STRATEGY_UNIFIED": {
 			"name": "Gunakan strategi unified diff eksperimental",
 			"description": "Aktifkan strategi unified diff eksperimental. Strategi ini mungkin mengurangi jumlah retry yang disebabkan oleh error model tetapi dapat menyebabkan perilaku yang tidak terduga atau edit yang salah. Hanya aktifkan jika kamu memahami risikonya dan bersedia meninjau semua perubahan dengan hati-hati."
@@ -831,10 +836,6 @@
 		"INSERT_BLOCK": {
 			"name": "Gunakan tool insert content eksperimental",
 			"description": "Aktifkan tool insert content eksperimental, memungkinkan Roo menyisipkan konten pada nomor baris spesifik tanpa perlu membuat diff."
-		},
-		"AUTOCOMPLETE": {
-			"name": "Gunakan fitur \"autocomplete\" eksperimental",
-			"description": "Ketika diaktifkan, Roo akan memberikan saran kode inline saat kamu mengetik. Memerlukan Klaus Code API Provider."
 		},
 		"CONCURRENT_FILE_READS": {
 			"name": "Aktifkan pembacaan file bersamaan",
@@ -921,7 +922,7 @@
 		}
 	},
 	"modelPicker": {
-		"automaticFetch": "Ekstensi secara otomatis mengambil daftar model terbaru yang tersedia di <serviceLink>{{serviceName}}</serviceLink>. Jika kamu tidak yakin model mana yang harus dipilih, Klaus Code bekerja terbaik dengan <defaultModelLink>{{defaultModelId}}</defaultModelLink>. Kamu juga dapat mencoba mencari \"free\" untuk opsi tanpa biaya yang saat ini tersedia.",
+		"automaticFetch": "Ekstensi secara otomatis mengambil daftar model terbaru yang tersedia di <serviceLink>{{serviceName}}</serviceLink>. Jika kamu tidak yakin model mana yang harus dipilih, Roo Code bekerja terbaik dengan <defaultModelLink>{{defaultModelId}}</defaultModelLink>. Kamu juga dapat mencoba mencari \"free\" untuk opsi tanpa biaya yang saat ini tersedia.",
 		"label": "Model",
 		"searchPlaceholder": "Cari",
 		"noMatchFound": "Tidak ada yang cocok ditemukan",
@@ -929,10 +930,9 @@
 		"simplifiedExplanation": "Anda dapat menyesuaikan pengaturan model terperinci nanti."
 	},
 	"footer": {
-		"feedback": "Jika kamu punya pertanyaan atau feedback, jangan ragu untuk membuka issue di <githubLink>github.com/RooCodeInc/Roo-Code</githubLink> atau bergabung <redditLink>reddit.com/r/RooCode</redditLink> atau <discordLink>discord.gg/roocode</discordLink>",
 		"telemetry": {
 			"label": "Izinkan pelaporan error dan penggunaan anonim",
-			"description": "Bantu tingkatkan Klaus Code dengan mengirimkan data penggunaan anonim dan laporan error. Telemetri ini tidak mengumpulkan kode, prompt, atau informasi pribadi. Lihat <privacyLink>kebijakan privasi</privacyLink> kami untuk detail lebih lanjut. Anda dapat menonaktifkannya kapan saja."
+			"description": "Bantu tingkatkan Roo Code dengan mengirimkan data penggunaan anonim dan laporan error. Telemetri ini tidak mengumpulkan kode, prompt, atau informasi pribadi. Lihat <privacyLink>kebijakan privasi</privacyLink> kami untuk detail lebih lanjut. Anda dapat menonaktifkannya kapan saja."
 		},
 		"settings": {
 			"import": "Impor",
@@ -1026,32 +1026,37 @@
 	},
 	"skills": {
 		"description": "Kelola skills yang memberikan instruksi kontekstual kepada agen. Skills diterapkan secara otomatis saat relevan dengan tugas Anda. <DocsLink>Pelajari lebih lanjut</DocsLink>",
-		"projectSkills": "Skills Proyek",
+		"workspaceSkills": "Skills Ruang Kerja",
 		"globalSkills": "Skills Global",
-		"noProjectSkills": "Tidak ada skills proyek yang dikonfigurasi. Buat satu untuk menambahkan kemampuan agen khusus proyek.",
-		"noGlobalSkills": "Tidak ada skills global yang dikonfigurasi. Buat satu untuk menambahkan kemampuan agen yang tersedia di semua proyek.",
+		"noWorkspaceSkills": "Tidak ada skills di proyek ini belum.",
+		"noGlobalSkills": "Tidak ada skills global belum.",
 		"addSkill": "Tambahkan Skill",
 		"editSkill": "Edit skill",
 		"deleteSkill": "Hapus skill",
-		"changeMode": "Ubah mode",
+		"configureModes": "Ketersediaan mode",
 		"modeAny": "Mode apa saja",
+		"modeCount": "{{count}} mode",
 		"deleteDialog": {
 			"title": "Hapus Skill",
 			"description": "Apakah Anda yakin ingin menghapus skill \"{{name}}\"? Tindakan ini tidak dapat dibatalkan.",
 			"confirm": "Hapus",
 			"cancel": "Batal"
 		},
+		"modeDialog": {
+			"title": "Konfigurasi Mode Skill",
+			"description": "Pilih mode mana yang dapat menggunakan skill ini",
+			"intro": "Untuk menjaga konteks Anda tetap ringan, kami merekomendasikan hanya membuat skills tersedia untuk mode yang membutuhkannya.",
+			"anyMode": "Mode apa pun (tersedia di mana-mana)",
+			"save": "Simpan",
+			"cancel": "Batal"
+		},
 		"createDialog": {
 			"title": "Buat Skill Baru",
-			"description": "Tentukan template skill baru yang memberikan instruksi kontekstual kepada agen.",
 			"nameLabel": "Nama",
 			"namePlaceholder": "nama-skill-saya",
-			"nameHint": "Hanya huruf kecil, angka, dan tanda hubung (1-64 karakter)",
 			"descriptionLabel": "Deskripsi",
 			"descriptionPlaceholder": "Jelaskan kapan skill ini harus digunakan...",
-			"descriptionHint": "Jelaskan apa yang dilakukan skill ini dan kapan agen harus menerapkannya (1-1024 karakter)",
 			"sourceLabel": "Lokasi",
-			"sourceHint": "Pilih apakah skill ini tersedia secara global atau hanya di proyek ini",
 			"modeLabel": "Mode (opsional)",
 			"modePlaceholder": "Mode apa saja",
 			"modeHint": "Batasi skill ini ke mode tertentu",
@@ -1069,6 +1074,7 @@
 			"nameInvalid": "Nama harus 1-64 huruf kecil, angka, atau tanda hubung",
 			"descriptionRequired": "Deskripsi diperlukan",
 			"descriptionTooLong": "Deskripsi harus 1024 karakter atau kurang"
-		}
+		},
+		"footer": "Buat skills Anda sendiri dengan mode Skill Writer, tersedia di <MarketplaceLink>Modes Marketplace</MarketplaceLink>."
 	}
 }

@@ -2,7 +2,12 @@ import { Anthropic } from "@anthropic-ai/sdk"
 import { createDeepSeek } from "@ai-sdk/deepseek"
 import { streamText, generateText, ToolSet } from "ai"
 
-import { deepSeekModels, deepSeekDefaultModelId, DEEP_SEEK_DEFAULT_TEMPERATURE, type ModelInfo } from "@klaus-code/types"
+import {
+	deepSeekModels,
+	deepSeekDefaultModelId,
+	DEEP_SEEK_DEFAULT_TEMPERATURE,
+	type ModelInfo,
+} from "@klaus-code/types"
 
 import type { ApiHandlerOptions } from "../../shared/api"
 
@@ -34,7 +39,7 @@ export class DeepSeekHandler extends BaseProvider implements SingleCompletionHan
 
 		// Create the DeepSeek provider using AI SDK
 		this.provider = createDeepSeek({
-			baseURL: options.deepSeekBaseUrl ?? "https://api.deepseek.com/v1",
+			baseURL: options.deepSeekBaseUrl || "https://api.deepseek.com/v1",
 			apiKey: options.deepSeekApiKey ?? "not-provided",
 			headers: DEFAULT_HEADERS,
 		})
@@ -165,5 +170,9 @@ export class DeepSeekHandler extends BaseProvider implements SingleCompletionHan
 		})
 
 		return text
+	}
+
+	override isAiSdkProvider(): boolean {
+		return true
 	}
 }

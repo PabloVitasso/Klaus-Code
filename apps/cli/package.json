@@ -1,12 +1,12 @@
 {
 	"name": "@klaus-code/cli",
-	"version": "0.0.49",
-	"description": "Klaus Code CLI - Run the Klaus Code agent from the command line",
+	"version": "0.0.50",
+	"description": "Roo Code CLI - Run the Roo Code agent from the command line",
 	"private": true,
 	"type": "module",
 	"main": "dist/index.js",
 	"bin": {
-		"klaus": "dist/index.js"
+		"roo": "dist/index.js"
 	},
 	"scripts": {
 		"format": "prettier --write 'src/**/*.ts'",
@@ -14,12 +14,9 @@
 		"check-types": "tsc --noEmit",
 		"test": "vitest run",
 		"build": "tsup",
-		"build:extension": "pnpm --filter klaus-code bundle",
-		"build:all": "pnpm --filter klaus-code bundle && tsup",
-		"dev": "tsup --watch",
-		"start": "ROO_AUTH_BASE_URL=http://localhost:3000 ROO_SDK_BASE_URL=http://localhost:3001 ROO_CODE_PROVIDER_URL=http://localhost:8080/proxy node dist/index.js",
-		"start:production": "node dist/index.js",
-		"build:local": "scripts/build.sh",
+		"build:extension": "pnpm --filter roo-cline bundle",
+		"dev": "ROO_AUTH_BASE_URL=https://app.roocode.com ROO_SDK_BASE_URL=https://cloud-api.roocode.com ROO_CODE_PROVIDER_URL=https://api.roocode.com/proxy tsx src/index.ts -y",
+		"dev:local": "ROO_AUTH_BASE_URL=http://localhost:3000 ROO_SDK_BASE_URL=http://localhost:3001 ROO_CODE_PROVIDER_URL=http://localhost:8080/proxy tsx src/index.ts",
 		"clean": "rimraf dist .turbo"
 	},
 	"dependencies": {
