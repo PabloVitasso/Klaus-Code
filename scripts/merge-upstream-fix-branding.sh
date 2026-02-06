@@ -65,11 +65,12 @@ else
     done
 fi
 
-# Step 2: Fix package.json files with @roo-code dependencies
+# Step 2: Fix package.json and package.metadata.json files
 echo ""
-echo -e "${BLUE}[2/6] Fixing package.json dependencies...${NC}"
+echo -e "${BLUE}[2/6] Fixing package.json and metadata files...${NC}"
 echo ""
 
+# Fix @roo-code references in package.json files
 PACKAGE_JSON_FILES=$(find . -name "package.json" ! -path "*/node_modules/*" ! -path "*/.next/*" -exec grep -l "@roo-code/" {} \; 2>/dev/null || true)
 
 if [ -z "$PACKAGE_JSON_FILES" ]; then
@@ -81,6 +82,34 @@ else
             ((FIXED_FILES++))
         else
             print_error "Failed to fix: $file"
+        fi
+    done
+fi
+
+# Fix package.metadata.json files with full Klaus Code branding
+METADATA_FILES=$(find . -name "package.metadata.json" ! -path "*/node_modules/*" ! -path "*/.next/*" 2>/dev/null || true)
+
+if [ -z "$METADATA_FILES" ]; then
+    print_status "No package.metadata.json files found"
+else
+    for file in $METADATA_FILES; do
+        # Only process files that have Roo Code branding
+        if grep -q "@roo-code\|roocode\|Roo Code" "$file" 2>/dev/null; then
+            # Replace @roo-code package names
+            sed -i 's/"@roo-code\//"@klaus-code\//g' "$file"
+            # Replace descriptions
+            sed -i 's/Roo Code/Klaus Code/g' "$file"
+            # Replace author
+            sed -i 's/"author": "Roo Code Team"/"author": "Klaus Code"/g' "$file"
+            # Replace repository URLs
+            sed -i 's|github.com/RooCodeInc/Roo-Code|github.com/PabloVitasso/Klaus-Code|g' "$file"
+            # Replace homepage
+            sed -i 's|"homepage": "https://roocode.com"|"homepage": "https://github.com/PabloVitasso/Klaus-Code"|g' "$file"
+            # Replace keywords
+            sed -i 's/"roo"/"klaus"/g; s/"roo-code"/"klaus-code"/g' "$file"
+
+            print_status "Fixed: $file"
+            ((FIXED_FILES++))
         fi
     done
 fi
