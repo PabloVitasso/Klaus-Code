@@ -700,6 +700,8 @@ function parseRateLimitHeaders(headers: Headers): ClaudeCodeRateLimitInfo {
 		representativeClaim: getHeader("anthropic-ratelimit-unified-representative-claim") || undefined,
 		overage: {
 			status: getHeader("anthropic-ratelimit-unified-overage-status") || "unknown",
+			utilization: parseFloat(getHeader("anthropic-ratelimit-unified-overage-utilization")),
+			resetTime: parseInt(getHeader("anthropic-ratelimit-unified-overage-reset")),
 			disabledReason: getHeader("anthropic-ratelimit-unified-overage-disabled-reason") || undefined,
 		},
 		fallbackPercentage: parseFloat(getHeader("anthropic-ratelimit-unified-fallback-percentage")) || undefined,

@@ -244,15 +244,16 @@ function addMessageCacheBreakpoints(messages: Anthropic.Messages.MessageParam[])
 export const CLAUDE_CODE_API_CONFIG = {
 	endpoint: "https://api.anthropic.com/v1/messages",
 	version: "2023-06-01",
-	// Beta headers - includes all betas used by Klaus Code
-	// Note: prompt-caching-2024-07-31 and fine-grained-tool-streaming-2025-05-14 are NOT used
-	// by official Claude Code CLI but are kept here for Klaus Code functionality
+	// Beta headers - matches official Claude Code CLI (claude-cli/2.1.34) exactly
+	// Official CLI uses: oauth-2025-04-20, interleaved-thinking-2025-05-14, prompt-caching-scope-2026-01-05
+	// Klaus Code specific betas (disabled to match official):
+	//   - "prompt-caching-2024-07-31" (old caching beta, replaced with prompt-caching-scope-2026-01-05)
+	//   - "fine-grained-tool-streaming-2025-05-14" (Klaus Code tool streaming, not used by official CLI)
+	//   - "claude-code-20250219" (unknown purpose, not used by official CLI)
 	defaultBetas: [
-		"prompt-caching-2024-07-31", // Klaus Code specific: enables prompt caching
-		"claude-code-20250219", // Required by official Claude Code API
 		"oauth-2025-04-20", // Required for OAuth authentication
 		"interleaved-thinking-2025-05-14", // Required for extended thinking
-		"fine-grained-tool-streaming-2025-05-14", // Klaus Code specific: enables detailed tool streaming
+		"prompt-caching-scope-2026-01-05", // New scope-based prompt caching (official CLI)
 	],
 	// Match Claude Code CLI user agent format
 	userAgent: `claude-cli/${Package.version} (external, cli)`,
@@ -262,6 +263,8 @@ export const CLAUDE_CODE_API_CONFIG = {
 	stainlessHeaders: {
 		"X-Stainless-Lang": "js",
 		"X-Stainless-Package-Version": "0.70.0",
+		"X-Stainless-Retry-Count": "0", // Match official CLI
+		"X-Stainless-Timeout": "600", // Match official CLI (10 minutes)
 		"X-Stainless-OS": process.platform === "win32" ? "Windows" : process.platform === "darwin" ? "MacOS" : "Linux",
 		"X-Stainless-Arch": process.arch === "x64" ? "x64" : process.arch === "arm64" ? "arm64" : process.arch,
 		"X-Stainless-Runtime": "node",
@@ -531,11 +534,8 @@ export async function* createStreamingMessage(options: StreamMessageOptions): As
 		body.tool_choice = prefixToolChoice(toolChoice)
 	}
 
-	// Build beta headers - add 1M context beta for claude-opus-4-6-1m
+	// Build beta headers
 	const betas: string[] = [...CLAUDE_CODE_API_CONFIG.defaultBetas]
-	if (model === "claude-opus-4-6-1m") {
-		betas.push("context-1m-2025-08-07")
-	}
 
 	// Build headers matching Claude Code CLI exactly
 	const headers: Record<string, string> = {
@@ -829,6 +829,8 @@ function parseRateLimitHeaders(headers: Headers): ClaudeCodeRateLimitInfo {
 		representativeClaim: getHeader("anthropic-ratelimit-unified-representative-claim") || undefined,
 		overage: {
 			status: getHeader("anthropic-ratelimit-unified-overage-status") || "unknown",
+			utilization: parseFloat(getHeader("anthropic-ratelimit-unified-overage-utilization")),
+			resetTime: parseInt(getHeader("anthropic-ratelimit-unified-overage-reset")),
 			disabledReason: getHeader("anthropic-ratelimit-unified-overage-disabled-reason") || undefined,
 		},
 		fallbackPercentage: parseFloat(getHeader("anthropic-ratelimit-unified-fallback-percentage")) || undefined,
@@ -850,9 +852,8 @@ export async function fetchRateLimitInfo(accessToken: string, email?: string): P
 	// Match official CLI format: model, max_tokens, messages with "quota", and metadata with user_id
 	// Note: x-anthropic-billing-header is a reserved keyword and cannot be used in system prompt
 	const body: Record<string, unknown> = {
-		model: "claude-haiku-4-5",
+		model: "claude-haiku-4-5-20251001", // Match official CLI model name
 		max_tokens: 1,
-		system: [{ type: "text", text: "You are Claude Code, Anthropic's official CLI for Claude." }],
 		messages: [{ role: "user", content: "quota" }], // Match official CLI message content
 	}
 
@@ -863,13 +864,8 @@ export async function fetchRateLimitInfo(accessToken: string, email?: string): P
 		}
 	}
 
-	// Build beta headers - add 1M context beta for claude-opus-4-6-1m
-	// (Note: fetchRateLimitInfo uses haiku-4-5 so this won't trigger, but kept for consistency)
+	// Build beta headers
 	const betas: string[] = [...CLAUDE_CODE_API_CONFIG.defaultBetas]
-	const model = body.model as string
-	if (model === "claude-opus-4-6-1m") {
-		betas.push("context-1m-2025-08-07")
-	}
 
 	// Build headers matching Claude Code CLI exactly
 	const headers: Record<string, string> = {

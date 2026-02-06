@@ -128,14 +128,8 @@ export const ModelPicker = ({
 				{} as Record<string, ModelInfo>,
 			)
 
-		// Custom sort order for Claude Code models: Haiku → Sonnet → Opus → Opus 1M
-		const claudeCodeOrder = [
-			"claude-haiku-4-5",
-			"claude-sonnet-4-5",
-			"claude-opus-4-5",
-			"claude-opus-4-6",
-			"claude-opus-4-6-1m",
-		]
+		// Custom sort order for Claude Code models: Haiku → Sonnet → Opus
+		const claudeCodeOrder = ["claude-haiku-4-5", "claude-sonnet-4-5", "claude-opus-4-5", "claude-opus-4-6"]
 
 		return Object.keys(availableModels).sort((a, b) => {
 			// Apply custom order for Claude Code provider

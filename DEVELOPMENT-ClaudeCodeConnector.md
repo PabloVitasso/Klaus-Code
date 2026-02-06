@@ -9,12 +9,29 @@ This document describes the Claude Code OAuth authentication mechanism and the s
 - [Quick Reference](#quick-reference) - Key files, line numbers, constants
 - [Architecture](#architecture) - Flow diagram
 - [OAuth Authentication](#oauth-authentication) - Headers, tokens, metadata
+- [Usage Tracking](#usage-tracking) - How Claude Code checks quotas and rate limits
 - [Tool Name Prefixing](#tool-name-prefixing-mechanism) - Core workaround (`oc_` prefix)
 - [Adding New Models](#adding-new-models) - How to add Claude models (e.g., Opus 4.6)
 - [Request/Response Examples](#requestresponse-flow-examples) - Complete flows
 - [Troubleshooting](#troubleshooting) - Common issues
 
 ## Quick Reference
+
+### mitmproxy
+
+in one window:
+mitmweb --listen-host 127.0.0.1 --listen-port 58888 --web-port 8081 --web-open-browser=false
+
+in second window
+export NODE_EXTRA_CA_CERTS="/Users/$USER/.mitmproxy/mitmproxy-ca-cert.pem"
+export NODE_TLS_REJECT_UNAUTHORIZED=0
+export HTTP_PROXY="http://127.0.0.1:58888"
+export HTTPS_PROXY="http://127.0.0.1:58888"
+sudo cp ~/.mitmproxy/mitmproxy-ca-cert.pem /usr/local/share/mitmproxy-ca.pem
+sudo chmod 644 /usr/local/share/mitmproxy-ca.pem
+export NODE_EXTRA_CA_CERTS=/usr/local/share/mitmproxy-ca.pem
+
+then run claude cli
 
 ### Critical Files & Line Numbers
 
@@ -156,6 +173,305 @@ const headers: Record<string, string> = {
 **Note on Billing Headers:**
 
 `x-anthropic-billing-header` is a reserved keyword in Anthropic's API and cannot be used in system prompts. Previous attempts to include billing metadata in system prompts will result in API errors. Billing/usage tracking is handled automatically by the API based on OAuth token and request headers.
+
+## Usage Tracking
+
+### Overview
+
+Claude Code tracks usage and quota through a combination of:
+
+1. Response headers containing unified rate limit information
+2. A special "quota" message request to fetch current usage statistics
+3. Usage data embedded in every message response
+
+### API Endpoints for Usage
+
+**Discovered from reverse engineering (2026-02-06):**
+
+| Endpoint                      | Method | Purpose                                |
+| ----------------------------- | ------ | -------------------------------------- |
+| `/api/oauth/account/settings` | GET    | Fetch account settings and preferences |
+| `/api/claude_code_grove`      | GET    | Unknown (possibly feature flags)       |
+| `/v1/messages?beta=true`      | POST   | Message API (includes usage data)      |
+
+### Account Settings Endpoint
+
+**Request:**
+
+```typescript
+GET /api/oauth/account/settings
+Host: api.anthropic.com
+
+Headers:
+  Accept: application/json, text/plain, */*
+  Authorization: Bearer {oauth_token}
+  anthropic-beta: oauth-2025-04-20
+  User-Agent: claude-code/2.1.34
+  Accept-Encoding: gzip, compress, deflate, br
+  Connection: close
+```
+
+**Response Headers:**
+
+```typescript
+{
+  "Content-Type": "application/json",
+  "anthropic-organization-id": "{org_uuid}",
+  "request-id": "req_...",
+  "Content-Encoding": "gzip",
+  // Standard security headers...
+}
+```
+
+This endpoint is called at startup to fetch user preferences and account configuration. Klaus Code should implement this to maintain feature parity with official Claude Code.
+
+### Normal Message Request Headers
+
+**Complete headers from official Claude Code CLI (claude-cli/2.1.34):**
+
+```typescript
+// POST /v1/messages?beta=true HTTP/1.1
+const headers = {
+	// Core request headers
+	host: "api.anthropic.com",
+	connection: "keep-alive",
+	Accept: "application/json",
+
+	// Stainless SDK headers (Anthropic's official TypeScript SDK)
+	"X-Stainless-Retry-Count": "0",
+	"X-Stainless-Timeout": "600",
+	"X-Stainless-Lang": "js",
+	"X-Stainless-Package-Version": "0.70.0",
+	"X-Stainless-OS": "Linux", // or "Windows"/"MacOS"
+	"X-Stainless-Arch": "x64", // or "arm64"
+	"X-Stainless-Runtime": "node",
+	"X-Stainless-Runtime-Version": "v22.14.0",
+
+	// Anthropic API headers
+	"anthropic-dangerous-direct-browser-access": "true",
+	"anthropic-version": "2023-06-01",
+	authorization: `Bearer ${oauthToken}`, // OAuth token
+	"x-app": "cli", // "vscode-extension" for Klaus Code
+	"User-Agent": "claude-cli/2.1.34 (external, cli)",
+	"content-type": "application/json",
+
+	// Beta feature flags
+	"anthropic-beta": "oauth-2025-04-20,interleaved-thinking-2025-05-14,prompt-caching-scope-2026-01-05",
+
+	// Browser-like headers (required for CORS)
+	"accept-language": "*",
+	"sec-fetch-mode": "cors",
+	"accept-encoding": "br, gzip, deflate",
+
+	// Content length (dynamic based on request body)
+	"content-length": "284", // Varies by request
+}
+```
+
+**Key differences from previously documented headers:**
+
+1. **Connection**: `keep-alive` (not `close`) for persistent connections
+2. **Accept**: `application/json` (streaming-client.ts should match this)
+3. **Beta flags**: Includes `prompt-caching-scope-2026-01-05` (new caching beta)
+4. **No `accept: text/event-stream`**: Official CLI uses `application/json` even for streaming
+
+**Klaus Code should use these exact headers** to match official behavior, except:
+
+- `x-app: "vscode-extension"` instead of `"cli"`
+- `User-Agent: "klaus-code/{version} (vscode, extension)"`
+
+### Klaus Code Implementation Status
+
+**Current implementation** (`streaming-client.ts:541-555`):
+
+```typescript
+const headers: Record<string, string> = {
+	Accept: "application/json", // ✅ Matches official
+	Authorization: `Bearer ${accessToken}`, // ✅ Matches official
+	"Content-Type": "application/json", // ✅ Matches official
+	"User-Agent": CLAUDE_CODE_API_CONFIG.userAgent, // ✅ Matches format
+	"Anthropic-Version": CLAUDE_CODE_API_CONFIG.version, // ✅ Matches official
+	"Anthropic-Beta": betas.join(","), // ⚠️ Partial match (see below)
+	"x-app": CLAUDE_CODE_API_CONFIG.xApp, // ✅ Intentionally different
+	"anthropic-dangerous-direct-browser-access": "true", // ✅ Matches official
+	"accept-language": "*", // ✅ Matches official
+	"sec-fetch-mode": "cors", // ✅ Matches official
+	"accept-encoding": "br, gzip, deflate", // ✅ Matches official
+	...CLAUDE_CODE_API_CONFIG.stainlessHeaders, // ⚠️ Partial match (see below)
+}
+```
+
+**Beta flags comparison:**
+
+| Beta Flag                                | Official CLI | Klaus Code | Notes                               |
+| ---------------------------------------- | ------------ | ---------- | ----------------------------------- |
+| `oauth-2025-04-20`                       | ✅           | ✅         | Required for OAuth                  |
+| `interleaved-thinking-2025-05-14`        | ✅           | ✅         | Required for extended thinking      |
+| `prompt-caching-scope-2026-01-05`        | ✅           | ❌         | **New caching beta** (official CLI) |
+| `prompt-caching-2024-07-31`              | ❌           | ✅         | Old caching beta (Klaus Code)       |
+| `claude-code-20250219`                   | ❌           | ✅         | Klaus Code specific?                |
+| `fine-grained-tool-streaming-2025-05-14` | ❌           | ✅         | Klaus Code specific                 |
+
+**Missing Stainless headers:**
+
+| Header                    | Official CLI | Klaus Code |
+| ------------------------- | ------------ | ---------- |
+| `X-Stainless-Retry-Count` | `0`          | ❌         |
+| `X-Stainless-Timeout`     | `600`        | ❌         |
+
+**Recommendations:**
+
+1. **Add missing Stainless headers** for better compatibility:
+
+    ```typescript
+    stainlessHeaders: {
+        "X-Stainless-Lang": "js",
+        "X-Stainless-Package-Version": "0.70.0",
+        "X-Stainless-Retry-Count": "0",      // ADD THIS
+        "X-Stainless-Timeout": "600",        // ADD THIS
+        // ... rest of headers
+    }
+    ```
+
+2. **Consider updating beta flags** to match official CLI:
+
+    - Replace `prompt-caching-2024-07-31` with `prompt-caching-scope-2026-01-05`
+    - Evaluate if `claude-code-20250219` is still needed
+    - Keep `fine-grained-tool-streaming-2025-05-14` for Klaus Code functionality
+
+3. **Test with official beta flags** to verify API compatibility
+
+### Quota Check Request
+
+Claude Code sends a minimal message request to check usage quotas (uses same headers as above):
+
+```typescript
+// Quota check request body
+POST /v1/messages?beta=true
+{
+  "model": "claude-haiku-4-5-20251001",  // Cheapest model
+  "max_tokens": 1,                        // Minimal output
+  "messages": [
+    {
+      "role": "user",
+      "content": "quota"                  // Special quota keyword
+    }
+  ],
+  "metadata": {
+    "user_id": "user_{hash}_account_{uuid}_session_{uuid}"
+  }
+}
+```
+
+### Unified Rate Limit Headers
+
+**Response headers from `/v1/messages` requests include:**
+
+```typescript
+// Response headers (example values)
+{
+  // Status indicators
+  "anthropic-ratelimit-unified-status": "allowed",           // Overall status
+  "anthropic-ratelimit-unified-5h-status": "allowed",        // 5-hour tier
+  "anthropic-ratelimit-unified-7d-status": "allowed",        // 7-day tier
+  "anthropic-ratelimit-unified-overage-status": "allowed",   // Overage tier
+
+  // Reset timestamps (Unix epoch)
+  "anthropic-ratelimit-unified-5h-reset": "1770411600",      // 5h tier reset
+  "anthropic-ratelimit-unified-7d-reset": "1770624000",      // 7d tier reset
+  "anthropic-ratelimit-unified-overage-reset": "1772323200", // Overage reset
+  "anthropic-ratelimit-unified-reset": "1770411600",         // Next reset
+
+  // Utilization percentages (0.0 to 1.0+)
+  "anthropic-ratelimit-unified-5h-utilization": "0.0",       // 5h tier usage
+  "anthropic-ratelimit-unified-7d-utilization": "0.52",      // 7d tier usage (52%)
+  "anthropic-ratelimit-unified-overage-utilization": "0.0",  // Overage usage
+
+  // Policy indicators
+  "anthropic-ratelimit-unified-representative-claim": "five_hour", // Most restrictive tier
+  "anthropic-ratelimit-unified-fallback-percentage": "0.5",        // Fallback threshold
+
+  // Standard response headers
+  "anthropic-organization-id": "83615e56-057b-4fba-8ae9-f2bb33880482",
+  "request-id": "req_011CXs9q5frcXauixA6aPLbY",
+  "Content-Type": "application/json",
+  // ... other standard headers
+}
+```
+
+### Usage Data in Message Responses
+
+Every message response includes detailed token usage:
+
+```typescript
+// From SSE stream: event: message_start
+{
+  "type": "message_start",
+  "message": {
+    "model": "claude-haiku-4-5-20251001",
+    "usage": {
+      // Token counts
+      "input_tokens": 292,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "output_tokens": 1,
+
+      // Prompt caching details
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+
+      // Service metadata
+      "service_tier": "standard",
+      "inference_geo": "not_available"
+    }
+  }
+}
+
+// At the end: event: message_delta
+{
+  "type": "message_delta",
+  "usage": {
+    "output_tokens": 135  // Final output token count
+  }
+}
+```
+
+### Implementation Strategy for Klaus Code
+
+To replicate Claude Code's usage tracking in Klaus Code:
+
+1. **Parse rate limit headers** from every `/v1/messages` response
+2. **Aggregate usage data** from `message_start` and `message_delta` events
+3. **Send periodic quota checks** using the minimal "quota" message pattern
+4. **Display usage information** in the UI with:
+    - Current utilization percentage for each tier (5h, 7d, overage)
+    - Time until next reset
+    - Representative claim (which tier is limiting)
+    - Token counts (input, cached, output)
+
+**Example Usage Display:**
+
+```
+Rate Limits (5h tier active):
+├─ 5-hour:   0.0% used (resets in 4h 23m)
+├─ 7-day:    52% used (resets in 2d 14h)
+└─ Overage:  0.0% used
+
+Current Request:
+├─ Input:    292 tokens
+├─ Cached:   0 created, 0 read
+└─ Output:   135 tokens
+```
+
+### Key Implementation Files
+
+For Klaus Code implementation:
+
+- `src/integrations/claude-code/streaming-client.ts` - Add header parsing
+- `src/api/providers/claude-code.ts` - Aggregate usage statistics
+- `webview-ui/src/components/` - Display usage in UI
 
 ## Tool Name Prefixing Mechanism
 
@@ -652,6 +968,43 @@ isAiSdkProvider(): boolean {
 ```
 
 Required by `ApiHandler` interface after AI SDK migrations (Gemini, Vertex, HuggingFace).
+
+### Usage Tracking Reverse Engineering
+
+**Analyzed official Claude Code CLI flows (2026-02-06)**:
+
+Using mitmproxy to capture HTTP traffic from `claude-cli/2.1.34`, discovered:
+
+1. **Quota checking mechanism**: Sends minimal message with `content: "quota"` to fetch usage
+2. **Unified rate limit headers**:
+    - Three tiers: 5-hour, 7-day, overage
+    - Each tier reports status, reset time, and utilization percentage
+    - `representative-claim` indicates which tier is most restrictive
+3. **Token usage tracking**: Every message response includes detailed usage object with:
+    - Input/output token counts
+    - Prompt caching breakdown (ephemeral 5m/1h tiers)
+    - Service tier and inference geo metadata
+4. **Account settings endpoint**: `/api/oauth/account/settings` called at startup
+5. **Header requirements**: Matches previously documented headers with `x-app: cli` identifier
+
+**Implementation files for Klaus Code:**
+
+- Add usage header parsing in `streaming-client.ts`
+- Aggregate statistics in `claude-code.ts` provider
+- Display UI in webview components
+
+**Analysis method:**
+
+```bash
+# Capture traffic
+mitmweb --listen-host 127.0.0.1 --listen-port 58888
+
+# Export flows
+# File: docs/2026.02.06-claude-flows.hur (241KB)
+
+# Analyze with strings and grep
+strings flows.hur | grep -E "(usage|quota|ratelimit)" | less
+```
 
 ## Related Commits
 

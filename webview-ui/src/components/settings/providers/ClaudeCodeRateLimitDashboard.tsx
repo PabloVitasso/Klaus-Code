@@ -151,9 +151,7 @@ export const ClaudeCodeRateLimitDashboard: React.FC<ClaudeCodeRateLimitDashboard
 				{/* 5-hour limit */}
 				<div className="flex flex-col gap-1">
 					<div className="flex items-center justify-between text-xs">
-						<span className="text-vscode-foreground">
-							Limit: {rateLimits.representativeClaim || "5-hour"}
-						</span>
+						<span className="text-vscode-foreground">5 Hour Usage</span>
 						<span className="text-vscode-descriptionForeground">
 							{formatUtilization(rateLimits.fiveHour.utilization)} used • resets in{" "}
 							{formatResetTime(rateLimits.fiveHour.resetTime)}
@@ -162,17 +160,43 @@ export const ClaudeCodeRateLimitDashboard: React.FC<ClaudeCodeRateLimitDashboard
 					<UsageProgressBar utilization={rateLimits.fiveHour.utilization} label="" />
 				</div>
 
-				{/* Weekly limit (if available) */}
-				{rateLimits.weeklyUnified && rateLimits.weeklyUnified.utilization > 0 && (
+				{/* Weekly limit */}
+				{rateLimits.weeklyUnified && (
 					<div className="flex flex-col gap-1">
 						<div className="flex items-center justify-between text-xs">
-							<span className="text-vscode-foreground">Weekly</span>
+							<span className="text-vscode-foreground">Weekly Usage</span>
 							<span className="text-vscode-descriptionForeground">
 								{formatUtilization(rateLimits.weeklyUnified.utilization)} used • resets in{" "}
 								{formatResetTime(rateLimits.weeklyUnified.resetTime)}
 							</span>
 						</div>
 						<UsageProgressBar utilization={rateLimits.weeklyUnified.utilization} label="" />
+					</div>
+				)}
+
+				{/* Extra usage (overage) */}
+				{rateLimits.overage && (
+					<div className="flex flex-col gap-1">
+						<div className="flex items-center justify-between text-xs">
+							<span className="text-vscode-foreground">Extra Usage</span>
+							<span className="text-vscode-descriptionForeground">
+								{formatUtilization(rateLimits.overage.utilization)} used • resets in{" "}
+								{formatResetTime(rateLimits.overage.resetTime)}
+							</span>
+						</div>
+						<UsageProgressBar utilization={rateLimits.overage.utilization} label="" />
+						{rateLimits.overage.disabledReason && (
+							<div className="text-xs text-vscode-descriptionForeground italic">
+								Note: {rateLimits.overage.disabledReason}
+							</div>
+						)}
+					</div>
+				)}
+
+				{/* Representative claim indicator */}
+				{rateLimits.representativeClaim && (
+					<div className="text-xs text-vscode-descriptionForeground italic pt-1">
+						Currently limited by: {rateLimits.representativeClaim.replace("_", " ")}
 					</div>
 				)}
 			</div>

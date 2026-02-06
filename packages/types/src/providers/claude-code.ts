@@ -24,9 +24,11 @@ export interface ClaudeCodeRateLimitInfo {
 	}
 	// Representative claim type
 	representativeClaim?: string
-	// Overage status
+	// Overage/extra usage info
 	overage?: {
 		status: string
+		utilization: number
+		resetTime: number // Unix timestamp
 		disabledReason?: string
 	}
 	// Fallback percentage
@@ -80,16 +82,6 @@ export const claudeCodeModels = {
 		supportsReasoningEffort: ["disable", "low", "medium", "high"],
 		reasoningEffort: "medium",
 		description: "Claude Opus 4.6",
-	},
-	"claude-opus-4-6-1m": {
-		maxTokens: 128_000, // 128K max tokens
-		contextWindow: 1_000_000, // 1M context with beta flag (requires eligible subscription)
-		supportsImages: true,
-		supportsPromptCache: true,
-		supportsReasoningBudget: true,
-		supportsReasoningEffort: ["disable", "low", "medium", "high"],
-		reasoningEffort: "medium",
-		description: "Claude Opus 4.6 [1M]",
 	},
 } as const satisfies Record<string, ModelInfo>
 
