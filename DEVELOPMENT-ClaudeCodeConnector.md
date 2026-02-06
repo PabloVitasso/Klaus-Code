@@ -2,6 +2,56 @@
 
 This document describes the Claude Code OAuth authentication mechanism and the special `oc_` tool name prefixing workaround required for tool calling.
 
+## Quick Navigation
+
+**Jump to:**
+
+- [Quick Reference](#quick-reference) - Key files, line numbers, constants
+- [Architecture](#architecture) - Flow diagram
+- [OAuth Authentication](#oauth-authentication) - Headers, tokens, metadata
+- [Tool Name Prefixing](#tool-name-prefixing-mechanism) - Core workaround (`oc_` prefix)
+- [Adding New Models](#adding-new-models) - How to add Claude models (e.g., Opus 4.6)
+- [Request/Response Examples](#requestresponse-flow-examples) - Complete flows
+- [Troubleshooting](#troubleshooting) - Common issues
+
+## Quick Reference
+
+### Critical Files & Line Numbers
+
+| File                                               | Key Lines | Purpose                                         |
+| -------------------------------------------------- | --------- | ----------------------------------------------- |
+| `src/integrations/claude-code/streaming-client.ts` | L10       | `TOOL_NAME_PREFIX = "oc_"` constant             |
+|                                                    | L35-44    | `prefixToolName()` / `stripToolNamePrefix()`    |
+|                                                    | L52-57    | `prefixToolNames()` - tools array               |
+|                                                    | L63-86    | `prefixToolNamesInMessages()` - message history |
+|                                                    | L92-108   | `prefixToolChoice()` - tool_choice              |
+|                                                    | L644-662  | Response parsing with prefix stripping          |
+| `src/api/providers/claude-code.ts`                 | L67       | `ClaudeCodeHandler` class                       |
+|                                                    | L294-305  | `getModel()` - model selection                  |
+|                                                    | L117-255  | `createMessage()` - API request flow            |
+| `src/integrations/claude-code/oauth.ts`            | L13       | `generateUserId()` - user_id hash               |
+|                                                    | L93-203   | OAuth token management                          |
+| `packages/types/src/providers/claude-code.ts`      | L46-74    | Model definitions                               |
+|                                                    | L86-93    | Model family patterns (normalization)           |
+|                                                    | L112-136  | `normalizeClaudeCodeModelId()`                  |
+
+### Key Constants
+
+```typescript
+TOOL_NAME_PREFIX = "oc_" // streaming-client.ts:10
+CLAUDE_CODE_API_ENDPOINT = "..." // streaming-client.ts:20
+claudeCodeDefaultModelId = "claude-sonnet-4-5" // claude-code.ts:78
+```
+
+### Model Support Matrix
+
+| Model             | Max Tokens | Context | Reasoning       | Status                  |
+| ----------------- | ---------- | ------- | --------------- | ----------------------- |
+| claude-haiku-4-5  | 32K        | 200K    | Effort + Budget | ✅ Supported            |
+| claude-sonnet-4-5 | 32K        | 200K    | Effort + Budget | ✅ Supported (default)  |
+| claude-opus-4-5   | 32K        | 200K    | Effort + Budget | ✅ Supported            |
+| claude-opus-4-6   | 128K       | 200K→1M | Effort + Budget | ✅ Supported (v3.47.2+) |
+
 ## Overview
 
 The Claude Code connector (`src/api/providers/claude-code.ts`) uses OAuth authentication to access Anthropic's Claude Code API. Unlike regular Anthropic API tokens, Claude Code OAuth tokens have a strict validation requirement: **third-party tool names are rejected**.
@@ -200,6 +250,95 @@ case "tool_use": {
     break
 }
 ```
+
+## Adding New Models
+
+### Process for Adding Claude Models (Example: Opus 4.6)
+
+**File to modify**: `packages/types/src/providers/claude-code.ts`
+
+**Steps**:
+
+1. **Add model definition** to `claudeCodeModels` object (L46-74):
+
+    ```typescript
+    "claude-opus-4-6": {
+        maxTokens: 128_000,              // From Anthropic docs
+        contextWindow: 200_000,          // Base context (1M with beta flag)
+        supportsImages: true,
+        supportsPromptCache: true,
+        supportsReasoningBudget: true,   // New in 4.6
+        supportsReasoningEffort: ["disable", "low", "medium", "high"],
+        reasoningEffort: "medium",
+        description: "Claude Opus 4.6 - Most capable with extended output",
+    }
+    ```
+
+2. **Update model family patterns** (L86-93) for normalization:
+
+    ```typescript
+    // Add specific pattern BEFORE generic pattern:
+    { pattern: /opus.*4[._-]?6/i, target: "claude-opus-4-6" },  // NEW
+    { pattern: /opus/i, target: "claude-opus-4-5" },             // Existing
+    ```
+
+3. **Update JSDoc examples** (L96-103) to document the mapping.
+
+4. **Test**:
+    ```bash
+    pnpm check-types                    # Verify TypeScript
+    cd src && npx vitest run api/providers/__tests__/claude-code.spec.ts
+    pnpm vsix                           # Build extension
+    code --install-extension bin/klaus-code-*.vsix --force
+    ```
+
+**Model string is passed directly to API** - no additional logic needed in `streaming-client.ts`.
+
+### Capabilities Reference
+
+- `supportsImages`: Image input support
+- `supportsPromptCache`: Prompt caching support
+- `supportsReasoningBudget`: Budget-based reasoning (Opus 4.6+)
+- `supportsReasoningEffort`: Effort levels (disable/low/medium/high)
+
+### Model Selection Flow
+
+```
+User selects model → getModel() retrieves definition → Model ID passed to streaming-client.ts → API request with model string
+```
+
+The Claude Code API handles model capabilities automatically - no special provider-side logic required.
+
+### Reference: Opus 4.6 Implementation in Other Providers
+
+See commit `47bba1c2f` for complete implementation details.
+
+**Model definitions**:
+
+- `packages/types/src/providers/anthropic.ts:52-72` - Anthropic Opus 4.6 with tiered pricing
+- `packages/types/src/providers/bedrock.ts:+27` - Bedrock model ID: `anthropic.claude-opus-4-6-v1:0`
+- `packages/types/src/providers/vertex.ts:+27` - Vertex Opus 4.6 with 1M context tiers
+- `packages/types/src/providers/openrouter.ts:+6` - OpenRouter reasoning budget sets
+- `packages/types/src/providers/vercel-ai-gateway.ts:+4` - Vercel capability sets
+
+**Provider implementations**:
+
+- `src/api/providers/anthropic.ts:68-76,334-342` - 1M context beta flag handling
+- `src/api/providers/bedrock.ts:+13` - Tier pricing for 1M context
+- `src/api/providers/fetchers/openrouter.ts:+10` - maxTokens overrides
+
+**UI changes**:
+
+- `webview-ui/src/components/settings/providers/Anthropic.tsx:+4` - 1M context checkbox
+- `webview-ui/src/components/settings/providers/Bedrock.tsx:+2` - Bedrock UI updates
+- `webview-ui/src/components/settings/providers/Vertex.tsx:+2` - Vertex UI updates
+- `webview-ui/src/components/ui/hooks/useSelectedModel.ts:+29` - Model selection logic
+
+**Key differences from other providers**:
+
+- Claude Code: No pricing tiers (subscription-based)
+- Claude Code: No 1M context beta flag UI (handled automatically)
+- Claude Code: Simpler model definition (no cost fields)
 
 ## Request/Response Flow Examples
 
@@ -468,13 +607,63 @@ If OAuth fails:
 2. Verify OAuth token is valid and not expired
 3. Ensure all required beta headers are set
 
+## Session Learnings (2026-02-06)
+
+### Upstream Merge Process Validation
+
+**Verified safe merges**:
+
+- ✅ Claude Code OAuth provider preserved through upstream merges
+- ✅ Tool name prefixing (`oc_` prefix) intact after merge
+- ✅ Branding script (`scripts/merge-upstream-fix-branding.sh`) handles `package.metadata.json`
+- ✅ New `isAiSdkProvider()` method required for provider interface compliance
+
+**Critical preservation checks**:
+
+```bash
+# Verify Claude Code files exist
+ls src/integrations/claude-code/streaming-client.ts
+grep "TOOL_NAME_PREFIX.*=.*\"oc_\"" src/integrations/claude-code/streaming-client.ts
+
+# Run tests after merge
+cd src && npx vitest run integrations/claude-code/__tests__/
+```
+
+### Model Addition Workflow
+
+**Successfully added Opus 4.6 (commit `874ac3334`)**:
+
+1. Model definition in `packages/types/src/providers/claude-code.ts`
+2. Pattern matching updated for `opus-4-6` variants
+3. No changes needed in `streaming-client.ts` or `claude-code.ts`
+4. Tests pass: 22/22 provider tests
+
+**Key insight**: Model string passes directly to API - no provider-side logic for new models.
+
+### Interface Compliance
+
+**New requirement from upstream v3.47.2**:
+
+```typescript
+// src/api/providers/claude-code.ts:380-382
+isAiSdkProvider(): boolean {
+    return false  // Claude Code uses native Anthropic SDK
+}
+```
+
+Required by `ApiHandler` interface after AI SDK migrations (Gemini, Vertex, HuggingFace).
+
 ## Related Commits
 
 - `6173606`: fix(claude-code): prefix tool names to bypass OAuth validation
 - `f578dfb`: fix: prefix tool_choice.name when type is tool
+- `47bba1c2f`: feat: add Claude Opus 4.6 support across all providers (upstream)
+- `874ac3334`: feat: add Claude Opus 4.6 support to Claude Code provider (Klaus Code)
+- `32db1d43d`: chore: merge upstream Roo Code changes (2026-02-06)
 
 ## See Also
 
-- `DEVELOPMENT.md` - Main development documentation
+- `DEVELOPMENT.md` - Main development documentation, merge procedures
 - `src/integrations/claude-code/streaming-client.ts` - Source of truth for prefixing logic
 - `src/api/providers/claude-code.ts` - Main connector implementation
+- `packages/types/src/providers/claude-code.ts` - Model definitions and normalization
