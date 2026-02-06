@@ -51,7 +51,7 @@ export const claudeCodeModels = {
 		supportsPromptCache: true,
 		supportsReasoningEffort: ["disable", "low", "medium", "high"],
 		reasoningEffort: "medium",
-		description: "Claude Haiku 4.5 - Fast and efficient with thinking",
+		description: "Claude Haiku 4.5",
 	},
 	"claude-sonnet-4-5": {
 		maxTokens: 32768,
@@ -60,7 +60,7 @@ export const claudeCodeModels = {
 		supportsPromptCache: true,
 		supportsReasoningEffort: ["disable", "low", "medium", "high"],
 		reasoningEffort: "medium",
-		description: "Claude Sonnet 4.5 - Balanced performance with thinking",
+		description: "Claude Sonnet 4.5",
 	},
 	"claude-opus-4-5": {
 		maxTokens: 32768,
@@ -69,7 +69,7 @@ export const claudeCodeModels = {
 		supportsPromptCache: true,
 		supportsReasoningEffort: ["disable", "low", "medium", "high"],
 		reasoningEffort: "medium",
-		description: "Claude Opus 4.5 - Most capable with thinking",
+		description: "Claude Opus 4.5",
 	},
 	"claude-opus-4-6": {
 		maxTokens: 128_000, // 128K max tokens (4x more than Opus 4.5)
@@ -79,7 +79,7 @@ export const claudeCodeModels = {
 		supportsReasoningBudget: true,
 		supportsReasoningEffort: ["disable", "low", "medium", "high"],
 		reasoningEffort: "medium",
-		description: "Claude Opus 4.6 - Most capable with extended output",
+		description: "Claude Opus 4.6",
 	},
 	"claude-opus-4-6-1m": {
 		maxTokens: 128_000, // 128K max tokens
@@ -89,7 +89,7 @@ export const claudeCodeModels = {
 		supportsReasoningBudget: true,
 		supportsReasoningEffort: ["disable", "low", "medium", "high"],
 		reasoningEffort: "medium",
-		description: "Claude Opus 4.6 [1M] - Extended context (beta)",
+		description: "Claude Opus 4.6 [1M]",
 	},
 } as const satisfies Record<string, ModelInfo>
 

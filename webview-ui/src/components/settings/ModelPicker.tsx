@@ -104,8 +104,9 @@ export const ModelPicker = ({
 			const storedValue = apiConfiguration[modelIdKey]
 			return storedValue ? displayTransform(storedValue) : undefined
 		}
-		return selectedModelId
-	}, [displayTransform, apiConfiguration, modelIdKey, selectedModelId])
+		// Use model description if available, otherwise fall back to model ID
+		return models?.[selectedModelId]?.description || selectedModelId
+	}, [displayTransform, apiConfiguration, modelIdKey, selectedModelId, models])
 
 	const modelIds = useMemo(() => {
 		const filteredModels = filterModels(models, apiConfiguration.apiProvider, organizationAllowList)
@@ -127,7 +128,30 @@ export const ModelPicker = ({
 				{} as Record<string, ModelInfo>,
 			)
 
-		return Object.keys(availableModels).sort((a, b) => a.localeCompare(b))
+		// Custom sort order for Claude Code models: Haiku → Sonnet → Opus → Opus 1M
+		const claudeCodeOrder = [
+			"claude-haiku-4-5",
+			"claude-sonnet-4-5",
+			"claude-opus-4-5",
+			"claude-opus-4-6",
+			"claude-opus-4-6-1m",
+		]
+
+		return Object.keys(availableModels).sort((a, b) => {
+			// Apply custom order for Claude Code provider
+			if (apiConfiguration.apiProvider === "claude-code") {
+				const indexA = claudeCodeOrder.indexOf(a)
+				const indexB = claudeCodeOrder.indexOf(b)
+				if (indexA !== -1 && indexB !== -1) {
+					return indexA - indexB
+				}
+				// If one is in the custom order and the other isn't, prioritize the custom order
+				if (indexA !== -1) return -1
+				if (indexB !== -1) return 1
+			}
+			// Default alphabetical sort for other providers
+			return a.localeCompare(b)
+		})
 	}, [models, apiConfiguration.apiProvider, organizationAllowList, selectedModelId])
 
 	const [searchValue, setSearchValue] = useState("")
@@ -247,23 +271,26 @@ export const ModelPicker = ({
 									)}
 								</CommandEmpty>
 								<CommandGroup>
-									{modelIds.map((model) => (
-										<CommandItem
-											key={model}
-											value={model}
-											onSelect={onSelect}
-											data-testid={`model-option-${model}`}>
-											<span className="truncate" title={model}>
-												{model}
-											</span>
-											<Check
-												className={cn(
-													"size-4 p-0.5 ml-auto",
-													model === displayValue ? "opacity-100" : "opacity-0",
-												)}
-											/>
-										</CommandItem>
-									))}
+									{modelIds.map((model) => {
+										const modelDescription = models?.[model]?.description || model
+										return (
+											<CommandItem
+												key={model}
+												value={model}
+												onSelect={onSelect}
+												data-testid={`model-option-${model}`}>
+												<span className="truncate" title={modelDescription}>
+													{modelDescription}
+												</span>
+												<Check
+													className={cn(
+														"size-4 p-0.5 ml-auto",
+														model === selectedModelId ? "opacity-100" : "opacity-0",
+													)}
+												/>
+											</CommandItem>
+										)
+									})}
 								</CommandGroup>
 							</CommandList>
 							{searchValue && !modelIds.includes(searchValue) && (
