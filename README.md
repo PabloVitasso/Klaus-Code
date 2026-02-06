@@ -17,7 +17,8 @@ The code is published for educational and interoperability research purposes. No
 
 ### Key differences from upstream
 
-- **Claude Code Provider**: Restored and maintained
+- **Claude Code Provider**: Restored and maintained - screen from 2026.02.06: <img width="1497" height="1091" alt="image" src="https://github.com/user-attachments/assets/ec6cf79b-b2bd-45c8-88a5-6edc44c3fa52" />
+
 - **Branding**: Renamed from "Roo Code" to "Klaus Code"
 
 ### Original project
