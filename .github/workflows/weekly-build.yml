@@ -51,6 +51,86 @@ jobs:
         run: pnpm build
       - name: Build VSIX
         run: pnpm vsix:nightly # Produces bin/klaus-code-nightly-0.0.[count].vsix
+      - name: Generate Changelog
+        id: changelog
+        run: |
+          # Find last weekly tag
+          LAST_TAG=$(git tag --list 'weekly-v*' --sort=-version:refname | head -n1)
+
+          if [ -z "$LAST_TAG" ]; then
+            echo "📝 First weekly build - generating full changelog"
+            COMMIT_RANGE="HEAD~50..HEAD"  # Last 50 commits for first build
+            LAST_TAG="initial"
+          else
+            echo "📝 Generating changelog from $LAST_TAG to HEAD"
+            COMMIT_RANGE="${LAST_TAG}..HEAD"
+          fi
+
+          # Count commits
+          COMMIT_COUNT=$(git rev-list --count $COMMIT_RANGE 2>/dev/null || echo "0")
+
+          if [ "$COMMIT_COUNT" = "0" ]; then
+            echo "No new commits since last weekly build"
+            CHANGELOG="No changes since last weekly build."
+          else
+            # Generate changelog
+            CHANGELOG="## What's Changed
+
+          "
+
+            # Features
+            FEATURES=$(git log $COMMIT_RANGE --oneline --no-merges --grep="^feat" --perl-regexp --pretty=format:"- %s" 2>/dev/null || true)
+            if [ -n "$FEATURES" ]; then
+              CHANGELOG="${CHANGELOG}### ✨ Features
+
+          ${FEATURES}
+
+          "
+            fi
+
+            # Bug Fixes
+            FIXES=$(git log $COMMIT_RANGE --oneline --no-merges --grep="^fix" --perl-regexp --pretty=format:"- %s" 2>/dev/null || true)
+            if [ -n "$FIXES" ]; then
+              CHANGELOG="${CHANGELOG}### 🐛 Bug Fixes
+
+          ${FIXES}
+
+          "
+            fi
+
+            # Documentation
+            DOCS=$(git log $COMMIT_RANGE --oneline --no-merges --grep="^docs" --perl-regexp --pretty=format:"- %s" 2>/dev/null || true)
+            if [ -n "$DOCS" ]; then
+              CHANGELOG="${CHANGELOG}### 📚 Documentation
+
+          ${DOCS}
+
+          "
+            fi
+
+            # Other changes
+            OTHERS=$(git log $COMMIT_RANGE --oneline --no-merges --invert-grep --grep="^feat" --grep="^fix" --grep="^docs" --perl-regexp --pretty=format:"- %s" 2>/dev/null | head -20 || true)
+            if [ -n "$OTHERS" ]; then
+              CHANGELOG="${CHANGELOG}### 🔧 Other Changes
+
+          ${OTHERS}
+
+          "
+            fi
+
+            # Add footer
+            CHANGELOG="${CHANGELOG}---
+
+          **Full Changelog**: https://github.com/${{ github.repository }}/compare/${LAST_TAG}...weekly-v0.0.${{ steps.version.outputs.number }}
+
+          📊 **$COMMIT_COUNT** commits in this release"
+          fi
+
+          # Save to file (GitHub Actions doesn't handle multiline output well)
+          echo "$CHANGELOG" > /tmp/changelog.md
+          echo "changelog_file=/tmp/changelog.md" >> $GITHUB_OUTPUT
+          echo "commit_count=$COMMIT_COUNT" >> $GITHUB_OUTPUT
+
       - name: Create GitHub Pre-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -58,15 +138,17 @@ jobs:
           WEEKLY_VERSION="0.0.${{ steps.version.outputs.number }}"
           VSIX_FILE=$(ls bin/*.vsix | head -n1)
           VSIX_FILENAME=$(basename "$VSIX_FILE")
+          CHANGELOG_FILE="${{ steps.changelog.outputs.changelog_file }}"
 
-          # Create pre-release with the VSIX
+          # Create pre-release with generated changelog
           gh release create "weekly-v${WEEKLY_VERSION}" \
             --title "Weekly Build v${WEEKLY_VERSION}" \
-            --notes "Automated weekly build from commit ${{ github.sha }}" \
+            --notes-file "$CHANGELOG_FILE" \
             --prerelease \
             "$VSIX_FILE"
 
-          echo "Created weekly pre-release v${WEEKLY_VERSION} with ${VSIX_FILENAME}"
+          echo "✅ Created weekly pre-release v${WEEKLY_VERSION} with ${VSIX_FILENAME}"
+          echo "📝 Changelog includes ${{ steps.changelog.outputs.commit_count }} commits"
       # - name: Publish to VS Code Marketplace
       #   env:
       #     VSCE_PAT: ${{ secrets.VSCE_PAT }}
