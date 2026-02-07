@@ -158,7 +158,7 @@ export class ClineProvider
 
 	public isViewLaunched = false
 	public settingsImportedAt?: number
-	public readonly latestAnnouncementId = "feb-2026-v3.47.2-klaus.1" // v3.47.2 Klaus Code Merge
+	public readonly latestAnnouncementId = "feb-2026-v3.47.3-klaus.1" // v3.47.3 Klaus Code Merge
 	public readonly providerSettingsManager: ProviderSettingsManager
 	public readonly customModesManager: CustomModesManager
 
