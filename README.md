@@ -30,7 +30,7 @@ The code is published for educational and interoperability research purposes. No
 
 - **[Development Guide](DEVELOPMENT.md)**: Build instructions, environment setup, and release process
 
-- AI way to install it in your Visual Studio Code: _Clone the GitHub repository from https://github.com/PabloVitasso/Klaus-Code . Build a VS Code .vsix using vsce package and install it._
+- **Quick Install**: Clone the GitHub repository from https://github.com/PabloVitasso/Klaus-Code, build a VS Code .vsix using vsce package, and install it.
 
 ### License
 

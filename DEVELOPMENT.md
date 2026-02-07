@@ -14,15 +14,13 @@
 - [Merging Upstream Changes](#merging-upstream-changes)
 - [Troubleshooting](#troubleshooting)
 
----
-
 ## Fork Divergence from Upstream
 
 Klaus Code is a fork of [Roo Code](https://github.com/RooCodeInc/Roo-Code) that maintains features removed from upstream. **When merging changes from upstream, be aware of these key differences:**
 
 ### 1. Claude Code Provider Support (CRITICAL)
 
-**Status**: ✅ Maintained in Klaus Code | ❌ Removed from Roo Code (commit `7f854c0`)
+**Status**: [x] Maintained in Klaus Code | [ ] Removed from Roo Code (commit `7f854c0`)
 
 Klaus Code preserves full Claude Code OAuth integration that was removed from upstream Roo Code.
 
@@ -39,7 +37,7 @@ Klaus Code preserves full Claude Code OAuth integration that was removed from up
 
 ### 2. Tool Name Prefixing Fix (CRITICAL)
 
-**Status**: ✅ Applied in Klaus Code | ⚠️ May or may not be in upstream
+**Status**: [x] Applied in Klaus Code | [!] May or may not be in upstream
 
 **Upstream PR**: [RooCodeInc/Roo-Code#10620](https://github.com/RooCodeInc/Roo-Code/pull/10620)
 **Klaus Code PR**: [PabloVitasso/Klaus-Code#10916](https://github.com/RooCodeInc/Roo-Code/pull/10916)
@@ -93,7 +91,7 @@ Klaus Code uses fork-specific versioning:
 
 ### Upstream Remote Setup
 
-To facilitate merging:
+To help with merging:
 
 ```bash
 # Add Roo Code as remote (if not already added)
@@ -152,8 +150,6 @@ git branch -r | grep roocode
     "version": "<new-upstream-version>-klaus.1"
     ```
 
----
-
 ## Prerequisites
 
 ### Required Software
@@ -169,8 +165,6 @@ node --version  # Should be v20.19.2
 npm --version   # Should be 10.x or higher
 git --version
 ```
-
----
 
 ## Environment Setup
 
@@ -222,8 +216,6 @@ This will:
 
 **Note**: The build scripts for some dependencies are ignored by default for security. This is normal.
 
----
-
 ## Building from Source
 
 ### Quick Build
@@ -245,8 +237,6 @@ bin/
 └── klaus-code-3.42.0.vsix  (34 MB)
 ```
 
----
-
 ## Development Workflow
 
 ### Run in Development Mode
@@ -254,7 +244,7 @@ bin/
 Press `F5` in VS Code to launch the extension in debug mode:
 
 1. Open the project in VS Code
-2. Press `F5` (or **Run** → **Start Debugging**)
+2. Press `F5` (or **Run** -> **Start Debugging**)
 3. A new VS Code window opens with Klaus Code loaded
 4. Changes to the webview hot-reload automatically
 5. Changes to the core extension also hot-reload
@@ -291,8 +281,6 @@ cd webview-ui && npx vitest run src/path/to/test.test.ts
 ```
 
 **Important**: Do NOT run `npx vitest run src/...` from project root - this causes errors.
-
----
 
 ## Creating a Release
 
@@ -433,8 +421,6 @@ Automates entire release: version updates, release notes, announcement ID, PR cr
 
 **Manual fallback**: See script source for individual commands.
 
----
-
 ## Merging Upstream Changes
 
 Klaus Code periodically merges improvements from upstream Roo Code. Follow this process to safely integrate upstream changes while preserving Klaus Code-specific features.
@@ -523,8 +509,8 @@ Klaus Code preserved:
 - Version: X.Y.Z-klaus.1
 
 Testing:
-- check-types: ✓ PASSED
-- Claude Code tests (N/N): ✓ PASSED"
+- check-types: [x] PASSED
+- Claude Code tests (N/N): [x] PASSED"
 
 git checkout main && git merge merge-upstream-$(date +%Y%m%d) --no-edit
 git push origin main
@@ -539,16 +525,12 @@ pnpm vsix && code --install-extension bin/klaus-code-*.vsix --force
 
 **Time**: 10-15 minutes for ~30 commits.
 
----
-
 ### Common Pitfalls
 
 **Conflict marker resolution:** Use `sed`, not Edit tool (indentation issues)
 **Test failures:** Update test expectations (beta headers, etc.)
 **Type errors:** Always `pnpm install` before `check-types`
 **Working directory:** Work from project root, not `src/`
-
----
 
 ### Commit-by-Commit Merge Process
 
@@ -565,7 +547,7 @@ You don't need to merge commits one-by-one. **Batch safe commits together:**
 Example from 2026-01-24 merge:
 
 - 21 commits total
-- Batched 18 safe commits → 1 merge cycle (86% done!)
+- Batched 18 safe commits -> 1 merge cycle (86% done!)
 - Left 3 HIGH RISK commits for individual merging
 
 **Mega-Batch Command:**
@@ -611,7 +593,7 @@ Create `docs/YYYY.MM.DD-merge-upstream.md` with:
     - 🔴 **HIGH RISK** - Critical review, may impact Claude Code provider/OAuth
 - Files to check for each commit
 - Testing checklist
-- Merge status tracking (⏳ PENDING, ✅ MERGED, ⚠️ CONFLICT, ❌ FAILED)
+- Merge status tracking (⏳ PENDING, [x] MERGED, [!] CONFLICT, [ ] FAILED)
 
 See [docs/2026.01.24-merge-upstream.md](docs/2026.01.24-merge-upstream.md) as a template.
 
@@ -652,7 +634,7 @@ git cherry-pick abc1234567890abcdef1234567890abcdef1234
 
 **💡 Lessons Learned - Branding Conflicts:**
 
-After cherry-picking commits, branding issues (`@roo-code` → `@klaus-code`) may appear in:
+After cherry-picking commits, branding issues (`@roo-code` -> `@klaus-code`) may appear in:
 
 - Import statements in TypeScript/TSX files
 - Type references
@@ -751,7 +733,7 @@ Test the following in VS Code with the installed extension:
 
 **Claude Code OAuth Flow:**
 
-- Settings → API Provider → Select "Claude Code"
+- Settings -> API Provider -> Select "Claude Code"
 - Click "Login with Claude Code"
 - Verify OAuth completes successfully
 
@@ -777,9 +759,9 @@ Test the following in VS Code with the installed extension:
 
 Mark the commit status:
 
-- ✅ **MERGED** - Successfully merged and tested
-- ⚠️ **CONFLICT** - Had conflicts, document resolution approach
-- ❌ **FAILED** - Merge caused test failures or critical issues
+- [x] **MERGED** - Successfully merged and tested
+- [!] **CONFLICT** - Had conflicts, document resolution approach
+- [ ] **FAILED** - Merge caused test failures or critical issues
 
 Add notes about:
 
@@ -912,7 +894,7 @@ If a commit cannot be merged safely:
 
 In the tracking document:
 
-- Mark as ❌ **FAILED**
+- Mark as [ ] **FAILED**
 - Document why it failed
 - Note if it blocks other commits
 - Decide: Skip, fix later, or requires upstream discussion
@@ -991,8 +973,6 @@ Klaus Code includes helper scripts to automate common development tasks:
 
 **Safe to run multiple times** - the script is idempotent and won't break anything if run repeatedly.
 
----
-
 ## Troubleshooting
 
 ### pnpm not found
@@ -1041,8 +1021,6 @@ pnpm format
 pnpm lint
 ```
 
----
-
 ## Project Structure
 
 ```
@@ -1064,15 +1042,11 @@ Klaus-Code/
 
 For more details, see [CLAUDE.md](CLAUDE.md) for AI-specific development guidance.
 
----
-
 ## Additional Resources
 
 - **Project Repository**: https://github.com/PabloVitasso/Klaus-Code
 - **Original Fork Source**: https://github.com/RooCodeInc/Roo-Code
 - **VS Code Extension API**: https://code.visualstudio.com/api
-
----
 
 _Last updated: 2026-01-23_
 _Divergence tracking added: 2026-01-23_

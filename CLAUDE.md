@@ -1,16 +1,16 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file guides Claude Code (claude.ai/code) when working with code in this repository.
 
 **For human developers**: See [DEVELOPMENT.md](DEVELOPMENT.md) for complete build instructions, environment setup, and release procedures.
 
 ## Initial Context - Read These First
 
-Main rules
+**Main rules:**
 
-1. do not write any reports to disk unless directly specified to do so.
-2. Be token-optimised with your responses.
-3. Do not use full sentences, if list or shorter form will do.
+1. Do not write any reports to disk unless directly specified to do so.
+2. Be token-optimized with your responses.
+3. Do not use full sentences if list or shorter form will do.
 
 When starting work on Klaus Code, read these documentation files for comprehensive context:
 
@@ -30,7 +30,7 @@ These docs provide essential context for understanding Klaus Code's architecture
 
 ## Project Overview
 
-Klaus Code is an AI-powered VS Code extension that assists with coding tasks. It's a TypeScript monorepo using pnpm workspaces and Turborepo.
+Klaus Code is an AI-powered VS Code extension that helps with coding tasks. It's a TypeScript monorepo using pnpm workspaces and Turborepo.
 
 ## Build and Development Commands
 
@@ -102,7 +102,7 @@ Press F5 in VS Code to launch the extension in debug mode. Changes hot reload au
 
 ### Settings View Pattern
 
-When working on `SettingsView`, inputs must bind to the local `cachedState`, NOT the live `useExtensionState()`. The `cachedState` acts as a buffer for user edits, isolating them from the `ContextProxy` source-of-truth until the user explicitly clicks "Save". Wiring inputs directly to the live state causes race conditions.
+When working on `SettingsView`, inputs must bind to the local `cachedState`, NOT the live `useExtensionState()`. The `cachedState` acts as a buffer for user edits, isolating them from the `ContextProxy` source-of-truth until the user clicks "Save". Wiring inputs directly to the live state causes race conditions.
 
 ### JSON File Writing
 
