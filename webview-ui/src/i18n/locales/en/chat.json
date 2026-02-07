@@ -347,9 +347,9 @@
 		},
 		"release": {
 			"heading": "What's New:",
-			"item1": "Provider migrations to AI SDK: Bedrock, Baseten, io-intelligence, Featherless, Chutes, and Zai providers now use the unified AI SDK for better performance and reliability",
-			"item2": "Disabled tools setting: New global setting to disable specific native tools, giving you more control over Klaus Code's capabilities",
-			"item3": "Telemetry disabled by default: Klaus Code now respects your privacy with telemetry disabled out of the box"
+			"aiSdkMigrations": "Provider migrations to AI SDK: Bedrock, Baseten, io-intelligence, Featherless, Chutes, and Zai providers now use the unified AI SDK for better performance and reliability",
+			"disabledTools": "Disabled tools setting: New global setting to disable specific native tools, giving you more control over Klaus Code's capabilities",
+			"telemetryDisabled": "Telemetry disabled by default: Klaus Code now respects your privacy with telemetry disabled out of the box"
 		},
 		"cloudAgents": {
 			"heading": "New in the Cloud:",

@@ -39,13 +39,13 @@ const Announcement = ({ hideAnnouncement }: AnnouncementProps) => {
 					<DialogTitle>{t("chat:announcement.title", { version: Package.version })}</DialogTitle>
 				</DialogHeader>
 				<div>
-					{/* Release Notes */}
+					{/* Regular Release Highlights */}
 					<div className="mb-4">
 						<p className="mb-3">{t("chat:announcement.release.heading")}</p>
 						<ul className="list-disc list-inside text-sm space-y-1.5">
-							<li>{t("chat:announcement.release.item1")}</li>
-							<li>{t("chat:announcement.release.item2")}</li>
-							<li>{t("chat:announcement.release.item3")}</li>
+							<li>{t("chat:announcement.release.aiSdkMigrations")}</li>
+							<li>{t("chat:announcement.release.disabledTools")}</li>
+							<li>{t("chat:announcement.release.telemetryDisabled")}</li>
 						</ul>
 					</div>
 
