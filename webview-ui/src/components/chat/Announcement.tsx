@@ -50,7 +50,7 @@ const Announcement = ({ hideAnnouncement }: AnnouncementProps) => {
 					</div>
 
 					<div className="mt-4 text-sm text-center text-vscode-descriptionForeground">
-						<Trans i18nKey="chat:announcement.repo" components={{ repoLink: <RepoLink /> }} />
+						<Trans i18nKey="chat:announcement.support" components={{ githubLink: <RepoLink /> }} />
 					</div>
 				</div>
 			</DialogContent>
