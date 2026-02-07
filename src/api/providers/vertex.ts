@@ -134,7 +134,7 @@ export class VertexHandler extends BaseProvider implements SingleCompletionHandl
 			// Add thinking/reasoning configuration if present
 			// Cast to any to bypass strict JSONObject typing - the AI SDK accepts the correct runtime values
 			...(thinkingConfig && {
-				providerOptions: { google: { thinkingConfig } } as any,
+				providerOptions: { vertex: { thinkingConfig } } as any,
 			}),
 		}
 
@@ -166,7 +166,7 @@ export class VertexHandler extends BaseProvider implements SingleCompletionHandl
 
 			// Extract grounding sources from providerMetadata if available
 			const providerMetadata = await result.providerMetadata
-			const groundingMetadata = providerMetadata?.google as
+			const groundingMetadata = (providerMetadata?.vertex ?? providerMetadata?.google) as
 				| {
 						groundingMetadata?: {
 							groundingChunks?: Array<{
@@ -303,20 +303,6 @@ export class VertexHandler extends BaseProvider implements SingleCompletionHandl
 		const { id: modelId, info } = this.getModel()
 
 		try {
-			// Build tools for grounding - cast to any to bypass strict typing
-			// Google provider tools have a different shape than standard ToolSet
-			const tools: Record<string, any> = {}
-
-			// Add URL context tool if enabled
-			if (this.options.enableUrlContext) {
-				tools.url_context = this.provider.tools.urlContext({})
-			}
-
-			// Add Google Search grounding tool if enabled
-			if (this.options.enableGrounding) {
-				tools.google_search = this.provider.tools.googleSearch({})
-			}
-
 			const supportsTemperature = info.supportsTemperature !== false
 			const temperatureConfig: number | undefined = supportsTemperature
 				? (this.options.modelTemperature ?? info.defaultTemperature ?? 1)
@@ -326,14 +312,13 @@ export class VertexHandler extends BaseProvider implements SingleCompletionHandl
 				model: this.provider(modelId),
 				prompt,
 				temperature: temperatureConfig,
-				...(Object.keys(tools).length > 0 && { tools: tools as ToolSet }),
 			})
 
 			let text = result.text ?? ""
 
 			// Extract grounding citations from providerMetadata if available
 			const providerMetadata = result.providerMetadata
-			const groundingMetadata = providerMetadata?.google as
+			const groundingMetadata = (providerMetadata?.vertex ?? providerMetadata?.google) as
 				| {
 						groundingMetadata?: {
 							groundingChunks?: Array<{

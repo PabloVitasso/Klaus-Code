@@ -1,13 +1,13 @@
 {
 	"name": "@klaus-code/types",
-	"version": "1.109.0",
+	"version": "1.110.0",
 	"description": "TypeScript type definitions for Klaus Code.",
 	"publishConfig": {
 		"access": "public",
 		"name": "@klaus-code/types",
 		"registry": "https://registry.npmjs.org/"
 	},
-	"author": "Klaus Code",
+	"author": "Klaus Code Team",
 	"license": "MIT",
 	"repository": {
 		"type": "git",

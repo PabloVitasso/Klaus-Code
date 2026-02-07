@@ -6,18 +6,25 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Initial Context - Read These First
 
+Main rules
+
+1. do not write any reports to disk unless directly specified to do so.
+2. Be token-optimised with your responses.
+3. Do not use full sentences, if list or shorter form will do.
+
 When starting work on Klaus Code, read these documentation files for comprehensive context:
 
 1. **[DEVELOPMENT.md](DEVELOPMENT.md)** - Complete development guide
-   - Build and release procedures
-   - Upstream merge process with helper scripts
-   - Fork-specific divergences from Roo Code
-   - Testing and deployment workflows
+
+    - Build and release procedures
+    - Upstream merge process with helper scripts
+    - Fork-specific divergences from Roo Code
+    - Testing and deployment workflows
 
 2. **[DEVELOPMENT-ClaudeCodeConnector.md](DEVELOPMENT-ClaudeCodeConnector.md)** - Claude Code OAuth provider
-   - Tool name prefixing mechanism (`oc_` prefix)
-   - OAuth authentication architecture
-   - Critical implementation details for Klaus Code's main differentiator
+    - Tool name prefixing mechanism (`oc_` prefix)
+    - OAuth authentication architecture
+    - Critical implementation details for Klaus Code's main differentiator
 
 These docs provide essential context for understanding Klaus Code's architecture and unique features.
 
@@ -74,21 +81,21 @@ Press F5 in VS Code to launch the extension in debug mode. Changes hot reload au
 ## Repository Structure
 
 - `src/` - Main VS Code extension (backend)
-  - `api/providers/` - LLM provider integrations (Anthropic, OpenAI, Gemini, Bedrock, etc.)
-  - `core/` - Agent core logic
-    - `task/Task.ts` - Main agent task orchestration
-    - `tools/` - Tool implementations (ReadFile, WriteToFile, ExecuteCommand, etc.)
-    - `webview/ClineProvider.ts` - Bridge between extension and webview
-    - `config/ContextProxy.ts` - State management for settings
-    - `prompts/` - System prompt construction
-  - `services/` - Supporting services (MCP, code indexing, checkpoints, etc.)
-  - `integrations/` - VS Code integrations (terminal, editor, workspace)
+    - `api/providers/` - LLM provider integrations (Anthropic, OpenAI, Gemini, Bedrock, etc.)
+    - `core/` - Agent core logic
+        - `task/Task.ts` - Main agent task orchestration
+        - `tools/` - Tool implementations (ReadFile, WriteToFile, ExecuteCommand, etc.)
+        - `webview/ClineProvider.ts` - Bridge between extension and webview
+        - `config/ContextProxy.ts` - State management for settings
+        - `prompts/` - System prompt construction
+    - `services/` - Supporting services (MCP, code indexing, checkpoints, etc.)
+    - `integrations/` - VS Code integrations (terminal, editor, workspace)
 - `webview-ui/` - React frontend (Vite, Tailwind, Radix UI)
 - `packages/` - Shared packages
-  - `types/` - Shared TypeScript types
-  - `core/` - Core utilities
-  - `cloud/` - Cloud service integration
-  - `telemetry/` - Telemetry service
+    - `types/` - Shared TypeScript types
+    - `core/` - Core utilities
+    - `cloud/` - Cloud service integration
+    - `telemetry/` - Telemetry service
 - `apps/` - Additional applications (CLI, e2e tests, web apps)
 
 ## Architecture Notes
@@ -100,6 +107,7 @@ When working on `SettingsView`, inputs must bind to the local `cachedState`, NOT
 ### JSON File Writing
 
 Use `safeWriteJson(filePath, data)` from `src/utils/safeWriteJson.ts` instead of `JSON.stringify` with file-write operations. This utility:
+
 - Creates parent directories automatically
 - Prevents data corruption via atomic writes with locking
 - Streams writes to minimize memory footprint
