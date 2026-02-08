@@ -28,29 +28,37 @@ jobs:
           key: ${{ runner.os }}-turbo-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-turbo-
-      - name: Forge numeric Weekly version
+      - name: Generate nightly version from main package
         id: version
-        env:
-          RUN_NUMBER: ${{ github.run_number }}
-        run: echo "number=$(( 5500 + ${RUN_NUMBER} ))" >> $GITHUB_OUTPUT
+        run: |
+          # Read version from src/package.json
+          MAIN_VERSION=$(node -p "require('./src/package.json').version")
+          DATE_SUFFIX=$(date +%Y%m%d)
+          NIGHTLY_VERSION="${MAIN_VERSION}.nightly${DATE_SUFFIX}"
+
+          echo "main=${MAIN_VERSION}" >> $GITHUB_OUTPUT
+          echo "nightly=${NIGHTLY_VERSION}" >> $GITHUB_OUTPUT
+          echo "date=${DATE_SUFFIX}" >> $GITHUB_OUTPUT
+
+          echo "🔖 Main version: ${MAIN_VERSION}"
+          echo "🔖 Nightly version: ${NIGHTLY_VERSION}"
       - name: Patch package.json version
         env:
-          VERSION_NUMBER: ${{ steps.version.outputs.number }}
+          NIGHTLY_VERSION: ${{ steps.version.outputs.nightly }}
         run: |
           node <<'EOF'
             const fs = require('fs');
             const path = require('path');
             const pkgPath = path.join(__dirname, 'apps', 'vscode-nightly', 'package.nightly.json');
             const pkg = JSON.parse(fs.readFileSync(pkgPath,'utf8'));
-            const [maj, min] = pkg.version.split('.');
-            pkg.version = `${maj}.${min}.${process.env.VERSION_NUMBER}`;
+            pkg.version = process.env.NIGHTLY_VERSION;
             fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2));
-            console.log(`🔖 Weekly version set to ${pkg.version}`);
+            console.log(`🔖 Nightly version set to ${pkg.version}`);
           EOF
       - name: Build dependencies
         run: pnpm build
       - name: Build VSIX
-        run: pnpm vsix:nightly # Produces bin/klaus-code-nightly-0.0.[count].vsix
+        run: pnpm vsix:nightly # Produces bin/klaus-code-nightly-X.Y.Z-klaus.N.nightlyYYYYMMDD.vsix
       - name: Generate Changelog
         id: changelog
         run: |
@@ -121,9 +129,10 @@ jobs:
             # Add footer
             CHANGELOG="${CHANGELOG}---
 
-          **Full Changelog**: https://github.com/${{ github.repository }}/compare/${LAST_TAG}...weekly-v0.0.${{ steps.version.outputs.number }}
+          **Full Changelog**: https://github.com/${{ github.repository }}/compare/${LAST_TAG}...weekly-v${{ steps.version.outputs.nightly }}
 
-          📊 **$COMMIT_COUNT** commits in this release"
+          📊 **$COMMIT_COUNT** commits in this release
+          🏷️  **Based on**: Klaus Code v${{ steps.version.outputs.main }}"
           fi
 
           # Save to file (GitHub Actions doesn't handle multiline output well)
@@ -135,19 +144,21 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          WEEKLY_VERSION="0.0.${{ steps.version.outputs.number }}"
+          NIGHTLY_VERSION="${{ steps.version.outputs.nightly }}"
+          MAIN_VERSION="${{ steps.version.outputs.main }}"
           VSIX_FILE=$(ls bin/*.vsix | head -n1)
           VSIX_FILENAME=$(basename "$VSIX_FILE")
           CHANGELOG_FILE="${{ steps.changelog.outputs.changelog_file }}"
 
           # Create pre-release with generated changelog
-          gh release create "weekly-v${WEEKLY_VERSION}" \
-            --title "Weekly Build v${WEEKLY_VERSION}" \
+          gh release create "weekly-v${NIGHTLY_VERSION}" \
+            --title "Weekly Build v${NIGHTLY_VERSION} (based on v${MAIN_VERSION})" \
             --notes-file "$CHANGELOG_FILE" \
             --prerelease \
             "$VSIX_FILE"
 
-          echo "✅ Created weekly pre-release v${WEEKLY_VERSION} with ${VSIX_FILENAME}"
+          echo "✅ Created weekly pre-release v${NIGHTLY_VERSION} with ${VSIX_FILENAME}"
+          echo "📝 Based on Klaus Code v${MAIN_VERSION}"
           echo "📝 Changelog includes ${{ steps.changelog.outputs.commit_count }} commits"
       # - name: Publish to VS Code Marketplace
       #   env:
