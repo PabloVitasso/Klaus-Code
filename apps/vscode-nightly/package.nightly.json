@@ -1,6 +1,7 @@
 {
 	"name": "klaus-code-nightly",
-	"version": "0.0.1",
+	"version": "3.47.3-klaus.1.nightly20260208",
 	"icon": "assets/icons/icon-nightly.png",
-	"scripts": {}
+	"scripts": {},
+	"_comment": "Version format: {main-version}.nightly{YYYYMMDD} - auto-updated by weekly-build.yml"
 }
