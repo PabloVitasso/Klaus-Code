@@ -56,3 +56,6 @@ qdrant_storage/
 plans/
 
 roo-cli-*.tar.gz*
+
+# Web app (Klaus Code is VSIX-only)
+apps/web-roo-code/

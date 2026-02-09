@@ -23,3 +23,6 @@ src/i18n/locales/en/** linguist-generated=false
 webview-ui/src/i18n/locales/en/** linguist-generated=false
 
 # This approach uses gitattributes' last-match-wins rule to exclude English while including all other locales
+
+# Ignore web-roo-code app during upstream merges (Klaus Code is VSIX-only)
+apps/web-roo-code/** merge=ours
