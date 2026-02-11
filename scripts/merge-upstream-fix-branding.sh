@@ -145,9 +145,66 @@ else
     print_error "Tool name prefixing code missing or modified!"
 fi
 
-# Step 5: Verify branding in key files
+# Step 5: Fix UI component IDs in src/package.json
 echo ""
-echo -e "${BLUE}[5/6] Verifying branding in key files...${NC}"
+echo -e "${BLUE}[5/8] Fixing UI component IDs in src/package.json...${NC}"
+echo ""
+
+if [ -f "src/package.json" ]; then
+    # Check if fixes are needed
+    if grep -q "roo-cline" src/package.json 2>/dev/null; then
+        print_info "Found roo-cline IDs in src/package.json - fixing..."
+
+        # Fix activity bar container ID: roo-cline-ActivityBar → klaus-code-ActivityBar
+        if sed -i 's/"id": "roo-cline-ActivityBar"/"id": "klaus-code-ActivityBar"/g' src/package.json 2>/dev/null; then
+            print_status "Fixed activity bar container ID"
+            ((FIXED_FILES++))
+        else
+            print_error "Failed to fix activity bar container ID"
+        fi
+
+        # Fix views container reference: "roo-cline-ActivityBar": → "klaus-code-ActivityBar":
+        if sed -i 's/"roo-cline-ActivityBar":/"klaus-code-ActivityBar":/g' src/package.json 2>/dev/null; then
+            print_status "Fixed views container reference"
+        else
+            print_error "Failed to fix views container reference"
+        fi
+
+        # Fix view ID: roo-cline.SidebarProvider → klaus-code.SidebarProvider
+        if sed -i 's/"id": "roo-cline\.SidebarProvider"/"id": "klaus-code.SidebarProvider"/g' src/package.json 2>/dev/null; then
+            print_status "Fixed view ID"
+        else
+            print_error "Failed to fix view ID"
+        fi
+
+        # Fix command IDs: roo-cline.* → klaus-code.*
+        if sed -i 's/"command": "roo-cline\./"command": "klaus-code./g' src/package.json 2>/dev/null; then
+            print_status "Fixed command IDs"
+        else
+            print_error "Failed to fix command IDs"
+        fi
+
+        # Fix when clauses: view == roo-cline. → view == klaus-code.
+        if sed -i 's/"when": "view == roo-cline\./"when": "view == klaus-code./g' src/package.json 2>/dev/null; then
+            print_status "Fixed view when clauses"
+        else
+            print_error "Failed to fix view when clauses"
+        fi
+
+        # Fix activeWebviewPanelId: roo-cline. → klaus-code.
+        if sed -i 's/activeWebviewPanelId == roo-cline\./activeWebviewPanelId == klaus-code./g' src/package.json 2>/dev/null; then
+            print_status "Fixed activeWebviewPanelId references"
+        else
+            print_error "Failed to fix activeWebviewPanelId references"
+        fi
+    else
+        print_status "No roo-cline IDs found - already clean!"
+    fi
+fi
+
+# Step 6: Verify branding in key files
+echo ""
+echo -e "${BLUE}[6/8] Verifying branding in key files...${NC}"
 echo ""
 
 # Check src/package.json has Klaus Code branding
@@ -156,6 +213,20 @@ if [ -f "src/package.json" ]; then
         print_status "src/package.json has Klaus Code branding"
     else
         print_warning "src/package.json may have incorrect branding - manual review needed"
+    fi
+
+    # Verify activity bar container ID
+    if grep -q '"id": "klaus-code-ActivityBar"' src/package.json; then
+        print_status "Activity bar container ID correct"
+    else
+        print_error "Activity bar container ID incorrect or missing!"
+    fi
+
+    # Verify view container reference
+    if grep -q '"klaus-code-ActivityBar":' src/package.json; then
+        print_status "Views container reference correct"
+    else
+        print_error "Views container reference incorrect or missing!"
     fi
 fi
 
@@ -168,9 +239,25 @@ if [ -f "packages/types/npm/package.metadata.json" ]; then
     fi
 fi
 
-# Step 6: Check for remaining @roo-code references in source
+# Step 7: Check for remaining roo-cline/roo-code references in source
 echo ""
-echo -e "${BLUE}[6/6] Checking for remaining @roo-code references...${NC}"
+echo -e "${BLUE}[7/8] Checking for remaining roo-cline references...${NC}"
+echo ""
+
+REMAINING_CLINE=$(grep -r "roo-cline" src/package.json 2>/dev/null | grep -v "^Binary" | wc -l || echo "0")
+
+if [ "$REMAINING_CLINE" -eq 0 ]; then
+    print_status "No remaining roo-cline references in src/package.json"
+else
+    print_warning "Found $REMAINING_CLINE remaining roo-cline references"
+    echo ""
+    print_info "Showing occurrences:"
+    grep -n "roo-cline" src/package.json 2>/dev/null || true
+fi
+
+# Step 8: Check for remaining @roo-code references in source
+echo ""
+echo -e "${BLUE}[8/8] Checking for remaining @roo-code references...${NC}"
 echo ""
 
 REMAINING=$(grep -r "@roo-code/" src/ packages/ apps/ webview-ui/ --include="*.ts" --include="*.tsx" --include="*.js" --include="*.json" --exclude-dir=node_modules --exclude-dir=.next --exclude-dir=dist 2>/dev/null | grep -v "^Binary" | wc -l || echo "0")

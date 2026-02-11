@@ -6,7 +6,10 @@ export function checkExistKey(config: ProviderSettings | undefined) {
 	}
 
 	// Special case for providers which don't need standard API key configuration.
-	if (config.apiProvider && ["fake-ai", "openai-codex", "qwen-code", "roo"].includes(config.apiProvider)) {
+	if (
+		config.apiProvider &&
+		["fake-ai", "claude-code", "openai-codex", "qwen-code", "roo"].includes(config.apiProvider)
+	) {
 		return true
 	}
 
