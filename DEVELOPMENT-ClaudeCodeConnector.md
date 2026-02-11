@@ -945,6 +945,71 @@ grep "TOOL_NAME_PREFIX.*=.*\"oc_\"" src/integrations/claude-code/streaming-clien
 cd src && npx vitest run integrations/claude-code/__tests__/
 ```
 
+### Post-Merge Validation Checklist
+
+**Run these commands after upstream merge to verify critical Claude Code components:**
+
+```bash
+#!/bin/bash
+# Copy-paste this entire block to validate Claude Code integration
+
+echo "=== Validating Claude Code Components ==="
+
+# 1. Backend schema validation
+echo -n "✓ Provider schema: "
+grep -q 'claudeCodeSchema' packages/types/src/provider-settings.ts && \
+grep -q 'claude-code.*claudeCodeSchema' packages/types/src/provider-settings.ts && \
+echo "PASS" || echo "FAIL - missing from discriminated union"
+
+# 2. OAuth manager initialization
+echo -n "✓ OAuth init: "
+grep -q 'claudeCodeOAuthManager.initialize' src/extension.ts && \
+echo "PASS" || echo "FAIL - not initialized in extension.ts"
+
+# 3. Frontend UI components
+echo -n "✓ UI exports: "
+grep -q 'export.*ClaudeCode' webview-ui/src/components/settings/providers/index.ts && \
+echo "PASS" || echo "FAIL - missing from provider exports"
+
+echo -n "✓ UI dropdown: "
+grep -q 'claude-code.*Claude Code' webview-ui/src/components/settings/constants.ts && \
+echo "PASS" || echo "FAIL - missing from PROVIDERS array"
+
+echo -n "✓ UI config: "
+grep -q 'claude-code.*claudeCodeDefaultModelId' webview-ui/src/components/settings/ApiOptions.tsx && \
+echo "PASS" || echo "FAIL - missing from PROVIDER_MODEL_CONFIG"
+
+# 4. Activity bar branding
+echo -n "✓ Activity bar: "
+grep -q 'klaus-code-ActivityBar' src/package.json && \
+echo "PASS" || echo "FAIL - upstream overwrote with roo-cline IDs"
+
+# 5. Tool name prefix (critical)
+echo -n "✓ Tool prefix: "
+grep -q 'TOOL_NAME_PREFIX.*=.*"oc_"' src/integrations/claude-code/streaming-client.ts && \
+echo "PASS" || echo "FAIL - tool prefix constant missing"
+
+# 6. Type checks and tests
+echo -n "✓ Types: "
+pnpm check-types --filter @klaus-code/types &>/dev/null && echo "PASS" || echo "FAIL"
+
+echo -n "✓ Tests: "
+cd src && npx vitest run integrations/claude-code/__tests__/ &>/dev/null && \
+echo "PASS" || echo "FAIL"
+
+echo "=== Validation Complete ==="
+```
+
+**If any checks fail:**
+
+- Schema: Add `claudeCodeSchema` to packages/types/src/provider-settings.ts (see commit `90a46aa3d`)
+- OAuth init: Add `claudeCodeOAuthManager.initialize(context, ...)` to src/extension.ts:162
+- UI exports: Export ClaudeCode in webview-ui/src/components/settings/providers/index.ts
+- UI dropdown: Add to PROVIDERS in webview-ui/src/components/settings/constants.ts
+- UI config: Add to PROVIDER_MODEL_CONFIG in webview-ui/src/components/settings/ApiOptions.tsx
+- Activity bar: Run `scripts/merge-upstream-fix-branding.sh` to restore klaus-code IDs
+- Tool prefix: DO NOT MERGE - upstream broke critical OAuth workaround
+
 ### Model Addition Workflow
 
 **Successfully added Opus 4.6 (commit `874ac3334`)**:
