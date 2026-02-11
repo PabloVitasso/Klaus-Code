@@ -228,6 +228,16 @@ Headers:
 
 This endpoint is called at startup to fetch user preferences and account configuration. Klaus Code should implement this to maintain feature parity with official Claude Code.
 
+### API Endpoint
+
+**CRITICAL**: The OAuth-authenticated endpoint requires `?beta=true` query parameter:
+
+```
+POST https://api.anthropic.com/v1/messages?beta=true
+```
+
+Without this parameter, the API returns "invalid x-api-key" error even with valid OAuth tokens.
+
 ### Normal Message Request Headers
 
 **Complete headers from official Claude Code CLI (claude-cli/2.1.34):**
@@ -304,16 +314,20 @@ const headers: Record<string, string> = {
 }
 ```
 
-**Beta flags comparison:**
+**Beta flags comparison (2.1.39 analysis):**
 
-| Beta Flag                                | Official CLI | Klaus Code | Notes                               |
-| ---------------------------------------- | ------------ | ---------- | ----------------------------------- |
-| `oauth-2025-04-20`                       | ✅           | ✅         | Required for OAuth                  |
-| `interleaved-thinking-2025-05-14`        | ✅           | ✅         | Required for extended thinking      |
-| `prompt-caching-scope-2026-01-05`        | ✅           | ❌         | **New caching beta** (official CLI) |
-| `prompt-caching-2024-07-31`              | ❌           | ✅         | Old caching beta (Klaus Code)       |
-| `claude-code-20250219`                   | ❌           | ✅         | Klaus Code specific?                |
-| `fine-grained-tool-streaming-2025-05-14` | ❌           | ✅         | Klaus Code specific                 |
+| Beta Flag                                | `/v1/messages` | `/v1/messages/count_tokens` | Notes                                         |
+| ---------------------------------------- | -------------- | --------------------------- | --------------------------------------------- |
+| `oauth-2025-04-20`                       | ✅             | ✅                          | Required for OAuth                            |
+| `interleaved-thinking-2025-05-14`        | ✅             | ✅                          | Required for extended thinking                |
+| `prompt-caching-scope-2026-01-05`        | ✅             | ✅                          | New scope-based caching (replaces 2024-07-31) |
+| `claude-code-20250219`                   | ❌             | ✅                          | **ONLY for count_tokens endpoint**            |
+| `token-counting-2024-11-01`              | ❌             | ✅                          | Token counting beta                           |
+| `structured-outputs-2025-12-15`          | Optional       | ❌                          | Added when using structured output            |
+| `prompt-caching-2024-07-31`              | ❌             | ❌                          | Old caching (replaced by scope-2026-01-05)    |
+| `fine-grained-tool-streaming-2025-05-14` | ❌             | ❌                          | Not used by official CLI                      |
+
+**CRITICAL**: `claude-code-20250219` should **NOT** be included in regular `/v1/messages` requests. It's only for the `/v1/messages/count_tokens` endpoint.
 
 **Missing Stainless headers:**
 
@@ -903,6 +917,16 @@ Example: `mcp--atlassian--jira_search`
 
 ## Troubleshooting
 
+### "invalid x-api-key" Error
+
+**Symptom**: API returns "invalid x-api-key" error despite valid OAuth token
+
+**Cause**: Missing `?beta=true` query parameter in endpoint URL
+
+**Solution**: Ensure endpoint is `https://api.anthropic.com/v1/messages?beta=true` (not just `/v1/messages`)
+
+**Why**: The OAuth-authenticated endpoint requires the beta query parameter. Without it, the API falls back to x-api-key authentication and rejects the request.
+
 ### Tool Validation Errors
 
 If you see errors like "unknown tool" or validation failures:
@@ -926,7 +950,42 @@ If OAuth fails:
 2. Verify OAuth token is valid and not expired
 3. Ensure all required beta headers are set
 
-## Session Learnings (2026-02-06)
+## Session Learnings
+
+### 2026-02-11: Critical OAuth Endpoint Fixes
+
+**Issue**: "invalid x-api-key" error when using Claude Code OAuth tokens
+
+**Root Causes Discovered**:
+
+1. **Missing `?beta=true` query parameter**:
+
+    - Klaus Code was using: `https://api.anthropic.com/v1/messages`
+    - Official CLI uses: `https://api.anthropic.com/v1/messages?beta=true`
+    - Without `?beta=true`, API falls back to x-api-key auth and rejects OAuth tokens
+
+2. **Incorrect beta headers**:
+    - Klaus Code was including `claude-code-20250219` in all /v1/messages requests
+    - Official CLI **ONLY** uses `claude-code-20250219` for `/v1/messages/count_tokens`
+    - Regular messages use: `oauth-2025-04-20,interleaved-thinking-2025-05-14,prompt-caching-scope-2026-01-05`
+
+**Analysis Method**:
+
+```bash
+# Captured official Claude Code CLI (2.1.39) traffic
+mitmweb --listen-host 127.0.0.1 --listen-port 58888
+
+# Analyzed HAR file
+strings docs/2026.02.11-claude-code-flows.2.1.39-BIG.har | grep -E "(path|anthropic-beta)"
+```
+
+**Files Updated**:
+
+- `src/integrations/claude-code/streaming-client.ts:245` - Added `?beta=true` to endpoint
+- `src/integrations/claude-code/streaming-client.ts:250-256` - Removed `claude-code-20250219` from defaultBetas
+- `src/integrations/claude-code/streaming-client.ts:267` - Updated Stainless version to 0.73.0
+
+### 2026-02-06: Upstream Merge and Usage Tracking
 
 ### Upstream Merge Process Validation
 

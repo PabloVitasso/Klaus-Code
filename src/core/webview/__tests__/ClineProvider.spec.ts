@@ -144,8 +144,22 @@ vi.mock("vscode", () => ({
 	OutputChannel: vi.fn(),
 	WebviewView: vi.fn(),
 	Uri: {
-		joinPath: vi.fn(),
+		joinPath: vi.fn().mockImplementation((...parts) => {
+			// Convert VSCode Uri objects to string paths for the mock
+			const pathParts = parts.map((p) => {
+				if (p && typeof p === "object" && "fsPath" in p) {
+					return p.fsPath
+				}
+				return String(p)
+			})
+			const joinedPath = pathParts.join("/")
+			return {
+				fsPath: joinedPath,
+				toString: () => joinedPath,
+			}
+		}),
 		file: vi.fn(),
+		parse: vi.fn(),
 	},
 	CodeActionKind: {
 		QuickFix: { value: "quickfix" },
@@ -393,7 +407,7 @@ describe("ClineProvider", () => {
 
 		mockContext = {
 			extensionPath: "/test/path",
-			extensionUri: {} as vscode.Uri,
+			extensionUri: { fsPath: "/test/extension/path" } as vscode.Uri,
 			globalState: {
 				get: vi.fn().mockImplementation((key: string) => globalState[key]),
 				update: vi
@@ -443,7 +457,7 @@ describe("ClineProvider", () => {
 				html: "",
 				options: {},
 				onDidReceiveMessage: vi.fn(),
-				asWebviewUri: vi.fn(),
+				asWebviewUri: vi.fn().mockImplementation((uri) => uri.toString()),
 				cspSource: "vscode-webview://test-csp-source",
 			},
 			visible: true,
@@ -518,7 +532,7 @@ describe("ClineProvider", () => {
 
 		// Verify Content Security Policy contains the necessary PostHog domains
 		expect(mockWebviewView.webview.html).toContain(
-			"connect-src vscode-webview://test-csp-source https://openrouter.ai https://api.requesty.ai https://ph.tbd",
+			"connect-src vscode-webview://test-csp-source https://openrouter.ai https://api.requesty.ai https://ph.roocode.com",
 		)
 
 		// Extract the script-src directive section and verify required security elements
@@ -2179,7 +2193,7 @@ describe("Project MCP Settings", () => {
 
 		mockContext = {
 			extensionPath: "/test/path",
-			extensionUri: {} as vscode.Uri,
+			extensionUri: { fsPath: "/test/extension/path" } as vscode.Uri,
 			globalState: {
 				get: vi.fn(),
 				update: vi.fn(),
@@ -2217,7 +2231,7 @@ describe("Project MCP Settings", () => {
 				html: "",
 				options: {},
 				onDidReceiveMessage: vi.fn(),
-				asWebviewUri: vi.fn(),
+				asWebviewUri: vi.fn().mockImplementation((uri) => uri.toString()),
 				cspSource: "vscode-webview://test-csp-source",
 			},
 			visible: true,
@@ -2549,7 +2563,7 @@ describe("ClineProvider - Router Models", () => {
 
 		mockContext = {
 			extensionPath: "/test/path",
-			extensionUri: {} as vscode.Uri,
+			extensionUri: { fsPath: "/test/extension/path" } as vscode.Uri,
 			globalState: {
 				get: vi.fn().mockImplementation((key: string) => globalState[key]),
 				update: vi
@@ -2589,7 +2603,7 @@ describe("ClineProvider - Router Models", () => {
 				html: "",
 				options: {},
 				onDidReceiveMessage: vi.fn(),
-				asWebviewUri: vi.fn(),
+				asWebviewUri: vi.fn().mockImplementation((uri) => uri.toString()),
 			},
 			visible: true,
 			onDidDispose: vi.fn().mockImplementation((callback) => {
@@ -2861,7 +2875,7 @@ describe("ClineProvider - Comprehensive Edit/Delete Edge Cases", () => {
 
 		mockContext = {
 			extensionPath: "/test/path",
-			extensionUri: {} as vscode.Uri,
+			extensionUri: { fsPath: "/test/extension/path" } as vscode.Uri,
 			globalState: {
 				get: vi.fn().mockImplementation((key: string) => globalState[key]),
 				update: vi
@@ -2902,7 +2916,7 @@ describe("ClineProvider - Comprehensive Edit/Delete Edge Cases", () => {
 				html: "",
 				options: {},
 				onDidReceiveMessage: vi.fn(),
-				asWebviewUri: vi.fn(),
+				asWebviewUri: vi.fn().mockImplementation((uri) => uri.toString()),
 			},
 			visible: true,
 			onDidDispose: vi.fn().mockImplementation((callback) => {

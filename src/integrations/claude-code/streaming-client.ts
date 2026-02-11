@@ -242,16 +242,16 @@ function addMessageCacheBreakpoints(messages: Anthropic.Messages.MessageParam[])
 
 // API Configuration
 export const CLAUDE_CODE_API_CONFIG = {
-	endpoint: "https://api.anthropic.com/v1/messages",
+	endpoint: "https://api.anthropic.com/v1/messages?beta=true",
 	usageEndpoint: "https://api.anthropic.com/api/oauth/usage",
 	version: "2023-06-01",
 	// Beta headers for messages endpoint
-	// Order matches official Claude Code: claude-code-20250219, oauth-2025-04-20, interleaved-thinking-2025-05-14, prompt-caching-scope-2026-01-05
+	// Order matches official Claude Code CLI (2.1.39) exactly
+	// NOTE: claude-code-20250219 is ONLY for /v1/messages/count_tokens, NOT for regular /v1/messages
 	defaultBetas: [
-		"claude-code-20250219", // Claude Code specific features
 		"oauth-2025-04-20", // Required for OAuth authentication
 		"interleaved-thinking-2025-05-14", // Required for extended thinking
-		"prompt-caching-scope-2026-01-05", // Scope-based prompt caching
+		"prompt-caching-scope-2026-01-05", // Scope-based prompt caching (official CLI uses this, not 2024-07-31)
 	],
 	// User agents for different API endpoints (matches official Claude Code CLI behavior)
 	userAgents: {
@@ -263,7 +263,7 @@ export const CLAUDE_CODE_API_CONFIG = {
 	// Stainless SDK headers (hardcoded to emulate official Claude Code CLI)
 	stainlessHeaders: {
 		"X-Stainless-Lang": "js",
-		"X-Stainless-Package-Version": "0.70.0",
+		"X-Stainless-Package-Version": "0.73.0",
 		"X-Stainless-Retry-Count": "0", // Match official CLI
 		"X-Stainless-Timeout": "600", // Match official CLI (10 minutes)
 		"X-Stainless-OS": process.platform === "win32" ? "Windows" : process.platform === "darwin" ? "MacOS" : "Linux",

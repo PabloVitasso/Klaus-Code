@@ -31,7 +31,7 @@ describe("Claude Code Streaming Client", () => {
 
 	describe("CLAUDE_CODE_API_CONFIG", () => {
 		test("should have correct API endpoint", () => {
-			expect(CLAUDE_CODE_API_CONFIG.endpoint).toBe("https://api.anthropic.com/v1/messages")
+			expect(CLAUDE_CODE_API_CONFIG.endpoint).toBe("https://api.anthropic.com/v1/messages?beta=true")
 		})
 
 		test("should have correct API version", () => {
@@ -39,13 +39,13 @@ describe("Claude Code Streaming Client", () => {
 		})
 
 		test("should have correct default betas", () => {
-			expect(CLAUDE_CODE_API_CONFIG.defaultBetas).toContain("claude-code-20250219")
+			// Note: claude-code-20250219 is only for /v1/messages/count_tokens, NOT for regular /v1/messages
 			expect(CLAUDE_CODE_API_CONFIG.defaultBetas).toContain("oauth-2025-04-20")
 			expect(CLAUDE_CODE_API_CONFIG.defaultBetas).toContain("interleaved-thinking-2025-05-14")
 			expect(CLAUDE_CODE_API_CONFIG.defaultBetas).toContain("prompt-caching-scope-2026-01-05")
 			// Verify order matches official Claude Code
-			expect(CLAUDE_CODE_API_CONFIG.defaultBetas[0]).toBe("claude-code-20250219")
-			expect(CLAUDE_CODE_API_CONFIG.defaultBetas[1]).toBe("oauth-2025-04-20")
+			expect(CLAUDE_CODE_API_CONFIG.defaultBetas[0]).toBe("oauth-2025-04-20")
+			expect(CLAUDE_CODE_API_CONFIG.defaultBetas[1]).toBe("interleaved-thinking-2025-05-14")
 		})
 
 		test("should have correct user agents (allows pre-release suffixes)", () => {
