@@ -266,6 +266,10 @@ pnpm format
 
 # Clean build artifacts
 pnpm clean
+
+# IMPORTANT: After clean, you MUST run:
+pnpm install  # Restores workspace state
+pnpm build    # Then rebuild
 ```
 
 ### Running Individual Tests
@@ -378,12 +382,16 @@ gh pr create --title "Release v<version>" \
 Once the release PR is merged to main:
 
 ```bash
-# Clean and build
+# Clean build (optional - only if needed)
 pnpm clean
-pnpm build
+pnpm install  # REQUIRED after clean to restore workspace state
 
-# Create VSIX
+# Build and package
+pnpm build
 pnpm vsix
+
+# Or use the shortcut (skips clean)
+pnpm build && pnpm vsix
 
 # Install locally
 code --install-extension bin/klaus-code-<version>.vsix --force
@@ -712,12 +720,14 @@ cd ..
 **6. Create Test Build**
 
 ```bash
-# Clean and build
+# Option 1: Clean build (only if needed)
 pnpm clean
+pnpm install  # REQUIRED after clean
 pnpm build
-
-# Create VSIX with commit hash in filename
 pnpm vsix
+
+# Option 2: Quick rebuild (recommended)
+pnpm build && pnpm vsix
 
 # Rename to include commit hash
 # Format: klaus-code-<version>-<commit-hash>.vsix
@@ -827,7 +837,13 @@ pnpm check-types
 pnpm test
 cd src && npx vitest run integrations/claude-code/__tests__/
 cd ..
-pnpm clean && pnpm vsix
+
+# Build and package
+pnpm build && pnpm vsix
+
+# Or with clean (only if needed)
+# pnpm clean && pnpm install && pnpm build && pnpm vsix
+
 code --install-extension bin/klaus-code-*.vsix --force
 ```
 
@@ -979,6 +995,27 @@ Klaus Code includes helper scripts to automate common development tasks:
 
 ```bash
 npm install -g pnpm@10.8.1
+```
+
+### Build fails with "Command 'build' not found" after pnpm clean
+
+After running `pnpm clean`, the workspace state is removed. You MUST run:
+
+```bash
+pnpm install  # Restores workspace metadata
+pnpm build    # Then build
+```
+
+**Never use:** `pnpm clean && pnpm build` (missing install!)
+
+**Correct patterns:**
+
+```bash
+# Full clean rebuild
+pnpm clean && pnpm install && pnpm build && pnpm vsix
+
+# Quick rebuild (recommended, skips clean)
+pnpm build && pnpm vsix
 ```
 
 ### Build fails with "vitest: command not found"
