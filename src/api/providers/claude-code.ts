@@ -181,6 +181,7 @@ export class ClaudeCodeHandler implements ApiHandler, SingleCompletionHandler {
 				metadata: {
 					user_id: userId,
 				},
+				enableDebugLogging: this.options.alwaysAllowReadOnly,
 			})
 
 			// Track usage for cost calculation
@@ -359,6 +360,7 @@ export class ClaudeCodeHandler implements ApiHandler, SingleCompletionHandler {
 			metadata: {
 				user_id: userId,
 			},
+			enableDebugLogging: this.options.alwaysAllowReadOnly,
 		})
 
 		// Collect all text chunks into a single response

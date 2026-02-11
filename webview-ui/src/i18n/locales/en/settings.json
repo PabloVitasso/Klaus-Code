@@ -283,7 +283,7 @@
 		"enabled": "Auto-Approve Enabled",
 		"readOnly": {
 			"label": "Read",
-			"description": "When enabled, Klaus Code will automatically view directory contents and read files without requiring you to click the Approve button.",
+			"description": "When enabled, Klaus Code will automatically view directory contents and read files without requiring you to click the Approve button. Also enables Claude Code OAuth API debug logging in Developer Console (Help → Toggle Developer Tools).",
 			"outsideWorkspace": {
 				"label": "Include files outside workspace",
 				"description": "Allow Roo to read files outside the current workspace without requiring approval."

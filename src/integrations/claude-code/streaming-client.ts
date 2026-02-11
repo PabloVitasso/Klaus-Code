@@ -321,6 +321,7 @@ export interface StreamMessageOptions {
 		user_id?: string
 	}
 	signal?: AbortSignal
+	enableDebugLogging?: boolean
 }
 
 /**
@@ -476,8 +477,19 @@ export type StreamChunk =
  * Creates a streaming message request to the Anthropic API using OAuth
  */
 export async function* createStreamingMessage(options: StreamMessageOptions): AsyncGenerator<StreamChunk> {
-	const { accessToken, model, systemPrompt, messages, maxTokens, thinking, tools, toolChoice, metadata, signal } =
-		options
+	const {
+		accessToken,
+		model,
+		systemPrompt,
+		messages,
+		maxTokens,
+		thinking,
+		tools,
+		toolChoice,
+		metadata,
+		signal,
+		enableDebugLogging,
+	} = options
 
 	// Filter out non-Anthropic blocks before processing
 	const sanitizedMessages = filterNonAnthropicBlocks(messages)
@@ -560,22 +572,27 @@ export async function* createStreamingMessage(options: StreamMessageOptions): As
 	// Prepare request body
 	const requestBody = JSON.stringify(body)
 
-	// Log full request (redact sensitive data)
-	console.log("\n[Claude Code] ===== FULL REQUEST =====")
-	console.log("POST", CLAUDE_CODE_API_CONFIG.endpoint)
-	console.log(
-		"Headers:",
-		JSON.stringify(
-			{
-				...headers,
-				Authorization: `Bearer ${accessToken?.substring(0, 20)}...${accessToken?.substring(accessToken.length - 10)}`,
-			},
-			null,
-			2,
-		),
-	)
-	console.log("Body (first 1000 chars):", requestBody.substring(0, 1000) + (requestBody.length > 1000 ? "..." : ""))
-	console.log("[Claude Code] ===== END REQUEST =====\n")
+	// Log full request (redact sensitive data) - controlled by "Always allow read-only operations" checkbox
+	if (enableDebugLogging) {
+		console.log("\n[Claude Code] ===== FULL REQUEST =====")
+		console.log("POST", CLAUDE_CODE_API_CONFIG.endpoint)
+		console.log(
+			"Headers:",
+			JSON.stringify(
+				{
+					...headers,
+					Authorization: `Bearer ${accessToken?.substring(0, 20)}...${accessToken?.substring(accessToken.length - 10)}`,
+				},
+				null,
+				2,
+			),
+		)
+		console.log(
+			"Body (first 1000 chars):",
+			requestBody.substring(0, 1000) + (requestBody.length > 1000 ? "..." : ""),
+		)
+		console.log("[Claude Code] ===== END REQUEST =====\n")
+	}
 
 	// Make the request
 	const response = await fetch(CLAUDE_CODE_API_CONFIG.endpoint, {
@@ -585,20 +602,24 @@ export async function* createStreamingMessage(options: StreamMessageOptions): As
 		signal,
 	})
 
-	// Log response status and headers
-	console.log("\n[Claude Code] ===== RESPONSE STATUS =====")
-	console.log("Status:", response.status, response.statusText)
-	console.log("Response Headers:")
-	response.headers.forEach((value, key) => {
-		console.log(`  ${key}: ${value}`)
-	})
-	console.log("[Claude Code] ===== END RESPONSE STATUS =====\n")
+	// Log response status and headers - controlled by debug logging setting
+	if (enableDebugLogging) {
+		console.log("\n[Claude Code] ===== RESPONSE STATUS =====")
+		console.log("Status:", response.status, response.statusText)
+		console.log("Response Headers:")
+		response.headers.forEach((value, key) => {
+			console.log(`  ${key}: ${value}`)
+		})
+		console.log("[Claude Code] ===== END RESPONSE STATUS =====\n")
+	}
 
 	if (!response.ok) {
 		const errorText = await response.text()
-		console.error("\n[Claude Code] ===== ERROR RESPONSE BODY =====")
-		console.error(errorText)
-		console.error("[Claude Code] ===== END ERROR RESPONSE =====\n")
+		if (enableDebugLogging) {
+			console.error("\n[Claude Code] ===== ERROR RESPONSE BODY =====")
+			console.error(errorText)
+			console.error("[Claude Code] ===== END ERROR RESPONSE =====\n")
+		}
 
 		let errorMessage = `API request failed: ${response.status} ${response.statusText}`
 		try {
