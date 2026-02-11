@@ -106,6 +106,7 @@ export const providerNames = [
 	"azure",
 	"bedrock",
 	"baseten",
+	"claude-code",
 	"deepseek",
 	"fireworks",
 	"gemini",
@@ -524,6 +525,7 @@ export const modelIdKeysByProvider: Record<TypicalProvider, ModelIdKey> = {
 	fireworks: "apiModelId",
 	roo: "apiModelId",
 	"vercel-ai-gateway": "vercelAiGatewayModelId",
+	"claude-code": "apiModelId",
 }
 
 /**
@@ -531,7 +533,7 @@ export const modelIdKeysByProvider: Record<TypicalProvider, ModelIdKey> = {
  */
 
 // Providers that use Anthropic-style API protocol.
-export const ANTHROPIC_STYLE_PROVIDERS: ProviderName[] = ["anthropic", "bedrock", "minimax"]
+export const ANTHROPIC_STYLE_PROVIDERS: ProviderName[] = ["anthropic", "bedrock", "minimax", "claude-code"]
 
 export const getApiProtocol = (provider: ProviderName | undefined, modelId?: string): "anthropic" | "openai" => {
 	if (provider && ANTHROPIC_STYLE_PROVIDERS.includes(provider)) {
@@ -639,6 +641,12 @@ export const MODELS_BY_PROVIDER: Record<
 	xai: { id: "xai", label: "xAI (Grok)", models: Object.keys(xaiModels) },
 	zai: { id: "zai", label: "Z.ai", models: Object.keys(internationalZAiModels) },
 	baseten: { id: "baseten", label: "Baseten", models: Object.keys(basetenModels) },
+	"claude-code": {
+		id: "claude-code",
+		label: "Claude Code",
+		// Claude Code uses Anthropic models
+		models: Object.keys(anthropicModels),
+	},
 
 	// Dynamic providers; models pulled from remote APIs.
 	litellm: { id: "litellm", label: "LiteLLM", models: [] },

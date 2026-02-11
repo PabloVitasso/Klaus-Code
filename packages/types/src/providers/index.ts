@@ -2,6 +2,7 @@ export * from "./anthropic.js"
 export * from "./azure.js"
 export * from "./baseten.js"
 export * from "./bedrock.js"
+export * from "./claude-code.js"
 export * from "./deepseek.js"
 export * from "./fireworks.js"
 export * from "./gemini.js"
@@ -112,6 +113,7 @@ export function getProviderDefaultModelId(
 		case "azure":
 			return azureDefaultModelId
 		case "anthropic":
+		case "claude-code":
 		case "gemini-cli":
 		case "fake-ai":
 		default:
