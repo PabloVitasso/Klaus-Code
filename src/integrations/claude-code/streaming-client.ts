@@ -908,6 +908,14 @@ export async function fetchRateLimitInfo(accessToken: string, email?: string): P
 		throw new Error(errorMessage)
 	}
 
+	// Debug: Log all rate limit headers
+	console.log("[Claude Code] Rate limit headers:")
+	response.headers.forEach((value, key) => {
+		if (key.toLowerCase().includes("ratelimit") || key.toLowerCase().includes("anthropic")) {
+			console.log(`  ${key}: ${value}`)
+		}
+	})
+
 	// Parse rate limit headers from the response
 	return parseRateLimitHeaders(response.headers)
 }

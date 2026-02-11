@@ -197,6 +197,13 @@ export const ClaudeCodeRateLimitDashboard: React.FC<ClaudeCodeRateLimitDashboard
 						)}
 					</div>
 				)}
+
+				{/* Representative claim indicator */}
+				{rateLimits.representativeClaim && (
+					<div className="text-xs text-vscode-descriptionForeground italic pt-2 border-t border-vscode-panel-border mt-2">
+						Currently limited by: {rateLimits.representativeClaim.replace(/_/g, " ")}
+					</div>
+				)}
 			</div>
 		</div>
 	)
