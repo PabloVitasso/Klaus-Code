@@ -952,9 +952,38 @@ If OAuth fails:
 
 ## Session Learnings
 
-### 2026-02-11: Critical OAuth Endpoint Fixes
+### 2026-02-11: Critical Provider Factory Bug
 
-**Issue**: "invalid x-api-key" error when using Claude Code OAuth tokens
+**Issue**: "invalid x-api-key" error when using Claude Code OAuth tokens - even with correct OAuth token and headers
+
+**Root Cause**: **ClaudeCodeHandler was not registered in the provider factory**
+
+The `buildApiHandler()` function in `src/api/index.ts` was missing the case for `"claude-code"`, causing it to fall back to `AnthropicHandler` which requires an API key instead of OAuth.
+
+**Files Fixed**:
+
+1. `src/api/providers/index.ts` - Added `ClaudeCodeHandler` export
+2. `src/api/index.ts` - Added import and switch case:
+    ```typescript
+    case "claude-code":
+        return new ClaudeCodeHandler(options)
+    ```
+
+**How to Prevent**: After upstream merges, verify:
+
+```bash
+# Check provider is exported
+grep "ClaudeCodeHandler" src/api/providers/index.ts
+
+# Check provider factory has the case
+grep -A 1 'case "claude-code"' src/api/index.ts
+```
+
+This was the **most critical bug** - the provider was literally never being instantiated!
+
+### 2026-02-11: OAuth Endpoint and Header Fixes
+
+**Issue**: Additional "invalid x-api-key" errors related to endpoint and headers
 
 **Root Causes Discovered**:
 
@@ -1023,12 +1052,25 @@ grep -q 'claudeCodeSchema' packages/types/src/provider-settings.ts && \
 grep -q 'claudeCodeSchema.*claude-code' packages/types/src/provider-settings.ts && \
 echo "PASS" || echo "FAIL - missing from discriminated union"
 
-# 2. OAuth manager initialization
+# 2. Provider factory registration (CRITICAL!)
+echo -n "✓ Provider export: "
+grep -q 'export.*ClaudeCodeHandler' src/api/providers/index.ts && \
+echo "PASS" || echo "FAIL - not exported from providers/index.ts"
+
+echo -n "✓ Provider import: "
+grep -q 'ClaudeCodeHandler' src/api/index.ts | grep -q 'import' && \
+echo "PASS" || echo "FAIL - not imported in api/index.ts"
+
+echo -n "✓ Provider factory case: "
+grep -q 'case "claude-code"' src/api/index.ts && \
+echo "PASS" || echo "FAIL - missing switch case in buildApiHandler()"
+
+# 3. OAuth manager initialization
 echo -n "✓ OAuth init: "
 grep -q 'claudeCodeOAuthManager.initialize' src/extension.ts && \
 echo "PASS" || echo "FAIL - not initialized in extension.ts"
 
-# 3. Frontend UI components
+# 4. Frontend UI components
 echo -n "✓ UI exports: "
 grep -q 'export.*ClaudeCode' webview-ui/src/components/settings/providers/index.ts && \
 echo "PASS" || echo "FAIL - missing from provider exports"
@@ -1041,17 +1083,17 @@ echo -n "✓ UI config: "
 grep -q 'claude-code.*claudeCodeDefaultModelId' webview-ui/src/components/settings/ApiOptions.tsx && \
 echo "PASS" || echo "FAIL - missing from PROVIDER_MODEL_CONFIG"
 
-# 4. Activity bar branding
+# 5. Activity bar branding
 echo -n "✓ Activity bar: "
 grep -q 'klaus-code-ActivityBar' src/package.json && \
 echo "PASS" || echo "FAIL - upstream overwrote with roo-cline IDs"
 
-# 5. Tool name prefix (critical)
+# 6. Tool name prefix (critical)
 echo -n "✓ Tool prefix: "
 grep -q 'TOOL_NAME_PREFIX.*=.*"oc_"' src/integrations/claude-code/streaming-client.ts && \
 echo "PASS" || echo "FAIL - tool prefix constant missing"
 
-# 6. Type checks and tests
+# 7. Type checks and tests
 echo -n "✓ Types: "
 pnpm check-types --filter @klaus-code/types &>/dev/null && echo "PASS" || echo "FAIL"
 
@@ -1065,6 +1107,13 @@ echo "=== Validation Complete ==="
 **If any checks fail:**
 
 - Schema: Add `claudeCodeSchema` to packages/types/src/provider-settings.ts (see commit `90a46aa3d`)
+- Provider export: Add `export { ClaudeCodeHandler } from "./claude-code"` to src/api/providers/index.ts
+- Provider import: Add `ClaudeCodeHandler` to imports in src/api/index.ts
+- Provider factory: Add switch case in src/api/index.ts buildApiHandler():
+    ```typescript
+    case "claude-code":
+        return new ClaudeCodeHandler(options)
+    ```
 - OAuth init: Add `claudeCodeOAuthManager.initialize(context, ...)` to src/extension.ts:162
 - UI exports: Export ClaudeCode in webview-ui/src/components/settings/providers/index.ts
 - UI dropdown: Add to PROVIDERS in webview-ui/src/components/settings/constants.ts

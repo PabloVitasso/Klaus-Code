@@ -270,7 +270,8 @@ export class ClaudeCodeHandler implements ApiHandler, SingleCompletionHandler {
 				return
 			} catch (error) {
 				const message = error instanceof Error ? error.message : String(error)
-				const isAuthFailure = /unauthorized|invalid token|not authenticated|authentication/i.test(message)
+				const isAuthFailure =
+					/unauthorized|invalid token|not authenticated|authentication|invalid.*api.*key/i.test(message)
 
 				// Only retry on auth failure during first attempt
 				const canRetry = attempt === 0 && isAuthFailure
