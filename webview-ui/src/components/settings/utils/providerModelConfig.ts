@@ -132,6 +132,7 @@ export const PROVIDERS_WITH_CUSTOM_MODEL_UI: ProviderName[] = [
 	"ollama",
 	"lmstudio",
 	"vscode-lm",
+	"claude-code", // Claude Code has custom OAuth UI with rate limits
 ]
 
 /**

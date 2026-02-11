@@ -25,6 +25,7 @@ import {
 	basetenModels,
 	azureModels,
 	qwenCodeModels,
+	claudeCodeModels,
 	litellmDefaultModelInfo,
 	lMStudioDefaultModelInfo,
 	BEDROCK_1M_CONTEXT_MODEL_IDS,
@@ -340,6 +341,11 @@ function getSelectedModel({
 			const matchesAzureModel = explicitModelId && azureModels[explicitModelId as keyof typeof azureModels]
 			const id = matchesAzureModel ? explicitModelId : defaultModelId
 			const info = azureModels[id as keyof typeof azureModels]
+			return { id, info: info || undefined }
+		}
+		case "claude-code": {
+			const id = apiConfiguration.apiModelId ?? defaultModelId
+			const info = claudeCodeModels[id as keyof typeof claudeCodeModels]
 			return { id, info: info || undefined }
 		}
 		// case "anthropic":
