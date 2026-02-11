@@ -23,6 +23,11 @@ export type ApiHandlerOptions = Omit<ProviderSettings, "apiProvider"> & {
 	 * When undefined, Ollama will use the model's default num_ctx from the Modelfile.
 	 */
 	ollamaNumCtx?: number
+	/**
+	 * When true, enables verbose debug logging for Claude Code OAuth API requests/responses.
+	 * Logs are output to the Developer Console.
+	 */
+	alwaysAllowReadOnly?: boolean
 }
 
 // RouterName
