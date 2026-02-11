@@ -15,6 +15,7 @@ import {
 	openAiNativeDefaultModelId,
 	openAiCodexDefaultModelId,
 	anthropicDefaultModelId,
+	claudeCodeDefaultModelId,
 	qwenCodeDefaultModelId,
 	geminiDefaultModelId,
 	deepSeekDefaultModelId,
@@ -69,6 +70,7 @@ import {
 	Azure,
 	Baseten,
 	Bedrock,
+	ClaudeCode,
 	DeepSeek,
 	Gemini,
 	LMStudio,
@@ -333,6 +335,7 @@ const ApiOptions = ({
 				requesty: { field: "requestyModelId", default: requestyDefaultModelId },
 				litellm: { field: "litellmModelId", default: litellmDefaultModelId },
 				anthropic: { field: "apiModelId", default: anthropicDefaultModelId },
+				"claude-code": { field: "apiModelId", default: claudeCodeDefaultModelId },
 				"openai-codex": { field: "apiModelId", default: openAiCodexDefaultModelId },
 				"qwen-code": { field: "apiModelId", default: qwenCodeDefaultModelId },
 				"openai-native": { field: "apiModelId", default: openAiNativeDefaultModelId },
@@ -521,6 +524,14 @@ const ApiOptions = ({
 
 					{selectedProvider === "anthropic" && (
 						<Anthropic
+							apiConfiguration={apiConfiguration}
+							setApiConfigurationField={setApiConfigurationField}
+							simplifySettings={fromWelcomeView}
+						/>
+					)}
+
+					{selectedProvider === "claude-code" && (
+						<ClaudeCode
 							apiConfiguration={apiConfiguration}
 							setApiConfigurationField={setApiConfigurationField}
 							simplifySettings={fromWelcomeView}
