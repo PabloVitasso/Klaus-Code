@@ -15,7 +15,7 @@ function formatResetTime(resetTimestamp: number): string {
 	const now = Date.now() / 1000 // Current time in seconds
 	const diff = resetTimestamp - now
 
-	if (diff <= 0) return "Now"
+	if (diff <= 0) return "now"
 
 	const hours = Math.floor(diff / 3600)
 	const minutes = Math.floor((diff % 3600) / 60)
@@ -23,21 +23,22 @@ function formatResetTime(resetTimestamp: number): string {
 	if (hours > 24) {
 		const days = Math.floor(hours / 24)
 		const remainingHours = hours % 24
-		return `${days}d ${remainingHours}h`
+		return `${days} day${days > 1 ? "s" : ""} ${remainingHours} hr`
 	}
 
 	if (hours > 0) {
-		return `${hours}h ${minutes}m`
+		return `${hours} hr ${minutes} min`
 	}
 
-	return `${minutes}m`
+	return `${minutes} min`
 }
 
 /**
- * Formats utilization as a percentage
+ * Formats utilization as a percentage (capped at 100% for display)
  */
 function formatUtilization(utilization: number): string {
-	return `${(utilization * 100).toFixed(1)}%`
+	const percentage = Math.min(Math.round(utilization * 100), 100)
+	return `${percentage}%`
 }
 
 /**
@@ -45,13 +46,13 @@ function formatUtilization(utilization: number): string {
  */
 const UsageProgressBar: React.FC<{ utilization: number; label: string }> = ({ utilization, label }) => {
 	const percentage = Math.min(utilization * 100, 100)
-	const isWarning = percentage >= 70
-	const isCritical = percentage >= 90
+	const isWarning = percentage >= 80
+	const isCritical = percentage >= 95
 
 	return (
 		<div className="w-full">
-			<div className="text-xs text-vscode-descriptionForeground mb-1">{label}</div>
-			<div className="w-full bg-vscode-input-background rounded-sm h-2 overflow-hidden">
+			{label && <div className="text-xs text-vscode-descriptionForeground mb-1">{label}</div>}
+			<div className="w-full bg-vscode-input-background rounded-sm h-1.5 overflow-hidden">
 				<div
 					className={`h-full transition-all duration-300 ${
 						isCritical
@@ -143,60 +144,57 @@ export const ClaudeCodeRateLimitDashboard: React.FC<ClaudeCodeRateLimitDashboard
 
 	return (
 		<div className="bg-vscode-editor-background border border-vscode-panel-border rounded-md p-3">
-			<div className="mb-3">
-				<div className="text-sm font-medium text-vscode-foreground">Usage Limits</div>
+			<div className="mb-2">
+				<div className="text-sm font-medium text-vscode-foreground">Plan usage limits</div>
 			</div>
 
-			<div className="space-y-3">
-				{/* 5-hour limit */}
-				<div className="flex flex-col gap-1">
-					<div className="flex items-center justify-between text-xs">
-						<span className="text-vscode-foreground">5 Hour Usage</span>
-						<span className="text-vscode-descriptionForeground">
-							{formatUtilization(rateLimits.fiveHour.utilization)} used • resets in{" "}
-							{formatResetTime(rateLimits.fiveHour.resetTime)}
-						</span>
+			<div className="space-y-4">
+				{/* Current session (5-hour limit) */}
+				<div>
+					<div className="flex items-center justify-between mb-1.5">
+						<span className="text-xs font-medium text-vscode-foreground">Current session</span>
+					</div>
+					<div className="flex items-center justify-between text-xs text-vscode-descriptionForeground mb-1.5">
+						<span>Resets in {formatResetTime(rateLimits.fiveHour.resetTime)}</span>
+						<span className="font-medium">{formatUtilization(rateLimits.fiveHour.utilization)} used</span>
 					</div>
 					<UsageProgressBar utilization={rateLimits.fiveHour.utilization} label="" />
 				</div>
 
-				{/* Weekly limit */}
+				{/* Weekly limits */}
 				{rateLimits.weeklyUnified && (
-					<div className="flex flex-col gap-1">
-						<div className="flex items-center justify-between text-xs">
-							<span className="text-vscode-foreground">Weekly Usage</span>
-							<span className="text-vscode-descriptionForeground">
-								{formatUtilization(rateLimits.weeklyUnified.utilization)} used • resets in{" "}
-								{formatResetTime(rateLimits.weeklyUnified.resetTime)}
+					<div>
+						<div className="flex items-center justify-between mb-1.5">
+							<span className="text-xs font-medium text-vscode-foreground">Weekly limits</span>
+						</div>
+						<div className="flex items-center justify-between text-xs text-vscode-descriptionForeground mb-1.5">
+							<span>Resets in {formatResetTime(rateLimits.weeklyUnified.resetTime)}</span>
+							<span className="font-medium">
+								{formatUtilization(rateLimits.weeklyUnified.utilization)} used
 							</span>
 						</div>
 						<UsageProgressBar utilization={rateLimits.weeklyUnified.utilization} label="" />
 					</div>
 				)}
 
-				{/* Extra usage (overage) */}
+				{/* Extra usage */}
 				{rateLimits.overage && (
-					<div className="flex flex-col gap-1">
-						<div className="flex items-center justify-between text-xs">
-							<span className="text-vscode-foreground">Extra Usage</span>
-							<span className="text-vscode-descriptionForeground">
-								{formatUtilization(rateLimits.overage.utilization)} used • resets in{" "}
-								{formatResetTime(rateLimits.overage.resetTime)}
+					<div>
+						<div className="flex items-center justify-between mb-1.5">
+							<span className="text-xs font-medium text-vscode-foreground">Extra usage</span>
+						</div>
+						<div className="flex items-center justify-between text-xs text-vscode-descriptionForeground mb-1.5">
+							<span>Resets in {formatResetTime(rateLimits.overage.resetTime)}</span>
+							<span className="font-medium">
+								{formatUtilization(rateLimits.overage.utilization)} used
 							</span>
 						</div>
 						<UsageProgressBar utilization={rateLimits.overage.utilization} label="" />
 						{rateLimits.overage.disabledReason && (
-							<div className="text-xs text-vscode-descriptionForeground italic">
-								Note: {rateLimits.overage.disabledReason}
+							<div className="text-xs text-vscode-descriptionForeground italic mt-1">
+								{rateLimits.overage.disabledReason}
 							</div>
 						)}
-					</div>
-				)}
-
-				{/* Representative claim indicator */}
-				{rateLimits.representativeClaim && (
-					<div className="text-xs text-vscode-descriptionForeground italic pt-1">
-						Currently limited by: {rateLimits.representativeClaim.replace("_", " ")}
 					</div>
 				)}
 			</div>
