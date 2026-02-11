@@ -319,6 +319,7 @@
 		"searchProviderPlaceholder": "搜尋供應商",
 		"noProviderMatchFound": "找不到供應商",
 		"noMatchFound": "找不到符合的設定檔",
+		"retiredProviderMessage": "抱歉，此供應商已不再受支援。我們發現實際使用此供應商的 Roo 使用者非常少，我們需要縮減程式碼庫的範圍，以便持續快速開發並更好地服務社群。這是一個非常艱難的決定，但它讓我們能專注於對你最重要的事情。我們知道這很遺憾。",
 		"vscodeLmDescription": "VS Code 語言模型 API 可以讓您使用其他擴充功能（如 GitHub Copilot）提供的模型。最簡單的方式是從 VS Code Marketplace 安裝 Copilot 和 Copilot Chat 擴充套件。",
 		"awsCustomArnUse": "輸入您要使用的模型的有效 Amazon Bedrock ARN。格式範例：",
 		"awsCustomArnDesc": "確保 ARN 中的區域與您上面選擇的 AWS 區域相符。",
@@ -389,6 +390,14 @@
 		"getBasetenApiKey": "取得 Baseten API 金鑰",
 		"cerebrasApiKey": "Cerebras API 金鑰",
 		"getCerebrasApiKey": "取得 Cerebras API 金鑰",
+		"azureResourceName": "Azure 資源名稱",
+		"azureResourceNameDescription": "您的 Azure AI Foundry 資源名稱（例如：'my-openai-resource'）。",
+		"azureDeploymentName": "Azure 部署名稱",
+		"azureDeploymentNameDescription": "資源中的模型部署名稱。",
+		"azureApiKey": "Azure API 金鑰",
+		"getAzureApiKey": "取得 Azure AI Foundry 存取權限",
+		"azureApiVersion": "Azure API 版本",
+		"azureApiVersionDescription": "要使用的 API 版本（例如：'2024-10-21'）。留空使用預設值。",
 		"chutesApiKey": "Chutes API 金鑰",
 		"getChutesApiKey": "取得 Chutes API 金鑰",
 		"fireworksApiKey": "Fireworks API 金鑰",
@@ -960,7 +969,9 @@
 		"providerNotAllowed": "供應商 '{{provider}}' 不允許用於您的組織。",
 		"modelNotAllowed": "模型 '{{model}}' 不允許用於供應商 '{{provider}}'，此設定已被組織禁止",
 		"profileInvalid": "此設定檔包含您的組織不允許的供應商或模型",
-		"qwenCodeOauthPath": "您必須提供有效的 OAuth 憑證路徑"
+		"qwenCodeOauthPath": "您必須提供有效的 OAuth 憑證路徑",
+		"azureResourceName": "您必須提供 Azure 資源名稱。",
+		"azureDeploymentName": "您必須提供 Azure 部署名稱。"
 	},
 	"placeholders": {
 		"apiKey": "請輸入 API 金鑰...",
@@ -973,6 +984,8 @@
 		"projectId": "請輸入專案 ID...",
 		"customArn": "請輸入 ARN（例：arn:aws:bedrock:us-east-1:123456789012:foundation-model/my-model）",
 		"baseUrl": "請輸入基礎 URL...",
+		"azureResourceName": "e.g. my-openai-resource",
+		"azureDeploymentName": "e.g. gpt-4o",
 		"modelId": {
 			"lmStudio": "例：meta-llama-3.1-8b-instruct",
 			"lmStudioDraft": "例：lmstudio-community/llama-3.2-1b-instruct",

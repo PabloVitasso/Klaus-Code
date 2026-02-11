@@ -1,9 +1,9 @@
 {
-	"name": "klaus-code",
+	"name": "roo-cline",
 	"displayName": "%extension.displayName%",
 	"description": "%extension.description%",
-	"publisher": "KlausCode",
-	"version": "3.47.3-klaus.1",
+	"publisher": "RooVeterinaryInc",
+	"version": "3.47.3",
 	"icon": "assets/icons/icon.png",
 	"galleryBanner": {
 		"color": "#617A91",
@@ -14,13 +14,13 @@
 		"node": "20.19.2"
 	},
 	"author": {
-		"name": "Klaus Code"
+		"name": "Roo Code"
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/PabloVitasso/Klaus-Code"
+		"url": "https://github.com/RooCodeInc/Roo-Code"
 	},
-	"homepage": "https://github.com/PabloVitasso/Klaus-Code",
+	"homepage": "https://roocode.com",
 	"categories": [
 		"AI",
 		"Chat",
@@ -30,6 +30,8 @@
 		"Testing"
 	],
 	"keywords": [
+		"cline",
+		"claude",
 		"dev",
 		"mcp",
 		"openrouter",
@@ -40,8 +42,8 @@
 		"sonnet",
 		"ai",
 		"llama",
-		"klaus code",
-		"klauscode"
+		"roo code",
+		"roocode"
 	],
 	"activationEvents": [
 		"onLanguage",
@@ -52,124 +54,119 @@
 		"viewsContainers": {
 			"activitybar": [
 				{
-					"id": "klaus-code-ActivityBar",
+					"id": "roo-cline-ActivityBar",
 					"title": "%views.activitybar.title%",
 					"icon": "assets/icons/icon.svg"
 				}
 			]
 		},
 		"views": {
-			"klaus-code-ActivityBar": [
+			"roo-cline-ActivityBar": [
 				{
 					"type": "webview",
-					"id": "klaus-code.SidebarProvider",
+					"id": "roo-cline.SidebarProvider",
 					"name": "%views.sidebar.name%"
 				}
 			]
 		},
 		"commands": [
 			{
-				"command": "klaus-code.plusButtonClicked",
+				"command": "roo-cline.plusButtonClicked",
 				"title": "%command.newTask.title%",
 				"icon": "$(edit)"
 			},
 			{
-				"command": "klaus-code.historyButtonClicked",
+				"command": "roo-cline.historyButtonClicked",
 				"title": "%command.history.title%",
 				"icon": "$(history)"
 			},
 			{
-				"command": "klaus-code.marketplaceButtonClicked",
+				"command": "roo-cline.marketplaceButtonClicked",
 				"title": "%command.marketplace.title%",
 				"icon": "$(extensions)"
 			},
 			{
-				"command": "klaus-code.popoutButtonClicked",
+				"command": "roo-cline.popoutButtonClicked",
 				"title": "%command.openInEditor.title%",
 				"icon": "$(link-external)"
 			},
 			{
-				"command": "klaus-code.cloudButtonClicked",
+				"command": "roo-cline.cloudButtonClicked",
 				"title": "%command.cloud.title%",
 				"icon": "$(cloud)"
 			},
 			{
-				"command": "klaus-code.settingsButtonClicked",
+				"command": "roo-cline.settingsButtonClicked",
 				"title": "%command.settings.title%",
 				"icon": "$(settings-gear)"
 			},
 			{
-				"command": "klaus-code.worktreesButtonClicked",
-				"title": "%command.worktrees.title%",
-				"icon": "$(git-branch)"
-			},
-			{
-				"command": "klaus-code.openInNewTab",
+				"command": "roo-cline.openInNewTab",
 				"title": "%command.openInNewTab.title%",
 				"category": "%configuration.title%"
 			},
 			{
-				"command": "klaus-code.explainCode",
+				"command": "roo-cline.explainCode",
 				"title": "%command.explainCode.title%",
 				"category": "%configuration.title%"
 			},
 			{
-				"command": "klaus-code.fixCode",
+				"command": "roo-cline.fixCode",
 				"title": "%command.fixCode.title%",
 				"category": "%configuration.title%"
 			},
 			{
-				"command": "klaus-code.improveCode",
+				"command": "roo-cline.improveCode",
 				"title": "%command.improveCode.title%",
 				"category": "%configuration.title%"
 			},
 			{
-				"command": "klaus-code.addToContext",
+				"command": "roo-cline.addToContext",
 				"title": "%command.addToContext.title%",
 				"category": "%configuration.title%"
 			},
 			{
-				"command": "klaus-code.newTask",
+				"command": "roo-cline.newTask",
 				"title": "%command.newTask.title%",
 				"category": "%configuration.title%"
 			},
 			{
-				"command": "klaus-code.terminalAddToContext",
+				"command": "roo-cline.terminalAddToContext",
 				"title": "%command.terminal.addToContext.title%",
 				"category": "Terminal"
 			},
 			{
-				"command": "klaus-code.terminalFixCommand",
+				"command": "roo-cline.terminalFixCommand",
 				"title": "%command.terminal.fixCommand.title%",
 				"category": "Terminal"
 			},
 			{
-				"command": "klaus-code.terminalExplainCommand",
+				"command": "roo-cline.terminalExplainCommand",
 				"title": "%command.terminal.explainCommand.title%",
 				"category": "Terminal"
 			},
 			{
-				"command": "klaus-code.setCustomStoragePath",
+				"command": "roo-cline.setCustomStoragePath",
 				"title": "%command.setCustomStoragePath.title%",
 				"category": "%configuration.title%"
 			},
 			{
-				"command": "klaus-code.importSettings",
+				"command": "roo-cline.importSettings",
 				"title": "%command.importSettings.title%",
 				"category": "%configuration.title%"
 			},
 			{
-				"command": "klaus-code.focusInput",
+				"command": "roo-cline.focusInput",
 				"title": "%command.focusInput.title%",
 				"category": "%configuration.title%"
 			},
 			{
-				"command": "klaus-code.acceptInput",
+				"command": "roo-cline.acceptInput",
 				"title": "%command.acceptInput.title%",
 				"category": "%configuration.title%"
 			},
 			{
-				"command": "klaus-code.toggleAutoApprove",
+				"command": "roo-cline.toggleAutoApprove",
 				"title": "%command.toggleAutoApprove.title%",
 				"category": "%configuration.title%"
 			}
@@ -177,112 +174,112 @@
 		"menus": {
 			"editor/context": [
 				{
-					"submenu": "klaus-code.contextMenu",
+					"submenu": "roo-cline.contextMenu",
 					"group": "1"
 				}
 			],
-			"klaus-code.contextMenu": [
+			"roo-cline.contextMenu": [
 				{
-					"command": "klaus-code.addToContext",
+					"command": "roo-cline.addToContext",
 					"group": "1_actions@1"
 				},
 				{
-					"command": "klaus-code.explainCode",
+					"command": "roo-cline.explainCode",
 					"group": "1_actions@2"
 				},
 				{
-					"command": "klaus-code.improveCode",
+					"command": "roo-cline.improveCode",
 					"group": "1_actions@3"
 				}
 			],
 			"terminal/context": [
 				{
-					"submenu": "klaus-code.terminalMenu",
+					"submenu": "roo-cline.terminalMenu",
 					"group": "2"
 				}
 			],
-			"klaus-code.terminalMenu": [
+			"roo-cline.terminalMenu": [
 				{
-					"command": "klaus-code.terminalAddToContext",
+					"command": "roo-cline.terminalAddToContext",
 					"group": "1_actions@1"
 				},
 				{
-					"command": "klaus-code.terminalFixCommand",
+					"command": "roo-cline.terminalFixCommand",
 					"group": "1_actions@2"
 				},
 				{
-					"command": "klaus-code.terminalExplainCommand",
+					"command": "roo-cline.terminalExplainCommand",
 					"group": "1_actions@3"
 				}
 			],
 			"view/title": [
 				{
-					"command": "klaus-code.plusButtonClicked",
+					"command": "roo-cline.plusButtonClicked",
 					"group": "navigation@1",
-					"when": "view == klaus-code.SidebarProvider"
+					"when": "view == roo-cline.SidebarProvider"
 				},
 				{
-					"command": "klaus-code.settingsButtonClicked",
+					"command": "roo-cline.settingsButtonClicked",
 					"group": "navigation@2",
-					"when": "view == klaus-code.SidebarProvider"
+					"when": "view == roo-cline.SidebarProvider"
 				},
 				{
-					"command": "klaus-code.cloudButtonClicked",
+					"command": "roo-cline.cloudButtonClicked",
 					"group": "navigation@3",
-					"when": "view == klaus-code.SidebarProvider"
+					"when": "view == roo-cline.SidebarProvider"
 				},
 				{
-					"command": "klaus-code.marketplaceButtonClicked",
+					"command": "roo-cline.marketplaceButtonClicked",
 					"group": "navigation@4",
-					"when": "view == klaus-code.SidebarProvider"
+					"when": "view == roo-cline.SidebarProvider"
 				},
 				{
-					"command": "klaus-code.historyButtonClicked",
+					"command": "roo-cline.historyButtonClicked",
 					"group": "overflow@1",
-					"when": "view == klaus-code.SidebarProvider"
+					"when": "view == roo-cline.SidebarProvider"
 				},
 				{
-					"command": "klaus-code.popoutButtonClicked",
+					"command": "roo-cline.popoutButtonClicked",
 					"group": "overflow@2",
-					"when": "view == klaus-code.SidebarProvider"
+					"when": "view == roo-cline.SidebarProvider"
 				}
 			],
 			"editor/title": [
 				{
-					"command": "klaus-code.plusButtonClicked",
+					"command": "roo-cline.plusButtonClicked",
 					"group": "navigation@1",
-					"when": "activeWebviewPanelId == klaus-code.TabPanelProvider"
+					"when": "activeWebviewPanelId == roo-cline.TabPanelProvider"
 				},
 				{
-					"command": "klaus-code.settingsButtonClicked",
+					"command": "roo-cline.settingsButtonClicked",
 					"group": "navigation@2",
-					"when": "activeWebviewPanelId == klaus-code.TabPanelProvider"
+					"when": "activeWebviewPanelId == roo-cline.TabPanelProvider"
 				},
 				{
-					"command": "klaus-code.cloudButtonClicked",
+					"command": "roo-cline.cloudButtonClicked",
 					"group": "navigation@3",
-					"when": "activeWebviewPanelId == klaus-code.TabPanelProvider"
+					"when": "activeWebviewPanelId == roo-cline.TabPanelProvider"
 				},
 				{
-					"command": "klaus-code.marketplaceButtonClicked",
+					"command": "roo-cline.marketplaceButtonClicked",
 					"group": "navigation@4",
-					"when": "activeWebviewPanelId == klaus-code.TabPanelProvider"
+					"when": "activeWebviewPanelId == roo-cline.TabPanelProvider"
 				},
 				{
-					"command": "klaus-code.historyButtonClicked",
+					"command": "roo-cline.historyButtonClicked",
 					"group": "overflow@1",
-					"when": "activeWebviewPanelId == klaus-code.TabPanelProvider"
+					"when": "activeWebviewPanelId == roo-cline.TabPanelProvider"
 				},
 				{
-					"command": "klaus-code.popoutButtonClicked",
+					"command": "roo-cline.popoutButtonClicked",
 					"group": "overflow@2",
-					"when": "activeWebviewPanelId == klaus-code.TabPanelProvider"
+					"when": "activeWebviewPanelId == roo-cline.TabPanelProvider"
 				}
 			]
 		},
 		"keybindings": [
 			{
-				"command": "klaus-code.addToContext",
+				"command": "roo-cline.addToContext",
 				"key": "cmd+k cmd+a",
 				"mac": "cmd+k cmd+a",
 				"win": "ctrl+k ctrl+a",
@@ -290,7 +287,7 @@
 				"when": "editorTextFocus && editorHasSelection"
 			},
 			{
-				"command": "klaus-code.toggleAutoApprove",
+				"command": "roo-cline.toggleAutoApprove",
 				"key": "cmd+alt+a",
 				"mac": "cmd+alt+a",
 				"win": "ctrl+alt+a",
@@ -299,18 +296,18 @@
 		],
 		"submenus": [
 			{
-				"id": "klaus-code.contextMenu",
+				"id": "roo-cline.contextMenu",
 				"label": "%views.contextMenu.label%"
 			},
 			{
-				"id": "klaus-code.terminalMenu",
+				"id": "roo-cline.terminalMenu",
 				"label": "%views.terminalMenu.label%"
 			}
 		],
 		"configuration": {
 			"title": "%configuration.title%",
 			"properties": {
-				"klaus-code.allowedCommands": {
+				"roo-cline.allowedCommands": {
 					"type": "array",
 					"items": {
 						"type": "string"
@@ -322,7 +319,7 @@
 					],
 					"description": "%commands.allowedCommands.description%"
 				},
-				"klaus-code.deniedCommands": {
+				"roo-cline.deniedCommands": {
 					"type": "array",
 					"items": {
 						"type": "string"
@@ -330,14 +327,14 @@
 					"default": [],
 					"description": "%commands.deniedCommands.description%"
 				},
-				"klaus-code.commandExecutionTimeout": {
+				"roo-cline.commandExecutionTimeout": {
 					"type": "number",
 					"default": 0,
 					"minimum": 0,
 					"maximum": 600,
 					"description": "%commands.commandExecutionTimeout.description%"
 				},
-				"klaus-code.commandTimeoutAllowlist": {
+				"roo-cline.commandTimeoutAllowlist": {
 					"type": "array",
 					"items": {
 						"type": "string"
@@ -345,12 +342,12 @@
 					"default": [],
 					"description": "%commands.commandTimeoutAllowlist.description%"
 				},
-				"klaus-code.preventCompletionWithOpenTodos": {
+				"roo-cline.preventCompletionWithOpenTodos": {
 					"type": "boolean",
 					"default": false,
 					"description": "%commands.preventCompletionWithOpenTodos.description%"
 				},
-				"klaus-code.vsCodeLmModelSelector": {
+				"roo-cline.vsCodeLmModelSelector": {
 					"type": "object",
 					"properties": {
 						"vendor": {
@@ -364,70 +361,70 @@
 					},
 					"description": "%settings.vsCodeLmModelSelector.description%"
 				},
-				"klaus-code.customStoragePath": {
+				"roo-cline.customStoragePath": {
 					"type": "string",
 					"default": "",
 					"description": "%settings.customStoragePath.description%"
 				},
-				"klaus-code.enableCodeActions": {
+				"roo-cline.enableCodeActions": {
 					"type": "boolean",
 					"default": true,
 					"description": "%settings.enableCodeActions.description%"
 				},
-				"klaus-code.autoImportSettingsPath": {
+				"roo-cline.autoImportSettingsPath": {
 					"type": "string",
 					"default": "",
 					"description": "%settings.autoImportSettingsPath.description%"
 				},
-				"klaus-code.maximumIndexedFilesForFileSearch": {
+				"roo-cline.maximumIndexedFilesForFileSearch": {
 					"type": "number",
 					"default": 10000,
 					"minimum": 5000,
 					"maximum": 500000,
 					"description": "%settings.maximumIndexedFilesForFileSearch.description%"
 				},
-				"klaus-code.useAgentRules": {
+				"roo-cline.useAgentRules": {
 					"type": "boolean",
 					"default": true,
 					"description": "%settings.useAgentRules.description%"
 				},
-				"klaus-code.apiRequestTimeout": {
+				"roo-cline.apiRequestTimeout": {
 					"type": "number",
 					"default": 600,
 					"minimum": 0,
 					"maximum": 3600,
 					"description": "%settings.apiRequestTimeout.description%"
 				},
-				"klaus-code.newTaskRequireTodos": {
+				"roo-cline.newTaskRequireTodos": {
 					"type": "boolean",
 					"default": false,
 					"description": "%settings.newTaskRequireTodos.description%"
 				},
-				"klaus-code.codeIndex.embeddingBatchSize": {
+				"roo-cline.codeIndex.embeddingBatchSize": {
 					"type": "number",
 					"default": 60,
 					"minimum": 1,
 					"maximum": 200,
 					"description": "%settings.codeIndex.embeddingBatchSize.description%"
 				},
-				"klaus-code.debug": {
+				"roo-cline.debug": {
 					"type": "boolean",
 					"default": false,
 					"description": "%settings.debug.description%"
 				},
-				"klaus-code.debugProxy.enabled": {
+				"roo-cline.debugProxy.enabled": {
 					"type": "boolean",
 					"default": false,
 					"description": "%settings.debugProxy.enabled.description%",
 					"markdownDescription": "%settings.debugProxy.enabled.description%"
 				},
-				"klaus-code.debugProxy.serverUrl": {
+				"roo-cline.debugProxy.serverUrl": {
 					"type": "string",
 					"default": "http://127.0.0.1:8888",
 					"description": "%settings.debugProxy.serverUrl.description%",
 					"markdownDescription": "%settings.debugProxy.serverUrl.description%"
 				},
-				"klaus-code.debugProxy.tlsInsecure": {
+				"roo-cline.debugProxy.tlsInsecure": {
 					"type": "boolean",
 					"default": false,
 					"description": "%settings.debugProxy.tlsInsecure.description%",
@@ -454,17 +451,17 @@
 	},
 	"dependencies": {
 		"@ai-sdk/amazon-bedrock": "^4.0.51",
+		"@ai-sdk/anthropic": "^3.0.38",
+		"@ai-sdk/azure": "^2.0.6",
 		"@ai-sdk/baseten": "^1.0.31",
-		"@ai-sdk/cerebras": "^2.0.31",
 		"@ai-sdk/deepseek": "^2.0.18",
 		"@ai-sdk/fireworks": "^2.0.32",
 		"@ai-sdk/google": "^3.0.22",
 		"@ai-sdk/google-vertex": "^4.0.45",
-		"@ai-sdk/groq": "^3.0.22",
 		"@ai-sdk/mistral": "^3.0.19",
+		"@ai-sdk/openai": "^3.0.26",
 		"@ai-sdk/xai": "^3.0.48",
 		"@anthropic-ai/sdk": "^0.37.0",
-		"@anthropic-ai/vertex-sdk": "^0.7.0",
 		"@aws-sdk/client-bedrock-runtime": "^3.922.0",
 		"@aws-sdk/credential-providers": "^3.922.0",
 		"@google/genai": "^1.29.1",
@@ -472,6 +469,7 @@
 		"@mistralai/mistralai": "^1.9.18",
 		"@modelcontextprotocol/sdk": "1.12.0",
 		"@qdrant/js-client-rest": "^1.14.0",
+		"@requesty/ai-sdk": "^3.0.0",
 		"@klaus-code/cloud": "workspace:^",
 		"@klaus-code/core": "workspace:^",
 		"@klaus-code/ipc": "workspace:^",
@@ -494,7 +492,6 @@
 		"fzf": "^0.5.2",
 		"get-folder-size": "^5.0.0",
 		"global-agent": "^3.0.0",
-		"google-auth-library": "^9.15.1",
 		"gray-matter": "^4.0.3",
 		"i18next": "^25.0.0",
 		"ignore": "^7.0.3",
@@ -506,7 +503,7 @@
 		"monaco-vscode-textmate-theme-converter": "^0.1.7",
 		"node-cache": "^5.1.2",
 		"node-ipc": "^12.0.0",
-		"ollama": "^0.5.17",
+		"ollama-ai-provider-v2": "^3.0.4",
 		"openai": "^5.12.2",
 		"os-name": "^6.0.0",
 		"p-limit": "^6.2.0",

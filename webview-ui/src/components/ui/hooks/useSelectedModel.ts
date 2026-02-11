@@ -6,7 +6,6 @@ import {
 	type RouterModels,
 	anthropicModels,
 	bedrockModels,
-	cerebrasModels,
 	deepSeekModels,
 	moonshotModels,
 	minimaxModels,
@@ -16,26 +15,22 @@ import {
 	openAiNativeModels,
 	vertexModels,
 	xaiModels,
-	groqModels,
 	vscodeLlmModels,
 	vscodeLlmDefaultModelId,
-	claudeCodeModels,
-	normalizeClaudeCodeModelId,
 	openAiCodexModels,
 	sambaNovaModels,
-	doubaoModels,
 	internationalZAiModels,
 	mainlandZAiModels,
 	fireworksModels,
-	featherlessModels,
-	ioIntelligenceModels,
 	basetenModels,
+	azureModels,
 	qwenCodeModels,
 	litellmDefaultModelInfo,
 	lMStudioDefaultModelInfo,
 	BEDROCK_1M_CONTEXT_MODEL_IDS,
 	VERTEX_1M_CONTEXT_MODEL_IDS,
 	isDynamicProvider,
+	isRetiredProvider,
 	getProviderDefaultModelId,
 } from "@klaus-code/types"
 
@@ -58,14 +53,16 @@ function getValidatedModelId(
 
 export const useSelectedModel = (apiConfiguration?: ProviderSettings) => {
 	const provider = apiConfiguration?.apiProvider || "anthropic"
-	const openRouterModelId = provider === "openrouter" ? apiConfiguration?.openRouterModelId : undefined
-	const lmStudioModelId = provider === "lmstudio" ? apiConfiguration?.lmStudioModelId : undefined
-	const ollamaModelId = provider === "ollama" ? apiConfiguration?.ollamaModelId : undefined
+	const activeProvider: ProviderName | undefined = isRetiredProvider(provider) ? undefined : provider
+	const dynamicProvider = activeProvider && isDynamicProvider(activeProvider) ? activeProvider : undefined
+	const openRouterModelId = activeProvider === "openrouter" ? apiConfiguration?.openRouterModelId : undefined
+	const lmStudioModelId = activeProvider === "lmstudio" ? apiConfiguration?.lmStudioModelId : undefined
+	const ollamaModelId = activeProvider === "ollama" ? apiConfiguration?.ollamaModelId : undefined
 
 	// Only fetch router models for dynamic providers
-	const shouldFetchRouterModels = isDynamicProvider(provider)
+	const shouldFetchRouterModels = !!dynamicProvider
 	const routerModels = useRouterModels({
-		provider: shouldFetchRouterModels ? provider : undefined,
+		provider: dynamicProvider,
 		enabled: shouldFetchRouterModels,
 	})
 
@@ -75,16 +72,17 @@ export const useSelectedModel = (apiConfiguration?: ProviderSettings) => {
 
 	// Compute readiness only for the data actually needed for the selected provider
 	const needRouterModels = shouldFetchRouterModels
-	const needOpenRouterProviders = provider === "openrouter"
+	const needOpenRouterProviders = activeProvider === "openrouter"
 	const needLmStudio = typeof lmStudioModelId !== "undefined"
 	const needOllama = typeof ollamaModelId !== "undefined"
 
-	const hasValidRouterData = needRouterModels
-		? routerModels.data &&
-			routerModels.data[provider] !== undefined &&
-			typeof routerModels.data[provider] === "object" &&
-			!routerModels.isLoading
-		: true
+	const hasValidRouterData =
+		needRouterModels && dynamicProvider
+			? routerModels.data &&
+				routerModels.data[dynamicProvider] !== undefined &&
+				typeof routerModels.data[dynamicProvider] === "object" &&
+				!routerModels.isLoading
+			: true
 
 	const isReady =
 		(!needLmStudio || typeof lmStudioModels.data !== "undefined") &&
@@ -93,16 +91,16 @@ export const useSelectedModel = (apiConfiguration?: ProviderSettings) => {
 		(!needOpenRouterProviders || typeof openRouterModelProviders.data !== "undefined")
 
 	const { id, info } =
-		apiConfiguration && isReady
+		apiConfiguration && isReady && activeProvider
 			? getSelectedModel({
-					provider,
+					provider: activeProvider,
 					apiConfiguration,
 					routerModels: (routerModels.data || {}) as RouterModels,
 					openRouterModelProviders: (openRouterModelProviders.data || {}) as Record<string, ModelInfo>,
 					lmStudioModels: (lmStudioModels.data || undefined) as ModelRecord | undefined,
 					ollamaModels: (ollamaModels.data || undefined) as ModelRecord | undefined,
 				})
-			: { id: getProviderDefaultModelId(provider), info: undefined }
+			: { id: getProviderDefaultModelId(activeProvider ?? "anthropic"), info: undefined }
 
 	return {
 		provider,
@@ -162,11 +160,6 @@ function getSelectedModel({
 			const routerInfo = routerModels.requesty?.[id]
 			return { id, info: routerInfo }
 		}
-		case "unbound": {
-			const id = getValidatedModelId(apiConfiguration.unboundModelId, routerModels.unbound, defaultModelId)
-			const routerInfo = routerModels.unbound?.[id]
-			return { id, info: routerInfo }
-		}
 		case "litellm": {
 			const id = getValidatedModelId(apiConfiguration.litellmModelId, routerModels.litellm, defaultModelId)
 			const routerInfo = routerModels.litellm?.[id]
@@ -176,26 +169,6 @@ function getSelectedModel({
 			const id = apiConfiguration.apiModelId ?? defaultModelId
 			const info = xaiModels[id as keyof typeof xaiModels]
 			return info ? { id, info } : { id, info: undefined }
-		}
-		case "groq": {
-			const id = apiConfiguration.apiModelId ?? defaultModelId
-			const info = groqModels[id as keyof typeof groqModels]
-			return { id, info }
-		}
-		case "huggingface": {
-			const id = apiConfiguration.huggingFaceModelId ?? "meta-llama/Llama-3.3-70B-Instruct"
-			const info = {
-				maxTokens: 8192,
-				contextWindow: 131072,
-				supportsImages: false,
-				supportsPromptCache: false,
-			}
-			return { id, info }
-		}
-		case "chutes": {
-			const id = getValidatedModelId(apiConfiguration.apiModelId, routerModels.chutes, defaultModelId)
-			const info = routerModels.chutes?.[id]
-			return { id, info }
 		}
 		case "baseten": {
 			const id = apiConfiguration.apiModelId ?? defaultModelId
@@ -259,11 +232,6 @@ function getSelectedModel({
 			const info = deepSeekModels[id as keyof typeof deepSeekModels]
 			return { id, info }
 		}
-		case "doubao": {
-			const id = apiConfiguration.apiModelId ?? defaultModelId
-			const info = doubaoModels[id as keyof typeof doubaoModels]
-			return { id, info }
-		}
 		case "moonshot": {
 			const id = apiConfiguration.apiModelId ?? defaultModelId
 			const info = moonshotModels[id as keyof typeof moonshotModels]
@@ -322,11 +290,6 @@ function getSelectedModel({
 				info: modelInfo ? { ...lMStudioDefaultModelInfo, ...modelInfo } : undefined,
 			}
 		}
-		case "deepinfra": {
-			const id = getValidatedModelId(apiConfiguration.deepInfraModelId, routerModels.deepinfra, defaultModelId)
-			const info = routerModels.deepinfra?.[id]
-			return { id, info }
-		}
 		case "vscode-lm": {
 			const id = apiConfiguration?.vsCodeLmModelSelector
 				? `${apiConfiguration.vsCodeLmModelSelector.vendor}/${apiConfiguration.vsCodeLmModelSelector.family}`
@@ -334,19 +297,6 @@ function getSelectedModel({
 			const modelFamily = apiConfiguration?.vsCodeLmModelSelector?.family ?? vscodeLlmDefaultModelId
 			const info = vscodeLlmModels[modelFamily as keyof typeof vscodeLlmModels]
 			return { id, info: { ...openAiModelInfoSaneDefaults, ...info, supportsImages: false } } // VSCode LM API currently doesn't support images.
-		}
-		case "claude-code": {
-			// Claude Code models extend anthropic models but with images and prompt caching disabled
-			// Normalize legacy model IDs to current canonical model IDs for backward compatibility
-			const rawId = apiConfiguration.apiModelId ?? defaultModelId
-			const normalizedId = normalizeClaudeCodeModelId(rawId)
-			const info = claudeCodeModels[normalizedId]
-			return { id: normalizedId, info: { ...openAiModelInfoSaneDefaults, ...info } }
-		}
-		case "cerebras": {
-			const id = apiConfiguration.apiModelId ?? defaultModelId
-			const info = cerebrasModels[id as keyof typeof cerebrasModels]
-			return { id, info }
 		}
 		case "sambanova": {
 			const id = apiConfiguration.apiModelId ?? defaultModelId
@@ -356,21 +306,6 @@ function getSelectedModel({
 		case "fireworks": {
 			const id = apiConfiguration.apiModelId ?? defaultModelId
 			const info = fireworksModels[id as keyof typeof fireworksModels]
-			return { id, info }
-		}
-		case "featherless": {
-			const id = apiConfiguration.apiModelId ?? defaultModelId
-			const info = featherlessModels[id as keyof typeof featherlessModels]
-			return { id, info }
-		}
-		case "io-intelligence": {
-			const id = getValidatedModelId(
-				apiConfiguration.ioIntelligenceModelId,
-				routerModels["io-intelligence"],
-				defaultModelId,
-			)
-			const info =
-				routerModels["io-intelligence"]?.[id] ?? ioIntelligenceModels[id as keyof typeof ioIntelligenceModels]
 			return { id, info }
 		}
 		case "roo": {
@@ -396,6 +331,16 @@ function getSelectedModel({
 			)
 			const info = routerModels["vercel-ai-gateway"]?.[id]
 			return { id, info }
+		}
+		case "azure": {
+			// apiModelId holds the base model selection (from model picker).
+			// azureDeploymentName is the deployment name sent to the Azure API.
+			// Only use apiModelId if it matches a known Azure model (prevents stale values from other providers).
+			const explicitModelId = apiConfiguration.apiModelId
+			const matchesAzureModel = explicitModelId && azureModels[explicitModelId as keyof typeof azureModels]
+			const id = matchesAzureModel ? explicitModelId : defaultModelId
+			const info = azureModels[id as keyof typeof azureModels]
+			return { id, info: info || undefined }
 		}
 		// case "anthropic":
 		// case "fake-ai":

@@ -309,6 +309,7 @@
 		"searchProviderPlaceholder": "Tìm kiếm nhà cung cấp",
 		"noProviderMatchFound": "Không tìm thấy nhà cung cấp",
 		"noMatchFound": "Không tìm thấy hồ sơ phù hợp",
+		"retiredProviderMessage": "Xin lỗi, nhà cung cấp này không còn được hỗ trợ nữa. Chúng tôi thấy rất ít người dùng Roo thực sự sử dụng nó và chúng tôi cần giảm phạm vi mã nguồn để có thể tiếp tục phát triển nhanh và phục vụ cộng đồng tốt hơn. Đây là một quyết định rất khó khăn nhưng nó cho phép chúng tôi tập trung vào những gì quan trọng nhất với bạn. Chúng tôi biết điều này thật phiền.",
 		"vscodeLmDescription": "API Mô hình Ngôn ngữ VS Code cho phép bạn chạy các mô hình được cung cấp bởi các tiện ích mở rộng khác của VS Code (bao gồm nhưng không giới hạn ở GitHub Copilot). Cách dễ nhất để bắt đầu là cài đặt các tiện ích mở rộng Copilot và Copilot Chat từ VS Code Marketplace.",
 		"awsCustomArnUse": "Nhập một ARN Amazon Bedrock hợp lệ cho mô hình bạn muốn sử dụng. Ví dụ về định dạng:",
 		"awsCustomArnDesc": "Đảm bảo rằng vùng trong ARN khớp với vùng AWS đã chọn ở trên.",
@@ -379,6 +380,14 @@
 		"getBasetenApiKey": "Lấy khóa API Baseten",
 		"cerebrasApiKey": "Khóa API Cerebras",
 		"getCerebrasApiKey": "Lấy khóa API Cerebras",
+		"azureResourceName": "Tên tài nguyên Azure",
+		"azureResourceNameDescription": "Tên tài nguyên Azure AI Foundry của bạn (ví dụ: 'my-openai-resource').",
+		"azureDeploymentName": "Tên triển khai Azure",
+		"azureDeploymentNameDescription": "Tên triển khai mô hình trong tài nguyên.",
+		"azureApiKey": "Khóa API Azure",
+		"getAzureApiKey": "Lấy quyền truy cập Azure AI Foundry",
+		"azureApiVersion": "Phiên bản API Azure",
+		"azureApiVersionDescription": "Phiên bản API để sử dụng (ví dụ: '2024-10-21'). Để trống để dùng giá trị mặc định.",
 		"chutesApiKey": "Khóa API Chutes",
 		"getChutesApiKey": "Lấy khóa API Chutes",
 		"fireworksApiKey": "Khóa API Fireworks",
@@ -950,7 +959,9 @@
 		"providerNotAllowed": "Nhà cung cấp '{{provider}}' không được phép bởi tổ chức của bạn",
 		"modelNotAllowed": "Mô hình '{{model}}' không được phép cho nhà cung cấp '{{provider}}' bởi tổ chức của bạn",
 		"profileInvalid": "Hồ sơ này chứa một nhà cung cấp hoặc mô hình không được phép bởi tổ chức của bạn",
-		"qwenCodeOauthPath": "Bạn phải cung cấp đường dẫn thông tin xác thực OAuth hợp lệ"
+		"qwenCodeOauthPath": "Bạn phải cung cấp đường dẫn thông tin xác thực OAuth hợp lệ",
+		"azureResourceName": "Bạn phải cung cấp tên tài nguyên Azure.",
+		"azureDeploymentName": "Bạn phải cung cấp tên triển khai Azure."
 	},
 	"placeholders": {
 		"apiKey": "Nhập khóa API...",
@@ -963,6 +974,8 @@
 		"projectId": "Nhập ID dự án...",
 		"customArn": "Nhập ARN (vd: arn:aws:bedrock:us-east-1:123456789012:foundation-model/my-model)",
 		"baseUrl": "Nhập URL cơ sở...",
+		"azureResourceName": "e.g. my-openai-resource",
+		"azureDeploymentName": "e.g. gpt-4o",
 		"modelId": {
 			"lmStudio": "vd: meta-llama-3.1-8b-instruct",
 			"lmStudioDraft": "vd: lmstudio-community/llama-3.2-1b-instruct",

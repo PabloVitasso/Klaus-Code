@@ -18,6 +18,7 @@ import {
 	convertToolsForAiSdk,
 	processAiSdkStreamPart,
 	mapToolChoice,
+	handleAiSdkError,
 } from "../transform/ai-sdk"
 import { t } from "i18next"
 import type { ApiStream, ApiStreamUsageChunk, GroundingSource } from "../transform/stream"
@@ -146,6 +147,7 @@ export class VertexHandler extends BaseProvider implements SingleCompletionHandl
 			const result = streamText(requestOptions)
 
 			// Process the full stream to get all events including reasoning
+			let lastStreamError: string | undefined
 			for await (const part of result.fullStream) {
 				// Capture thoughtSignature from tool-call events (Gemini 3 thought signatures)
 				// The AI SDK's tool-call event includes providerMetadata with the signature
@@ -160,44 +162,53 @@ export class VertexHandler extends BaseProvider implements SingleCompletionHandl
 				}
 
 				for (const chunk of processAiSdkStreamPart(part)) {
+					if (chunk.type === "error") {
+						lastStreamError = chunk.message
+					}
 					yield chunk
 				}
 			}
 
-			// Extract grounding sources from providerMetadata if available
-			const providerMetadata = await result.providerMetadata
-			const groundingMetadata = (providerMetadata?.vertex ?? providerMetadata?.google) as
-				| {
-						groundingMetadata?: {
-							groundingChunks?: Array<{
-								web?: { uri?: string; title?: string }
-							}>
-						}
-				  }
-				| undefined
+			// Extract grounding sources and usage from providerMetadata
+			try {
+				const providerMetadata = await result.providerMetadata
+				const groundingMetadata = (providerMetadata?.vertex ?? providerMetadata?.google) as
+					| {
+							groundingMetadata?: {
+								groundingChunks?: Array<{
+									web?: { uri?: string; title?: string }
+								}>
+							}
+					  }
+					| undefined
 
-			if (groundingMetadata?.groundingMetadata) {
-				const sources = this.extractGroundingSources(groundingMetadata.groundingMetadata)
-				if (sources.length > 0) {
-					yield { type: "grounding", sources }
+				if (groundingMetadata?.groundingMetadata) {
+					const sources = this.extractGroundingSources(groundingMetadata.groundingMetadata)
+					if (sources.length > 0) {
+						yield { type: "grounding", sources }
+					}
 				}
-			}
 
-			// Yield usage metrics at the end
-			const usage = await result.usage
-			if (usage) {
-				yield this.processUsageMetrics(usage, info, providerMetadata)
+				// Yield usage metrics at the end
+				const usage = await result.usage
+				if (usage) {
+					yield this.processUsageMetrics(usage, info, providerMetadata)
+				}
+			} catch (usageError) {
+				if (lastStreamError) {
+					throw new Error(lastStreamError)
+				}
+				throw usageError
 			}
 		} catch (error) {
-			const errorMessage = error instanceof Error ? error.message : String(error)
-			const apiError = new ApiProviderError(errorMessage, this.providerName, modelId, "createMessage")
-			TelemetryService.instance.captureException(apiError)
-
-			if (error instanceof Error) {
-				throw new Error(t("common:errors.gemini.generate_stream", { error: error.message }))
-			}
-
-			throw error
+			throw handleAiSdkError(error, this.providerName, {
+				onError: (msg) => {
+					TelemetryService.instance.captureException(
+						new ApiProviderError(msg, this.providerName, modelId, "createMessage"),
+					)
+				},
+				formatMessage: (msg) => t("common:errors.gemini.generate_stream", { error: msg }),
+			})
 		}
 	}
 
@@ -337,15 +348,14 @@ export class VertexHandler extends BaseProvider implements SingleCompletionHandl
 
 			return text
 		} catch (error) {
-			const errorMessage = error instanceof Error ? error.message : String(error)
-			const apiError = new ApiProviderError(errorMessage, this.providerName, modelId, "completePrompt")
-			TelemetryService.instance.captureException(apiError)
-
-			if (error instanceof Error) {
-				throw new Error(t("common:errors.gemini.generate_complete_prompt", { error: error.message }))
-			}
-
-			throw error
+			throw handleAiSdkError(error, this.providerName, {
+				onError: (msg) => {
+					TelemetryService.instance.captureException(
+						new ApiProviderError(msg, this.providerName, modelId, "completePrompt"),
+					)
+				},
+				formatMessage: (msg) => t("common:errors.gemini.generate_complete_prompt", { error: msg }),
+			})
 		}
 	}
 

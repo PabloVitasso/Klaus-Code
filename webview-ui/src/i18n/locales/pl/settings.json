@@ -309,6 +309,7 @@
 		"searchProviderPlaceholder": "Szukaj dostawców",
 		"noProviderMatchFound": "Nie znaleziono dostawców",
 		"noMatchFound": "Nie znaleziono pasujących profili",
+		"retiredProviderMessage": "Przepraszamy, ten dostawca nie jest już obsługiwany. Zauważyliśmy, że bardzo niewielu użytkowników Roo faktycznie z niego korzystało i musimy zmniejszyć zakres naszego kodu, aby móc dalej szybko się rozwijać i dobrze służyć naszej społeczności. To była naprawdę trudna decyzja, ale pozwala nam skupić się na tym, co jest dla ciebie najważniejsze. Wiemy, że to frustrujące.",
 		"vscodeLmDescription": "Interfejs API modelu językowego VS Code umożliwia uruchamianie modeli dostarczanych przez inne rozszerzenia VS Code (w tym, ale nie tylko, GitHub Copilot). Najłatwiejszym sposobem na rozpoczęcie jest zainstalowanie rozszerzeń Copilot i Copilot Chat z VS Code Marketplace.",
 		"awsCustomArnUse": "Wprowadź prawidłowy Amazon Bedrock ARN dla modelu, którego chcesz użyć. Przykłady formatu:",
 		"awsCustomArnDesc": "Upewnij się, że region w ARN odpowiada wybranemu powyżej regionowi AWS.",
@@ -379,6 +380,14 @@
 		"getBasetenApiKey": "Uzyskaj klucz API Baseten",
 		"cerebrasApiKey": "Klucz API Cerebras",
 		"getCerebrasApiKey": "Pobierz klucz API Cerebras",
+		"azureResourceName": "Nazwa zasobu Azure",
+		"azureResourceNameDescription": "Nazwa Twojego zasobu Azure AI Foundry (np. 'moj-zasob-openai').",
+		"azureDeploymentName": "Nazwa wdrożenia Azure",
+		"azureDeploymentNameDescription": "Nazwa wdrożenia modelu w zasobie.",
+		"azureApiKey": "Klucz API Azure",
+		"getAzureApiKey": "Uzyskaj dostęp do Azure AI Foundry",
+		"azureApiVersion": "Wersja API Azure",
+		"azureApiVersionDescription": "Wersja API do użycia (np. '2024-10-21'). Pozostaw puste dla wartości domyślnej.",
 		"chutesApiKey": "Klucz API Chutes",
 		"getChutesApiKey": "Uzyskaj klucz API Chutes",
 		"fireworksApiKey": "Klucz API Fireworks",
@@ -950,7 +959,9 @@
 		"providerNotAllowed": "Dostawca '{{provider}}' nie jest dozwolony przez Twoją organizację",
 		"modelNotAllowed": "Model '{{model}}' nie jest dozwolony dla dostawcy '{{provider}}' przez Twoją organizację",
 		"profileInvalid": "Ten profil zawiera dostawcę lub model, który nie jest dozwolony przez Twoją organizację",
-		"qwenCodeOauthPath": "Musisz podać prawidłową ścieżkę do poświadczeń OAuth"
+		"qwenCodeOauthPath": "Musisz podać prawidłową ścieżkę do poświadczeń OAuth",
+		"azureResourceName": "Musisz podać nazwę zasobu Azure.",
+		"azureDeploymentName": "Musisz podać nazwę wdrożenia Azure."
 	},
 	"placeholders": {
 		"apiKey": "Wprowadź klucz API...",
@@ -963,6 +974,8 @@
 		"projectId": "Wprowadź ID projektu...",
 		"customArn": "Wprowadź ARN (np. arn:aws:bedrock:us-east-1:123456789012:foundation-model/my-model)",
 		"baseUrl": "Wprowadź podstawowy URL...",
+		"azureResourceName": "e.g. my-openai-resource",
+		"azureDeploymentName": "e.g. gpt-4o",
 		"modelId": {
 			"lmStudio": "np. meta-llama-3.1-8b-instruct",
 			"lmStudioDraft": "np. lmstudio-community/llama-3.2-1b-instruct",

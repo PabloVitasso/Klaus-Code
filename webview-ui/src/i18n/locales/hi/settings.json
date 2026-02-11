@@ -309,6 +309,7 @@
 		"searchProviderPlaceholder": "प्रदाता खोजें",
 		"noProviderMatchFound": "कोई प्रदाता नहीं मिला",
 		"noMatchFound": "कोई मिलान प्रोफ़ाइल नहीं मिला",
+		"retiredProviderMessage": "क्षमा करें, यह प्रदाता अब समर्थित नहीं है। हमने देखा कि बहुत कम Roo उपयोगकर्ता वास्तव में इसका उपयोग कर रहे थे और हमें अपने कोडबेस के दायरे को कम करने की जरूरत है ताकि हम तेजी से आगे बढ़ सकें और अपने समुदाय की बेहतर सेवा कर सकें। यह वाकई एक कठिन निर्णय था लेकिन यह हमें उन चीजों पर ध्यान केंद्रित करने देता है जो तुम्हारे लिए सबसे ज्यादा मायने रखती हैं। हम जानते हैं, यह बुरा लगता है।",
 		"vscodeLmDescription": "VS कोड भाषा मॉडल API आपको अन्य VS कोड एक्सटेंशन (जैसे GitHub Copilot) द्वारा प्रदान किए गए मॉडल चलाने की अनुमति देता है। शुरू करने का सबसे आसान तरीका VS कोड मार्केटप्लेस से Copilot और Copilot चैट एक्सटेंशन इंस्टॉल करना है।",
 		"awsCustomArnUse": "आप जिस मॉडल का उपयोग करना चाहते हैं, उसके लिए एक वैध Amazon बेडरॉक ARN दर्ज करें। प्रारूप उदाहरण:",
 		"awsCustomArnDesc": "सुनिश्चित करें कि ARN में क्षेत्र ऊपर चयनित AWS क्षेत्र से मेल खाता है।",
@@ -379,6 +380,14 @@
 		"getBasetenApiKey": "Baseten API कुंजी प्राप्त करें",
 		"cerebrasApiKey": "Cerebras API कुंजी",
 		"getCerebrasApiKey": "Cerebras API कुंजी प्राप्त करें",
+		"azureResourceName": "Azure रिसोर्स नाम",
+		"azureResourceNameDescription": "आपके Azure AI Foundry रिसोर्स का नाम (उदा. 'my-openai-resource')।",
+		"azureDeploymentName": "Azure डिप्लॉयमेंट नाम",
+		"azureDeploymentNameDescription": "रिसोर्स के अंदर आपके मॉडल डिप्लॉयमेंट का नाम।",
+		"azureApiKey": "Azure API कुंजी",
+		"getAzureApiKey": "Azure AI Foundry एक्सेस प्राप्त करें",
+		"azureApiVersion": "Azure API संस्करण",
+		"azureApiVersionDescription": "उपयोग करने के लिए API संस्करण (उदा. '2024-10-21')। डिफ़ॉल्ट के लिए खाली छोड़ें।",
 		"chutesApiKey": "Chutes API कुंजी",
 		"getChutesApiKey": "Chutes API कुंजी प्राप्त करें",
 		"fireworksApiKey": "Fireworks API कुंजी",
@@ -950,7 +959,9 @@
 		"providerNotAllowed": "प्रदाता '{{provider}}' आपके संगठन द्वारा अनुमत नहीं है",
 		"modelNotAllowed": "मॉडल '{{model}}' प्रदाता '{{provider}}' के लिए आपके संगठन द्वारा अनुमत नहीं है",
 		"profileInvalid": "इस प्रोफ़ाइल में एक प्रदाता या मॉडल शामिल है जो आपके संगठन द्वारा अनुमत नहीं है",
-		"qwenCodeOauthPath": "आपको एक वैध OAuth क्रेडेंशियल पथ प्रदान करना होगा"
+		"qwenCodeOauthPath": "आपको एक वैध OAuth क्रेडेंशियल पथ प्रदान करना होगा",
+		"azureResourceName": "आपको एक Azure संसाधन नाम प्रदान करना होगा।",
+		"azureDeploymentName": "आपको एक Azure परिनियोजन नाम प्रदान करना होगा।"
 	},
 	"placeholders": {
 		"apiKey": "API कुंजी दर्ज करें...",
@@ -963,6 +974,8 @@
 		"projectId": "प्रोजेक्ट ID दर्ज करें...",
 		"customArn": "ARN दर्ज करें (उदा. arn:aws:bedrock:us-east-1:123456789012:foundation-model/my-model)",
 		"baseUrl": "बेस URL दर्ज करें...",
+		"azureResourceName": "e.g. my-openai-resource",
+		"azureDeploymentName": "e.g. gpt-4o",
 		"modelId": {
 			"lmStudio": "उदा. meta-llama-3.1-8b-instruct",
 			"lmStudioDraft": "उदा. lmstudio-community/llama-3.2-1b-instruct",

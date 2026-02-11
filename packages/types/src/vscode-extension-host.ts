@@ -47,7 +47,6 @@ export interface ExtensionMessage {
 		| "ollamaModels"
 		| "lmStudioModels"
 		| "vsCodeLmModels"
-		| "huggingFaceModels"
 		| "vsCodeLmApiAvailable"
 		| "updatePrompt"
 		| "systemPrompt"
@@ -145,23 +144,6 @@ export interface ExtensionMessage {
 	ollamaModels?: ModelRecord
 	lmStudioModels?: ModelRecord
 	vsCodeLmModels?: { vendor?: string; family?: string; version?: string; id?: string }[]
-	huggingFaceModels?: Array<{
-		id: string
-		object: string
-		created: number
-		owned_by: string
-		providers: Array<{
-			provider: string
-			status: "live" | "staging" | "error"
-			supports_tools?: boolean
-			supports_structured_output?: boolean
-			context_length?: number
-			pricing?: {
-				input: number
-				output: number
-			}
-		}>
-	}>
 	mcpServers?: McpServer[]
 	commits?: GitCommit[]
 	listApiConfig?: ProviderSettingsEntry[]
@@ -337,6 +319,7 @@ export type ExtensionState = Pick<
 	| "showWorktreesInHomeScreen"
 	| "disabledTools"
 > & {
+	lockApiConfigAcrossModes?: boolean
 	version: string
 	clineMessages: ClineMessage[]
 	currentTaskItem?: HistoryItem
@@ -407,6 +390,14 @@ export type ExtensionState = Pick<
 	claudeCodeIsAuthenticated?: boolean
 	openAiCodexIsAuthenticated?: boolean
 	debug?: boolean
+
+	/**
+	 * Monotonically increasing sequence number for clineMessages state pushes.
+	 * When present, the frontend should only apply clineMessages from a state push
+	 * if its seq is greater than the last applied seq. This prevents stale state
+	 * (captured during async getStateToPostToWebview) from overwriting newer messages.
+	 */
+	clineMessagesSeq?: number
 }
 
 export interface Command {
@@ -469,7 +460,6 @@ export interface WebviewMessage {
 		| "requestRooModels"
 		| "requestRooCreditBalance"
 		| "requestVsCodeLmModels"
-		| "requestHuggingFaceModels"
 		| "openImage"
 		| "saveImage"
 		| "openFile"
@@ -526,6 +516,7 @@ export interface WebviewMessage {
 		| "searchFiles"
 		| "toggleApiConfigPin"
 		| "hasOpenedModeSelector"
+		| "lockApiConfigAcrossModes"
 		| "clearCloudAuthSkipModel"
 		| "cloudButtonClicked"
 		| "rooCloudSignIn"
@@ -850,6 +841,12 @@ export interface ClineSayTool {
 			content: string
 			startLine?: number
 		}>
+	}>
+	batchDirs?: Array<{
+		path: string
+		recursive: boolean
+		isOutsideWorkspace?: boolean
+		key: string
 	}>
 	question?: string
 	imageData?: string // Base64 encoded image data for generated images

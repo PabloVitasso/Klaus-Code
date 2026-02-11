@@ -309,6 +309,7 @@
 		"searchProviderPlaceholder": "搜索提供商",
 		"noProviderMatchFound": "未找到提供商",
 		"noMatchFound": "未找到匹配的配置文件",
+		"retiredProviderMessage": "抱歉，该提供商已不再受支持。我们发现实际使用该提供商的 Roo 用户非常少，我们需要缩减代码库的覆盖范围，以便继续快速开发并更好地服务社区。这是一个非常艰难的决定，但它让我们能专注于对你最重要的事情。我们知道这很遗憾。",
 		"vscodeLmDescription": "VS Code 语言模型 API 允许您运行由其他 VS Code 扩展（包括但不限于 GitHub Copilot）提供的模型。最简单的方法是从 VS Code 市场安装 Copilot 和 Copilot Chat 扩展。",
 		"awsCustomArnUse": "请输入有效的 Amazon Bedrock ARN（Amazon资源名称），格式示例：",
 		"awsCustomArnDesc": "请确保ARN中的区域与上方选择的AWS区域一致。",
@@ -379,6 +380,14 @@
 		"getBasetenApiKey": "获取 Baseten API 密钥",
 		"cerebrasApiKey": "Cerebras API 密钥",
 		"getCerebrasApiKey": "获取 Cerebras API 密钥",
+		"azureResourceName": "Azure 资源名称",
+		"azureResourceNameDescription": "您的 Azure AI Foundry 资源名称（例如：'my-openai-resource'）。",
+		"azureDeploymentName": "Azure 部署名称",
+		"azureDeploymentNameDescription": "资源中的模型部署名称。",
+		"azureApiKey": "Azure API 密钥",
+		"getAzureApiKey": "获取 Azure AI Foundry 访问权限",
+		"azureApiVersion": "Azure API 版本",
+		"azureApiVersionDescription": "要使用的 API 版本（例如：'2024-10-21'）。留空使用默认值。",
 		"chutesApiKey": "Chutes API 密钥",
 		"getChutesApiKey": "获取 Chutes API 密钥",
 		"fireworksApiKey": "Fireworks API 密钥",
@@ -950,7 +959,9 @@
 		"providerNotAllowed": "提供商 '{{provider}}' 不允许用于您的组织",
 		"modelNotAllowed": "模型 '{{model}}' 不允许用于提供商 '{{provider}}'，您的组织不允许",
 		"profileInvalid": "此配置文件包含您的组织不允许的提供商或模型",
-		"qwenCodeOauthPath": "您必须提供有效的 OAuth 凭证路径"
+		"qwenCodeOauthPath": "您必须提供有效的 OAuth 凭证路径",
+		"azureResourceName": "您必须提供 Azure 资源名称。",
+		"azureDeploymentName": "您必须提供 Azure 部署名称。"
 	},
 	"placeholders": {
 		"apiKey": "请输入 API 密钥...",
@@ -963,6 +974,8 @@
 		"projectId": "请输入项目 ID...",
 		"customArn": "请输入 ARN（例：arn:aws:bedrock:us-east-1:123456789012:foundation-model/my-model）",
 		"baseUrl": "请输入基础 URL...",
+		"azureResourceName": "e.g. my-openai-resource",
+		"azureDeploymentName": "e.g. gpt-4o",
 		"modelId": {
 			"lmStudio": "例：meta-llama-3.1-8b-instruct",
 			"lmStudioDraft": "例：lmstudio-community/llama-3.2-1b-instruct",

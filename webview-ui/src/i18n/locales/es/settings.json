@@ -309,6 +309,7 @@
 		"searchProviderPlaceholder": "Buscar proveedores",
 		"noProviderMatchFound": "No se encontraron proveedores",
 		"noMatchFound": "No se encontraron perfiles coincidentes",
+		"retiredProviderMessage": "Lo sentimos, este proveedor ya no es compatible. Vimos que muy pocos usuarios de Roo lo usaban realmente y necesitamos reducir el alcance de nuestro código para poder seguir avanzando rápido y servir bien a nuestra comunidad. Fue una decisión muy difícil, pero nos permite centrarnos en lo que más te importa. Lo sabemos, es una lástima.",
 		"vscodeLmDescription": "La API del Modelo de Lenguaje de VS Code le permite ejecutar modelos proporcionados por otras extensiones de VS Code (incluido, entre otros, GitHub Copilot). La forma más sencilla de empezar es instalar las extensiones Copilot y Copilot Chat desde el VS Code Marketplace.",
 		"awsCustomArnUse": "Ingrese un ARN de Amazon Bedrock válido para el modelo que desea utilizar. Ejemplos de formato:",
 		"awsCustomArnDesc": "Asegúrese de que la región en el ARN coincida con la región de AWS seleccionada anteriormente.",
@@ -379,6 +380,14 @@
 		"getBasetenApiKey": "Obtener clave API de Baseten",
 		"cerebrasApiKey": "Clave API de Cerebras",
 		"getCerebrasApiKey": "Obtener clave API de Cerebras",
+		"azureResourceName": "Nombre del recurso Azure",
+		"azureResourceNameDescription": "El nombre de tu recurso Azure AI Foundry (ej. 'mi-recurso-openai').",
+		"azureDeploymentName": "Nombre del despliegue Azure",
+		"azureDeploymentNameDescription": "El nombre del despliegue de tu modelo dentro del recurso.",
+		"azureApiKey": "Clave API de Azure",
+		"getAzureApiKey": "Obtener acceso a Azure AI Foundry",
+		"azureApiVersion": "Versión de API de Azure",
+		"azureApiVersionDescription": "La versión de la API a usar (ej. '2024-10-21'). Dejar vacío para usar el valor predeterminado.",
 		"chutesApiKey": "Clave API de Chutes",
 		"getChutesApiKey": "Obtener clave API de Chutes",
 		"fireworksApiKey": "Clave API de Fireworks",
@@ -950,7 +959,9 @@
 		"providerNotAllowed": "El proveedor '{{provider}}' no está permitido por su organización",
 		"modelNotAllowed": "El modelo '{{model}}' no está permitido para el proveedor '{{provider}}' por su organización",
 		"profileInvalid": "Este perfil contiene un proveedor o modelo que no está permitido por su organización",
-		"qwenCodeOauthPath": "Debes proporcionar una ruta válida de credenciales OAuth"
+		"qwenCodeOauthPath": "Debes proporcionar una ruta válida de credenciales OAuth",
+		"azureResourceName": "Debes proporcionar un nombre de recurso de Azure.",
+		"azureDeploymentName": "Debes proporcionar un nombre de despliegue de Azure."
 	},
 	"placeholders": {
 		"apiKey": "Ingrese clave API...",
@@ -963,6 +974,8 @@
 		"projectId": "Ingrese ID del proyecto...",
 		"customArn": "Ingrese ARN (ej. arn:aws:bedrock:us-east-1:123456789012:foundation-model/my-model)",
 		"baseUrl": "Ingrese URL base...",
+		"azureResourceName": "e.g. my-openai-resource",
+		"azureDeploymentName": "e.g. gpt-4o",
 		"modelId": {
 			"lmStudio": "ej. meta-llama-3.1-8b-instruct",
 			"lmStudioDraft": "ej. lmstudio-community/llama-3.2-1b-instruct",

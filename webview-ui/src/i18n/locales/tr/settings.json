@@ -309,6 +309,7 @@
 		"searchProviderPlaceholder": "Sağlayıcıları ara",
 		"noProviderMatchFound": "Eşleşen sağlayıcı bulunamadı",
 		"noMatchFound": "Eşleşen profil bulunamadı",
+		"retiredProviderMessage": "Üzgünüz, bu sağlayıcı artık desteklenmiyor. Çok az Roo kullanıcısının bunu gerçekten kullandığını gördük ve kod tabanımızın kapsamını azaltmamız gerekiyor, böylece hızlı gelişmeye devam edebilir ve topluluğumuza iyi hizmet verebiliriz. Gerçekten zor bir karardı ama sana en önemli olan şeylere odaklanmamızı sağlıyor. Biliyoruz, bu sinir bozucu.",
 		"vscodeLmDescription": "VS Code Dil Modeli API'si, diğer VS Code uzantıları tarafından sağlanan modelleri çalıştırmanıza olanak tanır (GitHub Copilot dahil ancak bunlarla sınırlı değildir). Başlamanın en kolay yolu, VS Code Marketplace'ten Copilot ve Copilot Chat uzantılarını yüklemektir.",
 		"awsCustomArnUse": "Kullanmak istediğiniz model için geçerli bir Amazon Bedrock ARN'si girin. Format örnekleri:",
 		"awsCustomArnDesc": "ARN içindeki bölgenin yukarıda seçilen AWS Bölgesiyle eşleştiğinden emin olun.",
@@ -379,6 +380,14 @@
 		"getBasetenApiKey": "Baseten API Anahtarı Al",
 		"cerebrasApiKey": "Cerebras API Anahtarı",
 		"getCerebrasApiKey": "Cerebras API Anahtarını Al",
+		"azureResourceName": "Azure Kaynak Adı",
+		"azureResourceNameDescription": "Azure AI Foundry kaynak adınız (örn. 'benim-openai-kaynagim').",
+		"azureDeploymentName": "Azure Dağıtım Adı",
+		"azureDeploymentNameDescription": "Kaynak içindeki model dağıtım adınız.",
+		"azureApiKey": "Azure API Anahtarı",
+		"getAzureApiKey": "Azure AI Foundry Erişimi Al",
+		"azureApiVersion": "Azure API Sürümü",
+		"azureApiVersionDescription": "Kullanılacak API sürümü (örn. '2024-10-21'). Varsayılan için boş bırakın.",
 		"chutesApiKey": "Chutes API Anahtarı",
 		"getChutesApiKey": "Chutes API Anahtarı Al",
 		"fireworksApiKey": "Fireworks API Anahtarı",
@@ -950,7 +959,9 @@
 		"providerNotAllowed": "Sağlayıcı '{{provider}}' kuruluşunuz tarafından izin verilmiyor",
 		"modelNotAllowed": "Model '{{model}}' sağlayıcı '{{provider}}' için kuruluşunuz tarafından izin verilmiyor",
 		"profileInvalid": "Bu profil, kuruluşunuz tarafından izin verilmeyen bir sağlayıcı veya model içeriyor",
-		"qwenCodeOauthPath": "Geçerli bir OAuth kimlik bilgileri yolu sağlamalısın"
+		"qwenCodeOauthPath": "Geçerli bir OAuth kimlik bilgileri yolu sağlamalısın",
+		"azureResourceName": "Bir Azure kaynak adı sağlamalısın.",
+		"azureDeploymentName": "Bir Azure dağıtım adı sağlamalısın."
 	},
 	"placeholders": {
 		"apiKey": "API anahtarını girin...",
@@ -963,6 +974,8 @@
 		"projectId": "Proje ID'sini girin...",
 		"customArn": "ARN girin (örn. arn:aws:bedrock:us-east-1:123456789012:foundation-model/my-model)",
 		"baseUrl": "Temel URL'yi girin...",
+		"azureResourceName": "e.g. my-openai-resource",
+		"azureDeploymentName": "e.g. gpt-4o",
 		"modelId": {
 			"lmStudio": "örn. meta-llama-3.1-8b-instruct",
 			"lmStudioDraft": "örn. lmstudio-community/llama-3.2-1b-instruct",

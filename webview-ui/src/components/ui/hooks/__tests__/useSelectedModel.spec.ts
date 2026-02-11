@@ -61,9 +61,7 @@ describe("useSelectedModel", () => {
 						"test-model": baseModelInfo,
 					},
 					requesty: {},
-					unbound: {},
 					litellm: {},
-					"io-intelligence": {},
 				},
 				isLoading: false,
 				isError: false,
@@ -124,9 +122,7 @@ describe("useSelectedModel", () => {
 						},
 					},
 					requesty: {},
-					unbound: {},
 					litellm: {},
-					"io-intelligence": {},
 				},
 				isLoading: false,
 				isError: false,
@@ -191,9 +187,7 @@ describe("useSelectedModel", () => {
 						"test-model": baseModelInfo,
 					},
 					requesty: {},
-					unbound: {},
 					litellm: {},
-					"io-intelligence": {},
 				},
 				isLoading: false,
 				isError: false,
@@ -245,9 +239,7 @@ describe("useSelectedModel", () => {
 				data: {
 					openrouter: { "test-model": baseModelInfo },
 					requesty: {},
-					unbound: {},
 					litellm: {},
-					"io-intelligence": {},
 				},
 				isLoading: false,
 				isError: false,
@@ -288,9 +280,7 @@ describe("useSelectedModel", () => {
 						},
 					},
 					requesty: {},
-					unbound: {},
 					litellm: {},
-					"io-intelligence": {},
 				},
 				isLoading: false,
 				isError: false,
@@ -350,7 +340,7 @@ describe("useSelectedModel", () => {
 
 		it("should NOT set loading when openrouter provider metadata is loading but provider is static (anthropic)", () => {
 			mockUseRouterModels.mockReturnValue({
-				data: { openrouter: {}, requesty: {}, unbound: {}, litellm: {}, "io-intelligence": {} },
+				data: { openrouter: {}, requesty: {}, litellm: {} },
 				isLoading: false,
 				isError: false,
 			} as any)
@@ -489,9 +479,7 @@ describe("useSelectedModel", () => {
 				data: {
 					openrouter: {},
 					requesty: {},
-					unbound: {},
 					litellm: {},
-					"io-intelligence": {},
 				},
 				isLoading: false,
 				isError: false,
@@ -561,9 +549,7 @@ describe("useSelectedModel", () => {
 				data: {
 					openrouter: {},
 					requesty: {},
-					unbound: {},
 					litellm: {},
-					"io-intelligence": {},
 				},
 				isLoading: false,
 				isError: false,
@@ -589,7 +575,6 @@ describe("useSelectedModel", () => {
 				data: {
 					openrouter: {},
 					requesty: {},
-					unbound: {},
 					litellm: {
 						"existing-model": {
 							maxTokens: 4096,
@@ -598,7 +583,6 @@ describe("useSelectedModel", () => {
 							supportsPromptCache: false,
 						},
 					},
-					"io-intelligence": {},
 				},
 				isLoading: false,
 				isError: false,
@@ -632,11 +616,9 @@ describe("useSelectedModel", () => {
 				data: {
 					openrouter: {},
 					requesty: {},
-					unbound: {},
 					litellm: {
 						"custom-model": customModelInfo,
 					},
-					"io-intelligence": {},
 				},
 				isLoading: false,
 				isError: false,
@@ -662,9 +644,7 @@ describe("useSelectedModel", () => {
 				data: {
 					openrouter: {},
 					requesty: {},
-					unbound: {},
 					litellm: {},
-					"io-intelligence": {},
 				},
 				isLoading: false,
 				isError: false,
