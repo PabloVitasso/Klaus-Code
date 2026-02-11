@@ -28,8 +28,10 @@ export interface ClaudeCodeRateLimitInfo {
 	overage?: {
 		status: string
 		utilization: number
-		resetTime: number // Unix timestamp
+		resetTime: number // Unix timestamp (first of next month)
 		disabledReason?: string
+		usedCredits?: number // Raw credits used (e.g., 2396.0)
+		monthlyLimit?: number // Raw monthly limit (e.g., 4250)
 	}
 	// Fallback percentage
 	fallbackPercentage?: number

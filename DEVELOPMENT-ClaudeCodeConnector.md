@@ -31,7 +31,10 @@ sudo cp ~/.mitmproxy/mitmproxy-ca-cert.pem /usr/local/share/mitmproxy-ca.pem
 sudo chmod 644 /usr/local/share/mitmproxy-ca.pem
 export NODE_EXTRA_CA_CERTS=/usr/local/share/mitmproxy-ca.pem
 
-then run claude cli
+claude
+
+in browser check the requests:
+http://127.0.0.1:8081
 
 ### Critical Files & Line Numbers
 

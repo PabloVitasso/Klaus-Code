@@ -42,6 +42,14 @@ function formatUtilization(utilization: number): string {
 }
 
 /**
+ * Formats credits for display (converts raw credits to display value)
+ * Example: 2396.0 → "23.9", 4250 → "42.5"
+ */
+function formatCredits(credits: number): string {
+	return (credits / 100).toFixed(1)
+}
+
+/**
  * Progress bar component for displaying usage
  */
 const UsageProgressBar: React.FC<{ utilization: number; label: string }> = ({ utilization, label }) => {
@@ -190,6 +198,13 @@ export const ClaudeCodeRateLimitDashboard: React.FC<ClaudeCodeRateLimitDashboard
 							</span>
 						</div>
 						<UsageProgressBar utilization={rateLimits.overage.utilization} label="" />
+						{rateLimits.overage.usedCredits !== undefined &&
+							rateLimits.overage.monthlyLimit !== undefined && (
+								<div className="flex items-center justify-between text-xs text-vscode-descriptionForeground mt-1.5">
+									<span>Used Credits: {formatCredits(rateLimits.overage.usedCredits)}</span>
+									<span>Extra Usage Limit: {formatCredits(rateLimits.overage.monthlyLimit)}</span>
+								</div>
+							)}
 						{rateLimits.overage.disabledReason && (
 							<div className="text-xs text-vscode-descriptionForeground italic mt-1">
 								{rateLimits.overage.disabledReason}

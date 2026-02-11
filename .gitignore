@@ -25,6 +25,7 @@ AGENTS.local.md
 .vscode-test/
 
 # Docs
+docs/
 docs/_site/
 docs/untracked/
 

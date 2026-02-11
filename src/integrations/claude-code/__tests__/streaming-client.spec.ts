@@ -39,13 +39,18 @@ describe("Claude Code Streaming Client", () => {
 		})
 
 		test("should have correct default betas", () => {
+			expect(CLAUDE_CODE_API_CONFIG.defaultBetas).toContain("claude-code-20250219")
 			expect(CLAUDE_CODE_API_CONFIG.defaultBetas).toContain("oauth-2025-04-20")
 			expect(CLAUDE_CODE_API_CONFIG.defaultBetas).toContain("interleaved-thinking-2025-05-14")
 			expect(CLAUDE_CODE_API_CONFIG.defaultBetas).toContain("prompt-caching-scope-2026-01-05")
+			// Verify order matches official Claude Code
+			expect(CLAUDE_CODE_API_CONFIG.defaultBetas[0]).toBe("claude-code-20250219")
+			expect(CLAUDE_CODE_API_CONFIG.defaultBetas[1]).toBe("oauth-2025-04-20")
 		})
 
-		test("should have correct user agent (allows pre-release suffixes)", () => {
-			expect(CLAUDE_CODE_API_CONFIG.userAgent).toMatch(/^claude-cli/)
+		test("should have correct user agents (allows pre-release suffixes)", () => {
+			expect(CLAUDE_CODE_API_CONFIG.userAgents.messages).toMatch(/^claude-cli/)
+			expect(CLAUDE_CODE_API_CONFIG.userAgents.usage).toMatch(/^claude-code/)
 		})
 	})
 
@@ -95,7 +100,7 @@ describe("Claude Code Streaming Client", () => {
 						"Content-Type": "application/json",
 						"Anthropic-Version": CLAUDE_CODE_API_CONFIG.version,
 						Accept: "application/json",
-						"User-Agent": CLAUDE_CODE_API_CONFIG.userAgent,
+						"User-Agent": CLAUDE_CODE_API_CONFIG.userAgents.messages,
 					}),
 				}),
 			)

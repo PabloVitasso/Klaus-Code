@@ -243,20 +243,21 @@ function addMessageCacheBreakpoints(messages: Anthropic.Messages.MessageParam[])
 // API Configuration
 export const CLAUDE_CODE_API_CONFIG = {
 	endpoint: "https://api.anthropic.com/v1/messages",
+	usageEndpoint: "https://api.anthropic.com/api/oauth/usage",
 	version: "2023-06-01",
-	// Beta headers - matches official Claude Code CLI (claude-cli/2.1.34) exactly
-	// Official CLI uses: oauth-2025-04-20, interleaved-thinking-2025-05-14, prompt-caching-scope-2026-01-05
-	// Klaus Code specific betas (disabled to match official):
-	//   - "prompt-caching-2024-07-31" (old caching beta, replaced with prompt-caching-scope-2026-01-05)
-	//   - "fine-grained-tool-streaming-2025-05-14" (Klaus Code tool streaming, not used by official CLI)
-	//   - "claude-code-20250219" (unknown purpose, not used by official CLI)
+	// Beta headers for messages endpoint
+	// Order matches official Claude Code: claude-code-20250219, oauth-2025-04-20, interleaved-thinking-2025-05-14, prompt-caching-scope-2026-01-05
 	defaultBetas: [
+		"claude-code-20250219", // Claude Code specific features
 		"oauth-2025-04-20", // Required for OAuth authentication
 		"interleaved-thinking-2025-05-14", // Required for extended thinking
-		"prompt-caching-scope-2026-01-05", // New scope-based prompt caching (official CLI)
+		"prompt-caching-scope-2026-01-05", // Scope-based prompt caching
 	],
-	// Match Claude Code CLI user agent format
-	userAgent: `claude-cli/${Package.version} (external, cli)`,
+	// User agents for different API endpoints (matches official Claude Code CLI behavior)
+	userAgents: {
+		messages: `claude-cli/${Package.version} (external, cli)`, // For /v1/messages
+		usage: `claude-code/${Package.version}`, // For /api/oauth/usage
+	},
 	// Application identifier for Claude Code API
 	xApp: "vscode-extension",
 	// Stainless SDK headers (hardcoded to emulate official Claude Code CLI)
@@ -542,7 +543,7 @@ export async function* createStreamingMessage(options: StreamMessageOptions): As
 		Accept: "application/json",
 		Authorization: `Bearer ${accessToken}`,
 		"Content-Type": "application/json",
-		"User-Agent": CLAUDE_CODE_API_CONFIG.userAgent,
+		"User-Agent": CLAUDE_CODE_API_CONFIG.userAgents.messages, // Use messages User-Agent
 		"Anthropic-Version": CLAUDE_CODE_API_CONFIG.version,
 		"Anthropic-Beta": betas.join(","),
 		"x-app": CLAUDE_CODE_API_CONFIG.xApp,
@@ -840,61 +841,102 @@ function parseRateLimitHeaders(headers: Headers): ClaudeCodeRateLimitInfo {
 }
 
 /**
- * Fetch rate limit information by making a minimal API call
- * Uses a small request to get the response headers containing rate limit data
- * Matches official Claude Code CLI quota check request format
+ * Parse rate limit info from API response body (new format)
+ * API now returns quota data as JSON in response body instead of headers
  */
-export async function fetchRateLimitInfo(accessToken: string, email?: string): Promise<ClaudeCodeRateLimitInfo> {
-	// Import generateUserId for metadata
-	const { generateUserId } = await import("./oauth")
-
-	// Build minimal request body - use haiku for speed and lowest cost
-	// Match official CLI format: model, max_tokens, messages with "quota", and metadata with user_id
-	// Note: x-anthropic-billing-header is a reserved keyword and cannot be used in system prompt
-	const body: Record<string, unknown> = {
-		model: "claude-haiku-4-5-20251001", // Match official CLI model name
-		max_tokens: 1,
-		messages: [{ role: "user", content: "quota" }], // Match official CLI message content
-	}
-
-	// Add metadata with user_id if email is provided (matches official CLI)
-	if (email) {
-		body.metadata = {
-			user_id: generateUserId(email),
+function parseRateLimitBody(body: any, headers: Headers): ClaudeCodeRateLimitInfo {
+	// Helper to convert ISO timestamp to Unix epoch
+	const parseIsoTimestamp = (iso: string | null | undefined): number => {
+		if (!iso) return 0
+		try {
+			return Math.floor(new Date(iso).getTime() / 1000)
+		} catch {
+			return 0
 		}
 	}
 
-	// Build beta headers
-	const betas: string[] = [...CLAUDE_CODE_API_CONFIG.defaultBetas]
+	// Helper to convert percentage (0-100) to decimal (0.0-1.0)
+	const percentageToDecimal = (percentage: number | null | undefined): number => {
+		if (percentage === null || percentage === undefined) return 0
+		return percentage / 100
+	}
 
-	// Build headers matching Claude Code CLI exactly
+	// Helper to calculate first of next month at midnight UTC
+	const getFirstOfNextMonth = (): number => {
+		const now = new Date()
+		const firstOfNextMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1, 0, 0, 0, 0))
+		return Math.floor(firstOfNextMonth.getTime() / 1000)
+	}
+
+	return {
+		fiveHour: {
+			status: body.five_hour ? "allowed" : "unknown",
+			utilization: percentageToDecimal(body.five_hour?.utilization),
+			resetTime: parseIsoTimestamp(body.five_hour?.resets_at),
+		},
+		weekly: body.seven_day_sonnet
+			? {
+					status: "allowed",
+					utilization: percentageToDecimal(body.seven_day_sonnet?.utilization),
+					resetTime: parseIsoTimestamp(body.seven_day_sonnet?.resets_at),
+				}
+			: undefined,
+		weeklyUnified: body.seven_day
+			? {
+					status: "allowed",
+					utilization: percentageToDecimal(body.seven_day?.utilization),
+					resetTime: parseIsoTimestamp(body.seven_day?.resets_at),
+				}
+			: undefined,
+		representativeClaim: undefined, // Not provided in new format
+		overage: body.extra_usage
+			? {
+					status: body.extra_usage.is_enabled ? "allowed" : "disabled",
+					utilization: percentageToDecimal(body.extra_usage?.utilization),
+					resetTime: getFirstOfNextMonth(), // Resets on first of next month
+					disabledReason: body.extra_usage.is_enabled
+						? undefined
+						: "Extra usage is disabled for your account",
+					usedCredits: body.extra_usage.used_credits,
+					monthlyLimit: body.extra_usage.monthly_limit,
+				}
+			: undefined,
+		fallbackPercentage: undefined, // Not provided in new format
+		organizationId: headers.get("anthropic-organization-id") || undefined,
+		fetchedAt: Date.now(),
+	}
+}
+
+/**
+ * Fetch rate limit information from the usage endpoint
+ * Uses GET request to /api/oauth/usage to get quota data
+ * Matches official Claude Code CLI quota check format
+ */
+export async function fetchRateLimitInfo(accessToken: string, email?: string): Promise<ClaudeCodeRateLimitInfo> {
+	// Build headers for usage endpoint (uses claude-code User-Agent)
 	const headers: Record<string, string> = {
 		Accept: "application/json",
 		Authorization: `Bearer ${accessToken}`,
-		"Content-Type": "application/json",
-		"User-Agent": CLAUDE_CODE_API_CONFIG.userAgent,
+		"User-Agent": CLAUDE_CODE_API_CONFIG.userAgents.usage, // Use usage User-Agent
 		"Anthropic-Version": CLAUDE_CODE_API_CONFIG.version,
-		"Anthropic-Beta": betas.join(","),
+		"Anthropic-Beta": "oauth-2025-04-20", // Only OAuth beta needed for usage endpoint
 		"x-app": CLAUDE_CODE_API_CONFIG.xApp,
 		"anthropic-dangerous-direct-browser-access": "true",
 		"accept-language": "*",
 		"sec-fetch-mode": "cors",
 		"accept-encoding": "br, gzip, deflate",
-		// Add Stainless SDK headers to emulate official Claude Code CLI
-		...CLAUDE_CODE_API_CONFIG.stainlessHeaders,
 	}
 
-	// Make the request
-	const response = await fetch(CLAUDE_CODE_API_CONFIG.endpoint, {
-		method: "POST",
+	// Make GET request to usage endpoint
+	const response = await fetch(CLAUDE_CODE_API_CONFIG.usageEndpoint, {
+		method: "GET",
 		headers,
-		body: JSON.stringify(body),
 		signal: AbortSignal.timeout(30000),
 	})
 
 	if (!response.ok) {
 		const errorText = await response.text()
-		let errorMessage = `API request failed: ${response.status} ${response.statusText}`
+		let errorMessage = `Usage API request failed: ${response.status} ${response.statusText}`
 		try {
 			const errorJson = JSON.parse(errorText)
 			if (errorJson.error?.message) {
@@ -908,14 +950,10 @@ export async function fetchRateLimitInfo(accessToken: string, email?: string): P
 		throw new Error(errorMessage)
 	}
 
-	// Debug: Log all rate limit headers
-	console.log("[Claude Code] Rate limit headers:")
-	response.headers.forEach((value, key) => {
-		if (key.toLowerCase().includes("ratelimit") || key.toLowerCase().includes("anthropic")) {
-			console.log(`  ${key}: ${value}`)
-		}
-	})
+	// Parse response body for quota data
+	const responseBody = await response.json()
+	console.log("[Claude Code] Usage response body:", JSON.stringify(responseBody, null, 2))
 
-	// Parse rate limit headers from the response
-	return parseRateLimitHeaders(response.headers)
+	// Parse rate limit data from response body
+	return parseRateLimitBody(responseBody, response.headers)
 }
