@@ -254,12 +254,14 @@ export const CLAUDE_CODE_API_CONFIG = {
 		"prompt-caching-scope-2026-01-05", // Scope-based prompt caching (official CLI uses this, not 2024-07-31)
 	],
 	// User agents for different API endpoints (matches official Claude Code CLI behavior)
+	// Using official Claude Code CLI format for better API compatibility
 	userAgents: {
-		messages: `claude-cli/${Package.version} (external, cli)`, // For /v1/messages
+		messages: `claude-cli/2.1.39 (external, claude-vscode, agent-sdk/0.2.39)`, // For /v1/messages
 		usage: `claude-code/${Package.version}`, // For /api/oauth/usage
 	},
 	// Application identifier for Claude Code API
-	xApp: "vscode-extension",
+	// Using "cli" to match official Claude Code CLI requests
+	xApp: "cli",
 	// Stainless SDK headers (hardcoded to emulate official Claude Code CLI)
 	stainlessHeaders: {
 		"X-Stainless-Lang": "js",
