@@ -958,7 +958,7 @@ echo "=== Validating Claude Code Components ==="
 # 1. Backend schema validation
 echo -n "✓ Provider schema: "
 grep -q 'claudeCodeSchema' packages/types/src/provider-settings.ts && \
-grep -q 'claude-code.*claudeCodeSchema' packages/types/src/provider-settings.ts && \
+grep -q 'claudeCodeSchema.*claude-code' packages/types/src/provider-settings.ts && \
 echo "PASS" || echo "FAIL - missing from discriminated union"
 
 # 2. OAuth manager initialization
