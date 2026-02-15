@@ -6,6 +6,7 @@ import {
 	type RouterModels,
 	anthropicModels,
 	bedrockModels,
+	claudeCodeModels,
 	deepSeekModels,
 	moonshotModels,
 	minimaxModels,
@@ -331,11 +332,15 @@ function getSelectedModel({
 			const info = routerModels["vercel-ai-gateway"]?.[id]
 			return { id, info }
 		}
+		case "claude-code": {
+			const id = apiConfiguration.apiModelId ?? defaultModelId
+			const info = claudeCodeModels[id as keyof typeof claudeCodeModels]
+			return { id, info }
+		}
 		// case "anthropic":
 		// case "fake-ai":
-		// case "claude-code":
 		default: {
-			provider satisfies "anthropic" | "gemini-cli" | "fake-ai" | "claude-code"
+			provider satisfies "anthropic" | "gemini-cli" | "fake-ai"
 			const id = apiConfiguration.apiModelId ?? defaultModelId
 			const baseInfo = anthropicModels[id as keyof typeof anthropicModels]
 
