@@ -1014,6 +1014,60 @@ strings docs/2026.02.11-claude-code-flows.2.1.39-BIG.har | grep -E "(path|anthro
 - `src/integrations/claude-code/streaming-client.ts:250-256` - Removed `claude-code-20250219` from defaultBetas
 - `src/integrations/claude-code/streaming-client.ts:267` - Updated Stainless version to 0.73.0
 
+### 2026-02-15: Upstream Merge v3.47.3 - Model Selection and UI Integration Bugs
+
+**Issue**: Multiple Claude Code integration bugs after merging Roo Code v3.47.3
+
+**Root Causes Discovered**:
+
+1. **useSelectedModel.ts using wrong models object**:
+
+    - Bug: claude-code was falling through to default case, using `anthropicModels`
+    - Impact: Incorrect maxTokens (64000 instead of 32768) breaking tests
+    - Fix: Added explicit `case "claude-code"` using `claudeCodeModels`
+    - File: `webview-ui/src/components/ui/hooks/useSelectedModel.ts:325-329`
+
+2. **checkExistApiConfig missing claude-code**:
+
+    - Bug: claude-code not in list of providers that don't need API keys
+    - Impact: Test failure - expected `checkExistKey()` to return true for claude-code
+    - Fix: Added `"claude-code"` to providers array
+    - File: `src/shared/checkExistApiConfig.ts:9`
+
+3. **UI configuration completely missing**:
+
+    - Bug: claude-code not in PROVIDERS dropdown, MODELS_BY_PROVIDER, or PROVIDER_MODEL_CONFIG
+    - Impact: Provider not visible in settings UI
+    - Fix: Created reusable patch (`scripts/claude-code-ui-config.patch`) auto-applied by branding script
+
+4. **ClaudeCode component not integrated**:
+    - Bug: Component exists but not imported or rendered in ApiOptions.tsx
+    - Impact: Rate limit dashboard and OAuth buttons not showing
+    - Fix: Added import, useExtensionState destructuring, and conditional rendering
+
+**Files Updated**:
+
+- `webview-ui/src/components/ui/hooks/useSelectedModel.ts` - Added claude-code case
+- `src/shared/checkExistApiConfig.ts` - Added claude-code to providers list
+- `webview-ui/src/components/settings/constants.ts` - Added to PROVIDERS and MODELS_BY_PROVIDER
+- `webview-ui/src/components/settings/ApiOptions.tsx` - Full component integration
+- `scripts/claude-code-ui-config.patch` - Created reusable patch
+- `scripts/merge-upstream-fix-branding.sh` - Auto-applies UI patch (Step 6)
+- `DEVELOPMENT-ClaudeCodeConnector.md` - Updated validation checklist
+
+**Test Fixes**:
+
+- Updated 4 test files to use "Klaus Code" instead of "Roo Code" in header assertions
+- All 5294 tests passing, 365 test files
+
+**Prevention**:
+
+Updated post-merge validation checklist (lines 1096-1108) to automatically check:
+
+- Model selection uses `claudeCodeModels`
+- checkExistApiConfig includes claude-code
+- UI configuration present
+
 ### 2026-02-06: Upstream Merge and Usage Tracking
 
 ### Upstream Merge Process Validation
@@ -1038,71 +1092,22 @@ cd src && npx vitest run integrations/claude-code/__tests__/
 
 ### Post-Merge Validation Checklist
 
-**Run these commands after upstream merge to verify critical Claude Code components:**
+**Run validation script after upstream merge to verify critical Claude Code components:**
 
 ```bash
-#!/bin/bash
-# Copy-paste this entire block to validate Claude Code integration
-
-echo "=== Validating Claude Code Components ==="
-
-# 1. Backend schema validation
-echo -n "✓ Provider schema: "
-grep -q 'claudeCodeSchema' packages/types/src/provider-settings.ts && \
-grep -q 'claudeCodeSchema.*claude-code' packages/types/src/provider-settings.ts && \
-echo "PASS" || echo "FAIL - missing from discriminated union"
-
-# 2. Provider factory registration (CRITICAL!)
-echo -n "✓ Provider export: "
-grep -q 'export.*ClaudeCodeHandler' src/api/providers/index.ts && \
-echo "PASS" || echo "FAIL - not exported from providers/index.ts"
-
-echo -n "✓ Provider import: "
-grep -q 'ClaudeCodeHandler' src/api/index.ts | grep -q 'import' && \
-echo "PASS" || echo "FAIL - not imported in api/index.ts"
-
-echo -n "✓ Provider factory case: "
-grep -q 'case "claude-code"' src/api/index.ts && \
-echo "PASS" || echo "FAIL - missing switch case in buildApiHandler()"
-
-# 3. OAuth manager initialization
-echo -n "✓ OAuth init: "
-grep -q 'claudeCodeOAuthManager.initialize' src/extension.ts && \
-echo "PASS" || echo "FAIL - not initialized in extension.ts"
-
-# 4. Frontend UI components
-echo -n "✓ UI exports: "
-grep -q 'export.*ClaudeCode' webview-ui/src/components/settings/providers/index.ts && \
-echo "PASS" || echo "FAIL - missing from provider exports"
-
-echo -n "✓ UI dropdown: "
-grep -q 'claude-code.*Claude Code' webview-ui/src/components/settings/constants.ts && \
-echo "PASS" || echo "FAIL - missing from PROVIDERS array"
-
-echo -n "✓ UI config: "
-grep -q 'claude-code.*claudeCodeDefaultModelId' webview-ui/src/components/settings/ApiOptions.tsx && \
-echo "PASS" || echo "FAIL - missing from PROVIDER_MODEL_CONFIG"
-
-# 5. Activity bar branding
-echo -n "✓ Activity bar: "
-grep -q 'klaus-code-ActivityBar' src/package.json && \
-echo "PASS" || echo "FAIL - upstream overwrote with roo-cline IDs"
-
-# 6. Tool name prefix (critical)
-echo -n "✓ Tool prefix: "
-grep -q 'TOOL_NAME_PREFIX.*=.*"oc_"' src/integrations/claude-code/streaming-client.ts && \
-echo "PASS" || echo "FAIL - tool prefix constant missing"
-
-# 7. Type checks and tests
-echo -n "✓ Types: "
-pnpm check-types --filter @klaus-code/types &>/dev/null && echo "PASS" || echo "FAIL"
-
-echo -n "✓ Tests: "
-cd src && npx vitest run integrations/claude-code/__tests__/ &>/dev/null && \
-echo "PASS" || echo "FAIL"
-
-echo "=== Validation Complete ==="
+./scripts/validate-claude-code-integration.sh
 ```
+
+The script validates:
+
+- Backend schema and provider factory registration
+- OAuth manager initialization
+- Frontend UI components (dropdown, config)
+- Activity bar branding (klaus-code IDs)
+- Tool name prefix (`oc_` constant)
+- Model selection uses `claudeCodeModels` (not `anthropicModels`)
+- checkExistApiConfig includes claude-code
+- Type checks and Claude Code tests pass
 
 **If any checks fail:**
 
@@ -1120,6 +1125,15 @@ echo "=== Validation Complete ==="
 - UI config: Add to PROVIDER_MODEL_CONFIG in webview-ui/src/components/settings/ApiOptions.tsx
 - Activity bar: Run `scripts/merge-upstream-fix-branding.sh` to restore klaus-code IDs
 - Tool prefix: DO NOT MERGE - upstream broke critical OAuth workaround
+- Model selection: Add claude-code case to useSelectedModel.ts using `claudeCodeModels` (not `anthropicModels`)
+    ```typescript
+    case "claude-code": {
+        const id = apiConfiguration.apiModelId ?? defaultModelId
+        const info = claudeCodeModels[id as keyof typeof claudeCodeModels]
+        return { id, info }
+    }
+    ```
+- API config check: Add `"claude-code"` to providers array in src/shared/checkExistApiConfig.ts
 
 ### Model Addition Workflow
 
