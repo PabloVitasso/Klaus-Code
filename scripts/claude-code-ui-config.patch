@@ -1,0 +1,40 @@
+# Patch to restore Claude Code UI configuration after upstream merges
+# Apply with: git apply scripts/claude-code-ui-config.patch
+
+diff --git a/webview-ui/src/components/settings/ApiOptions.tsx b/webview-ui/src/components/settings/ApiOptions.tsx
+--- a/webview-ui/src/components/settings/ApiOptions.tsx
++++ b/webview-ui/src/components/settings/ApiOptions.tsx
+@@ -16,6 +16,7 @@ import {
+ 	openAiCodexDefaultModelId,
+ 	anthropicDefaultModelId,
++	claudeCodeDefaultModelId,
+ 	qwenCodeDefaultModelId,
+ 	geminiDefaultModelId,
+@@ -333,6 +334,7 @@ export const ApiOptions = memo(function ApiOptions() {
+ 				litellm: { field: "litellmModelId", default: litellmDefaultModelId },
+ 				anthropic: { field: "apiModelId", default: anthropicDefaultModelId },
++				"claude-code": { field: "apiModelId", default: claudeCodeDefaultModelId },
+ 				"openai-codex": { field: "apiModelId", default: openAiCodexDefaultModelId },
+ 				"qwen-code": { field: "apiModelId", default: qwenCodeDefaultModelId },
+
+diff --git a/webview-ui/src/components/settings/constants.ts b/webview-ui/src/components/settings/constants.ts
+--- a/webview-ui/src/components/settings/constants.ts
++++ b/webview-ui/src/components/settings/constants.ts
+@@ -4,6 +4,7 @@ import {
+ 	anthropicModels,
+ 	bedrockModels,
++	claudeCodeModels,
+ 	deepSeekModels,
+ 	moonshotModels,
+@@ -23,6 +24,7 @@ export const MODELS_BY_PROVIDER: Partial<Record<ProviderName, Record<string, Mo
+ 	anthropic: anthropicModels,
+ 	bedrock: bedrockModels,
++	"claude-code": claudeCodeModels,
+ 	deepseek: deepSeekModels,
+ 	moonshot: moonshotModels,
+@@ -42,6 +44,7 @@ export const PROVIDERS = [
+ 	{ value: "openrouter", label: "OpenRouter", proxy: false },
+ 	{ value: "anthropic", label: "Anthropic", proxy: false },
++	{ value: "claude-code", label: "Claude Code", proxy: false },
+ 	{ value: "gemini", label: "Google Gemini", proxy: false },
+ 	{ value: "deepseek", label: "DeepSeek", proxy: false },

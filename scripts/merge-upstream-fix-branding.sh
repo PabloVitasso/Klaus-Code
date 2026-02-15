@@ -202,9 +202,29 @@ if [ -f "src/package.json" ]; then
     fi
 fi
 
-# Step 6: Verify branding in key files
+# Step 6: Apply Claude Code UI configuration patch
 echo ""
-echo -e "${BLUE}[6/8] Verifying branding in key files...${NC}"
+echo -e "${BLUE}[6/9] Applying Claude Code UI configuration patch...${NC}"
+echo ""
+
+if [ -f "scripts/claude-code-ui-config.patch" ]; then
+    if git apply --check scripts/claude-code-ui-config.patch 2>/dev/null; then
+        if git apply scripts/claude-code-ui-config.patch 2>/dev/null; then
+            print_status "Applied UI configuration patch"
+            ((FIXED_FILES++))
+        else
+            print_warning "Patch already applied or conflicts detected - skipping"
+        fi
+    else
+        print_warning "UI configuration patch cannot be applied cleanly - may already be applied"
+    fi
+else
+    print_error "UI configuration patch file not found: scripts/claude-code-ui-config.patch"
+fi
+
+# Step 7: Verify branding in key files
+echo ""
+echo -e "${BLUE}[7/9] Verifying branding in key files...${NC}"
 echo ""
 
 # Check src/package.json has Klaus Code branding
@@ -239,9 +259,9 @@ if [ -f "packages/types/npm/package.metadata.json" ]; then
     fi
 fi
 
-# Step 7: Check for remaining roo-cline/roo-code references in source
+# Step 8: Check for remaining roo-cline/roo-code references in source
 echo ""
-echo -e "${BLUE}[7/8] Checking for remaining roo-cline references...${NC}"
+echo -e "${BLUE}[8/9] Checking for remaining roo-cline references...${NC}"
 echo ""
 
 REMAINING_CLINE=$(grep -r "roo-cline" src/package.json 2>/dev/null | grep -v "^Binary" | wc -l || echo "0")
@@ -255,9 +275,9 @@ else
     grep -n "roo-cline" src/package.json 2>/dev/null || true
 fi
 
-# Step 8: Check for remaining @roo-code references in source
+# Step 9: Check for remaining @roo-code references in source
 echo ""
-echo -e "${BLUE}[8/8] Checking for remaining @roo-code references...${NC}"
+echo -e "${BLUE}[9/9] Checking for remaining @roo-code references...${NC}"
 echo ""
 
 REMAINING=$(grep -r "@roo-code/" src/ packages/ apps/ webview-ui/ --include="*.ts" --include="*.tsx" --include="*.js" --include="*.json" --exclude-dir=node_modules --exclude-dir=.next --exclude-dir=dist 2>/dev/null | grep -v "^Binary" | wc -l || echo "0")
