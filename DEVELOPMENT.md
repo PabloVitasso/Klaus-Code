@@ -485,6 +485,7 @@ git checkout --theirs src/api/providers/*.ts
 git add -A
 pnpm install  # Required for new dependencies
 pnpm check-types
+./scripts/validate-claude-code-integration.sh  # Validate Claude Code integration
 ```
 
 **3. Test and Fix**
@@ -518,6 +519,7 @@ Klaus Code preserved:
 
 Testing:
 - check-types: [x] PASSED
+- Claude Code validation: [x] PASSED (./scripts/validate-claude-code-integration.sh)
 - Claude Code tests (N/N): [x] PASSED"
 
 git checkout main && git merge merge-upstream-$(date +%Y%m%d) --no-edit
@@ -688,6 +690,10 @@ git checkout --ours src/api/providers/claude-code.ts
 **4. Verify Critical Features**
 
 ```bash
+# Run automated validation script (recommended)
+./scripts/validate-claude-code-integration.sh
+
+# Or manually verify:
 # Check Claude Code provider files exist
 ls src/integrations/claude-code/
 ls src/api/providers/claude-code.ts
@@ -988,6 +994,57 @@ Klaus Code includes helper scripts to automate common development tasks:
 - To verify Klaus Code-specific features are intact after a merge
 
 **Safe to run multiple times** - the script is idempotent and won't break anything if run repeatedly.
+
+### Claude Code Integration Validation Script
+
+**Location**: `scripts/validate-claude-code-integration.sh`
+
+**Purpose**: Validates that the Claude Code provider integration remains intact after merging from Roo Code upstream. Runs critical checks for OAuth, provider registration, and tool prefixing.
+
+**Usage**:
+
+```bash
+./scripts/validate-claude-code-integration.sh
+```
+
+**What it validates**:
+
+1. **Backend schema** - `claudeCodeSchema` in provider settings discriminated union
+2. **Provider factory** - `ClaudeCodeHandler` exported and registered in switch case
+3. **OAuth initialization** - `claudeCodeOAuthManager.initialize()` in extension.ts
+4. **Frontend UI** - Claude Code in provider exports, dropdown, and model config
+5. **Activity bar** - Klaus Code branding in package.json (not overwritten by upstream)
+6. **Tool prefix** - `TOOL_NAME_PREFIX = "oc_"` in streaming-client.ts
+7. **Model selection** - Uses `claudeCodeModels` instead of `anthropicModels`
+8. **API config** - `claude-code` included in provider checks
+
+**When to use**:
+
+- After merging upstream changes from Roo Code
+- Before running full test suite to catch integration issues early
+- When Claude Code OAuth or tool use is not working after a merge
+- As part of the Quick Merge Process step 3: Test after merge
+
+**Example output**:
+
+```
+=== Validating Claude Code Components ===
+✓ Provider schema: PASS
+✓ Provider export: PASS
+✓ Provider import: PASS
+✓ Provider factory case: PASS
+✓ OAuth init: PASS
+✓ UI exports: PASS
+✓ UI dropdown: PASS
+✓ UI config: PASS
+✓ Activity bar: PASS
+✓ Tool prefix: PASS
+✓ Model selection: PASS
+✓ API config check: PASS
+✓ Types: PASS
+✓ Tests: PASS
+=== Validation Complete ===
+```
 
 ## Troubleshooting
 
