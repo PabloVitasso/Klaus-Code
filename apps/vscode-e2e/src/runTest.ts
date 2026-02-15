@@ -36,7 +36,20 @@ async function main() {
 		await runTests({
 			extensionDevelopmentPath,
 			extensionTestsPath,
-			launchArgs: [testWorkspace],
+			launchArgs: [
+				testWorkspace,
+				// CI/headless optimized flags
+				"--disable-extensions",
+				"--disable-gpu",
+				"--disable-dev-shm-usage",
+				"--no-sandbox",
+				// Reduce resource usage
+				"--disable-updates",
+				"--disable-sync",
+				"--disable-crash-reporter",
+				// Telemetry opt-out
+				"--disable-telemetry",
+			],
 			extensionTestsEnv,
 			version: process.env.VSCODE_VERSION || "1.101.2",
 		})

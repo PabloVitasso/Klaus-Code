@@ -7,6 +7,7 @@
 		"format": "prettier --write src",
 		"test:ci": "pnpm -w bundle && pnpm --filter @klaus-code/vscode-webview build && pnpm test:run",
 		"test:run": "rimraf out && tsc -p tsconfig.json && npx dotenvx run -f .env.local -- node ./out/runTest.js",
+		"test:xvfb": "xvfb-run -a pnpm test:run",
 		"clean": "rimraf out .turbo"
 	},
 	"devDependencies": {

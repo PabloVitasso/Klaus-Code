@@ -9,7 +9,7 @@ import { RooCodeEventName, type ClineMessage } from "@klaus-code/types"
 import { waitFor, sleep } from "../utils"
 import { setDefaultSuiteTimeout } from "../test-utils"
 
-suite.skip("Klaus Code use_mcp_tool Tool", function () {
+suite("Klaus Code use_mcp_tool Tool", function () {
 	setDefaultSuiteTimeout(this)
 
 	let tempDir: string
@@ -557,7 +557,7 @@ suite.skip("Klaus Code use_mcp_tool Tool", function () {
 		}
 	})
 
-	test.skip("Should request MCP filesystem directory_tree tool and complete successfully", async function () {
+	test("Should request MCP filesystem directory_tree tool and complete successfully", async function () {
 		const api = globalThis.api
 		const messages: ClineMessage[] = []
 		let _taskCompleted = false
@@ -696,7 +696,7 @@ suite.skip("Klaus Code use_mcp_tool Tool", function () {
 		}
 	})
 
-	test.skip("Should handle MCP server error gracefully and complete task", async function () {
+	test("Should handle MCP server error gracefully and complete task", async function () {
 		// Skipped: This test requires interactive approval for non-whitelisted MCP servers
 		// which cannot be automated in the test environment
 		const api = globalThis.api
@@ -767,7 +767,7 @@ suite.skip("Klaus Code use_mcp_tool Tool", function () {
 		}
 	})
 
-	test.skip("Should validate MCP request message format and complete successfully", async function () {
+	test("Should validate MCP request message format and complete successfully", async function () {
 		const api = globalThis.api
 		const messages: ClineMessage[] = []
 		let _taskCompleted = false

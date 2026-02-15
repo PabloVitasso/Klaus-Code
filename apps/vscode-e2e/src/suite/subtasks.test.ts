@@ -4,7 +4,7 @@ import { RooCodeEventName, type ClineMessage } from "@klaus-code/types"
 
 import { sleep, waitFor, waitUntilCompleted } from "./utils"
 
-suite.skip("Klaus Code Subtasks", () => {
+suite("Klaus Code Subtasks", () => {
 	test("Should handle subtask cancellation and resumption correctly", async () => {
 		const api = globalThis.api
 

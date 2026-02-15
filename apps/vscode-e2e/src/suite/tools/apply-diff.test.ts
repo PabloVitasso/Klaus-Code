@@ -8,7 +8,7 @@ import { RooCodeEventName, type ClineMessage } from "@klaus-code/types"
 import { waitFor, sleep } from "../utils"
 import { setDefaultSuiteTimeout } from "../test-utils"
 
-suite.skip("Klaus Code apply_diff Tool", function () {
+suite("Klaus Code apply_diff Tool", function () {
 	setDefaultSuiteTimeout(this)
 
 	let workspaceDir: string

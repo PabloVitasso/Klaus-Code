@@ -8,10 +8,11 @@ import type { RooCodeAPI } from "@klaus-code/types"
 import { waitFor } from "./utils"
 
 export async function run() {
-	const extension = vscode.extensions.getExtension<RooCodeAPI>("RooVeterinaryInc.roo-cline")
+	const extensionId = process.env.VSCODE_EXTENSION_ID || "KlausCode.klaus-code"
+	const extension = vscode.extensions.getExtension<RooCodeAPI>(extensionId)
 
 	if (!extension) {
-		throw new Error("Extension not found")
+		throw new Error(`Extension not found: ${extensionId}`)
 	}
 
 	const api = extension.isActive ? extension.exports : await extension.activate()
