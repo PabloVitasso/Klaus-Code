@@ -320,8 +320,7 @@
 		},
 		"release": {
 			"heading": "Wat is er nieuw:",
-			"claudeOpus": "Claude Opus 4.6: Nu beschikbaar bij alle providers—Roo Code Router, Anthropic, AWS Bedrock, Google Vertex en OpenRouter—waardoor Anthropic's meest krachtige model naar je voorkeursplatform wordt gebracht.",
-			"gptCodex": "GPT-5.3-Codex: OpenAI's nieuwste coderingsmodel wordt nu ondersteund in de OpenAI - ChatGPT provider, met geavanceerde code-generatie en begrip."
+			"smartCodeFolding": "Smart Code Folding: Contextcondensatie behoudt nu een lichte kaart van je bestanden—functiehandtekeningen, klasdeclaraties en typedefinities. Dit biedt betere continuïteit na condensatie en slimmere bewerkingen bij verwijzing naar vorig werk."
 		},
 		"cloudAgents": {
 			"heading": "Nieuw in de Cloud:",
@@ -363,44 +362,6 @@
 		"total": "Totale kosten: ${{cost}}",
 		"includesSubtasks": "Inclusief kosten van subtaken"
 	},
-	"browser": {
-		"session": "Browsersessie",
-		"active": "Actief",
-		"rooWantsToUse": "Roo wil de browser gebruiken",
-		"consoleLogs": "Console-logboeken",
-		"noNewLogs": "(Geen nieuwe logboeken)",
-		"screenshot": "Browserschermopname",
-		"cursor": "cursor",
-		"navigation": {
-			"step": "Stap {{current}} van {{total}}",
-			"previous": "Vorige",
-			"next": "Volgende"
-		},
-		"sessionStarted": "Browsersessie gestart",
-		"actions": {
-			"title": "Browseractie: ",
-			"launched": "Browser gestart",
-			"launch": "Browser starten op {{url}}",
-			"clicked": "Geklikt ({{coordinate}})",
-			"click": "Klik ({{coordinate}})",
-			"typed": "Getypt: {{text}}",
-			"type": "Typ \"{{text}}\"",
-			"pressed": "Ingedrukt: {{key}}",
-			"press": "Druk op {{key}}",
-			"scrolledDown": "Naar beneden gescrolld",
-			"scrollDown": "Scroll naar beneden",
-			"scrolledUp": "Naar boven gescrolld",
-			"scrollUp": "Scroll naar boven",
-			"hovered": "Zweefde ({{coordinate}})",
-			"hover": "Zweven ({{coordinate}})",
-			"resized": "Grootte gewijzigd naar: {{size}}",
-			"resize": "Grootte wijzigen naar {{size}}",
-			"screenshotSaved": "Schermopname opgeslagen",
-			"screenshot": "Schermopname opslaan naar {{path}}",
-			"closed": "Browser gesloten",
-			"close": "Browser sluiten"
-		}
-	},
 	"codeblock": {
 		"tooltips": {
 			"expand": "Codeblok uitvouwen",
@@ -408,7 +369,6 @@
 			"copy_code": "Code kopiëren"
 		}
 	},
-	"systemPromptWarning": "WAARSCHUWING: Aangepaste systeemprompt actief. Dit kan de functionaliteit ernstig verstoren en onvoorspelbaar gedrag veroorzaken.",
 	"profileViolationWarning": "Het huidige profiel is niet compatibel met de instellingen van uw organisatie",
 	"shellIntegration": {
 		"title": "Waarschuwing commando-uitvoering",

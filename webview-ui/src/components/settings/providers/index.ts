@@ -1,5 +1,4 @@
 export { Anthropic } from "./Anthropic"
-export { Azure } from "./Azure"
 export { Bedrock } from "./Bedrock"
 export { ClaudeCode } from "./ClaudeCode"
 export { DeepSeek } from "./DeepSeek"

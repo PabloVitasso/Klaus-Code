@@ -93,6 +93,8 @@ export class JsonEventEmitter {
 	private previousContent = new Map<number, string>()
 	// Track the completion result content
 	private completionResultContent: string | undefined
+	// The first non-partial "say:text" per task is the echoed user prompt.
+	private expectPromptEchoAsUser = true
 
 	constructor(options: JsonEventEmitterOptions) {
 		this.mode = options.mode
@@ -227,7 +229,14 @@ export class JsonEventEmitter {
 	private handleSayMessage(msg: ClineMessage, contentToSend: string | null, isDone: boolean): void {
 		switch (msg.say) {
 			case "text":
-				this.emitEvent(this.buildTextEvent("assistant", msg.ts, contentToSend, isDone))
+				if (this.expectPromptEchoAsUser) {
+					this.emitEvent(this.buildTextEvent("user", msg.ts, contentToSend, isDone))
+					if (isDone) {
+						this.expectPromptEchoAsUser = false
+					}
+				} else {
+					this.emitEvent(this.buildTextEvent("assistant", msg.ts, contentToSend, isDone))
+				}
 				break
 
 			case "reasoning":
@@ -257,15 +266,6 @@ export class JsonEventEmitter {
 				}
 				break
 			}
-
-			case "browser_action":
-			case "browser_action_result":
-				this.emitEvent({
-					type: "tool_result",
-					subtype: "browser",
-					tool_result: { name: "browser_action", output: msg.text },
-				})
-				break
 
 			case "mcp_server_response":
 				this.emitEvent({
@@ -336,15 +336,6 @@ export class JsonEventEmitter {
 				})
 				break
 
-			case "browser_action_launch":
-				this.emitEvent({
-					type: "tool_use",
-					id: msg.ts,
-					subtype: "browser",
-					tool_use: { name: "browser_action", input: { raw: msg.text } },
-				})
-				break
-
 			case "use_mcp_server":
 				this.emitEvent({
 					type: "tool_use",
@@ -396,6 +387,9 @@ export class JsonEventEmitter {
 		if (this.mode === "json") {
 			this.outputFinalResult(event.success, resultContent)
 		}
+
+		// Next task in the same process starts with a new echoed prompt.
+		this.expectPromptEchoAsUser = true
 	}
 
 	/**
@@ -460,5 +454,6 @@ export class JsonEventEmitter {
 		this.seenMessageIds.clear()
 		this.previousContent.clear()
 		this.completionResultContent = undefined
+		this.expectPromptEchoAsUser = true
 	}
 }

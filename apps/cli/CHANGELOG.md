@@ -1,9 +1,31 @@
 # Changelog
 
-All notable changes to the `@klaus-code/cli` package will be documented in this file.
+All notable changes to the `@roo-code/cli` package will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [0.0.54] - 2026-02-15
+
+### Added
+
+- **Stdin Stream Mode**: New `stdin-prompt-stream` mode that reads prompts from stdin, allowing batch processing and piping multiple tasks. Each line of stdin is processed as a separate prompt with streaming JSON output. See [`stdin-prompt-stream.ts`](src/ui/stdin-prompt-stream.ts) for implementation.
+
+### Fixed
+
+- Fixed JSON emitter state not being cleared between tasks in stdin-prompt-stream mode
+- Fixed inconsistent user role for prompt echo partials in stream-json mode
+
+## [0.0.53] - 2026-02-12
+
+### Changed
+
+- **Auto-Approve by Default**: The CLI now auto-approves all actions (tools, commands, browser, MCP) by default. Followup questions auto-select the first suggestion after a 60-second timeout.
+- **New `--require-approval` Flag**: Replaced `-y`/`--yes`/`--dangerously-skip-permissions` flags with a new `-a, --require-approval` flag for users who want manual approval prompts before actions execute.
+
+### Fixed
+
+- Spamming the escape key to cancel a running task no longer crashes the cli.
 
 ## [0.0.52] - 2026-02-09
 
@@ -67,13 +89,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Skip onboarding flow when a provider is explicitly specified via `--provider` flag or saved in settings
-- Unified permission flags: Combined `-y`, `--yes`, and `--dangerously-skip-permissions` into a single option for Claude Code-like CLI compatibility
-- Improved Klaus Code Router authentication flow and error messaging
+- Unified permission flags: Combined approval-skipping flags into a single option for Claude Code-like CLI compatibility
+- Improved Roo Code Router authentication flow and error messaging
 
 ### Fixed
 
 - Removed unnecessary timeout that could cause issues with long-running tasks
-- Fixed authentication token validation for Klaus Code Router provider
+- Fixed authentication token validation for Roo Code Router provider
 
 ## [0.0.45] - 2026-01-08
 

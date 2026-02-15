@@ -69,13 +69,11 @@ import { combineCommandSequences } from "../../shared/combineCommandSequences"
 import { t } from "../../i18n"
 import { getApiMetrics, hasTokenUsageChanged, hasToolUsageChanged } from "../../shared/getApiMetrics"
 import { ClineAskResponse } from "../../shared/WebviewMessage"
-import { defaultModeSlug, getModeBySlug, getGroupName } from "../../shared/modes"
+import { defaultModeSlug, getModeBySlug } from "../../shared/modes"
 import { DiffStrategy, type ToolUse, type ToolParamName, toolParamNames } from "../../shared/tools"
 import { getModelMaxOutputTokens } from "../../shared/api"
 
 // services
-import { UrlContentFetcher } from "../../services/browser/UrlContentFetcher"
-import { BrowserSession } from "../../services/browser/BrowserSession"
 import { McpHub } from "../../services/mcp/McpHub"
 import { McpServerManager } from "../../services/mcp/McpServerManager"
 import { RepoPerTaskCheckpointService } from "../../services/checkpoints"
@@ -301,11 +299,7 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 	rooIgnoreController?: RooIgnoreController
 	rooProtectedController?: RooProtectedController
 	fileContextTracker: FileContextTracker
-	urlContentFetcher: UrlContentFetcher
 	terminalProcess?: RooTerminalProcess
-
-	// Computer User
-	browserSession: BrowserSession
 
 	// Editing
 	diffViewProvider: DiffViewProvider
@@ -391,127 +385,6 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 		this.userMessageContent.push(toolResult)
 		return true
 	}
-
-	/**
-	 * Handle a tool call streaming event (tool_call_start, tool_call_delta, or tool_call_end).
-	 * This is used both for processing events from NativeToolCallParser (legacy providers)
-	 * and for direct AI SDK events (DeepSeek, Moonshot, etc.).
-	 *
-	 * @param event - The tool call event to process
-	 */
-	private handleToolCallEvent(
-		event:
-			| { type: "tool_call_start"; id: string; name: string }
-			| { type: "tool_call_delta"; id: string; delta: string }
-			| { type: "tool_call_end"; id: string },
-	): void {
-		if (event.type === "tool_call_start") {
-			// Guard against duplicate tool_call_start events for the same tool ID.
-			// This can occur due to stream retry, reconnection, or API quirks.
-			// Without this check, duplicate tool_use blocks with the same ID would
-			// be added to assistantMessageContent, causing API 400 errors:
-			// "tool_use ids must be unique"
-			if (this.streamingToolCallIndices.has(event.id)) {
-				console.warn(
-					`[Task#${this.taskId}] Ignoring duplicate tool_call_start for ID: ${event.id} (tool: ${event.name})`,
-				)
-				return
-			}
-
-			// Initialize streaming in NativeToolCallParser
-			NativeToolCallParser.startStreamingToolCall(event.id, event.name as ToolName)
-
-			// Before adding a new tool, finalize any preceding text block
-			// This prevents the text block from blocking tool presentation
-			const lastBlock = this.assistantMessageContent[this.assistantMessageContent.length - 1]
-			if (lastBlock?.type === "text" && lastBlock.partial) {
-				lastBlock.partial = false
-			}
-
-			// Track the index where this tool will be stored
-			const toolUseIndex = this.assistantMessageContent.length
-			this.streamingToolCallIndices.set(event.id, toolUseIndex)
-
-			// Create initial partial tool use
-			const partialToolUse: ToolUse = {
-				type: "tool_use",
-				name: event.name as ToolName,
-				params: {},
-				partial: true,
-			}
-
-			// Store the ID for native protocol
-			;(partialToolUse as any).id = event.id
-
-			// Add to content and present
-			this.assistantMessageContent.push(partialToolUse)
-			this.userMessageContentReady = false
-			presentAssistantMessage(this)
-		} else if (event.type === "tool_call_delta") {
-			// Process chunk using streaming JSON parser
-			const partialToolUse = NativeToolCallParser.processStreamingChunk(event.id, event.delta)
-
-			if (partialToolUse) {
-				// Get the index for this tool call
-				const toolUseIndex = this.streamingToolCallIndices.get(event.id)
-				if (toolUseIndex !== undefined) {
-					// Store the ID for native protocol
-					;(partialToolUse as any).id = event.id
-
-					// Update the existing tool use with new partial data
-					this.assistantMessageContent[toolUseIndex] = partialToolUse
-
-					// Present updated tool use
-					presentAssistantMessage(this)
-				}
-			}
-		} else if (event.type === "tool_call_end") {
-			// Finalize the streaming tool call
-			const finalToolUse = NativeToolCallParser.finalizeStreamingToolCall(event.id)
-
-			// Get the index for this tool call
-			const toolUseIndex = this.streamingToolCallIndices.get(event.id)
-
-			if (finalToolUse) {
-				// Store the tool call ID
-				;(finalToolUse as any).id = event.id
-
-				// Get the index and replace partial with final
-				if (toolUseIndex !== undefined) {
-					this.assistantMessageContent[toolUseIndex] = finalToolUse
-				}
-
-				// Clean up tracking
-				this.streamingToolCallIndices.delete(event.id)
-
-				// Mark that we have new content to process
-				this.userMessageContentReady = false
-
-				// Present the finalized tool call
-				presentAssistantMessage(this)
-			} else if (toolUseIndex !== undefined) {
-				// finalizeStreamingToolCall returned null (malformed JSON or missing args)
-				// Mark the tool as non-partial so it's presented as complete, but execution
-				// will be short-circuited in presentAssistantMessage with a structured tool_result.
-				const existingToolUse = this.assistantMessageContent[toolUseIndex]
-				if (existingToolUse && existingToolUse.type === "tool_use") {
-					existingToolUse.partial = false
-					// Ensure it has the ID for native protocol
-					;(existingToolUse as any).id = event.id
-				}
-
-				// Clean up tracking
-				this.streamingToolCallIndices.delete(event.id)
-
-				// Mark that we have new content to process
-				this.userMessageContentReady = false
-
-				// Present the tool call - validation will handle missing params
-				presentAssistantMessage(this)
-			}
-		}
-	}
-
 	didRejectTool = false
 	didAlreadyUseTool = false
 	didToolFailInCurrentTurn = false
@@ -618,29 +491,6 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 		this.api = buildApiHandler(this.apiConfiguration)
 		this.autoApprovalHandler = new AutoApprovalHandler()
 
-		this.urlContentFetcher = new UrlContentFetcher(provider.context)
-		this.browserSession = new BrowserSession(provider.context, (isActive: boolean) => {
-			// Add a message to indicate browser session status change
-			this.say("browser_session_status", isActive ? "Browser session opened" : "Browser session closed")
-			// Broadcast to browser panel
-			this.broadcastBrowserSessionUpdate()
-
-			// When a browser session becomes active, automatically open/reveal the Browser Session tab
-			if (isActive) {
-				try {
-					// Lazy-load to avoid circular imports at module load time
-					const { BrowserSessionPanelManager } = require("../webview/BrowserSessionPanelManager")
-					const providerRef = this.providerRef.deref()
-					if (providerRef) {
-						BrowserSessionPanelManager.getInstance(providerRef)
-							.show()
-							.catch(() => {})
-					}
-				} catch (err) {
-					console.error("[Task] Failed to auto-open Browser Session panel:", err)
-				}
-			}
-		})
 		this.consecutiveMistakeLimit = consecutiveMistakeLimit ?? DEFAULT_CONSECUTIVE_MISTAKE_LIMIT
 		this.providerRef = new WeakRef(provider)
 		this.globalStoragePath = provider.context.globalStorageUri.fsPath
@@ -1024,7 +874,6 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 			getThoughtSignature?: () => string | undefined
 			getSummary?: () => any[] | undefined
 			getReasoningDetails?: () => any[] | undefined
-			getRedactedThinkingBlocks?: () => Array<{ type: "redacted_thinking"; data: string }> | undefined
 		}
 
 		if (message.role === "assistant") {
@@ -1078,15 +927,6 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 					messageWithTs.content = [thinkingBlock, ...messageWithTs.content]
 				} else if (!messageWithTs.content) {
 					messageWithTs.content = [thinkingBlock]
-				}
-
-				// Also insert any redacted_thinking blocks after the thinking block.
-				// Anthropic returns these when safety filters trigger on reasoning content.
-				// They must be passed back verbatim for proper reasoning continuity.
-				const redactedBlocks = handler.getRedactedThinkingBlocks?.()
-				if (redactedBlocks && Array.isArray(messageWithTs.content)) {
-					// Insert after the thinking block (index 1, right after thinking at index 0)
-					messageWithTs.content.splice(1, 0, ...redactedBlocks)
 				}
 			} else if (reasoning && !reasoningDetails) {
 				// Other providers (non-Anthropic): Store as generic reasoning block
@@ -1593,12 +1433,7 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 
 			if (message) {
 				// Check if this is a tool approval ask that needs to be handled.
-				if (
-					type === "tool" ||
-					type === "command" ||
-					type === "browser_action_launch" ||
-					type === "use_mcp_server"
-				) {
+				if (type === "tool" || type === "command" || type === "use_mcp_server") {
 					// For tool approvals, we need to approve first, then send
 					// the message if there's text/images.
 					this.handleWebviewAskResponse("yesButtonClicked", message.text, message.images)
@@ -1625,12 +1460,7 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 					if (message) {
 						// If this is a tool approval ask, we need to approve first (yesButtonClicked)
 						// and include any queued text/images.
-						if (
-							type === "tool" ||
-							type === "command" ||
-							type === "browser_action_launch" ||
-							type === "use_mcp_server"
-						) {
+						if (type === "tool" || type === "command" || type === "use_mcp_server") {
 							this.handleWebviewAskResponse("yesButtonClicked", message.text, message.images)
 						} else {
 							this.handleWebviewAskResponse("messageResponse", message.text, message.images)
@@ -1828,7 +1658,6 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 				customModes: state?.customModes,
 				experiments: state?.experiments,
 				apiConfiguration,
-				browserToolEnabled: state?.browserToolEnabled ?? true,
 				disabledTools: state?.disabledTools,
 				modelInfo,
 				includeAllToolsWithRestrictions: false,
@@ -2021,11 +1850,6 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 				contextCondense,
 				contextTruncation,
 			})
-		}
-
-		// Broadcast browser session updates to panel when browser-related messages are added
-		if (type === "browser_action" || type === "browser_action_result" || type === "browser_session_status") {
-			this.broadcastBrowserSessionUpdate()
 		}
 	}
 
@@ -2520,28 +2344,6 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 			})
 
 		try {
-			this.urlContentFetcher.closeBrowser()
-		} catch (error) {
-			console.error("Error closing URL content fetcher browser:", error)
-		}
-
-		try {
-			this.browserSession.closeBrowser()
-		} catch (error) {
-			console.error("Error closing browser session:", error)
-		}
-		// Also close the Browser Session panel when the task is disposed
-		try {
-			const provider = this.providerRef.deref()
-			if (provider) {
-				const { BrowserSessionPanelManager } = require("../webview/BrowserSessionPanelManager")
-				BrowserSessionPanelManager.getInstance(provider).dispose()
-			}
-		} catch (error) {
-			console.error("Error closing browser session panel:", error)
-		}
-
-		try {
 			if (this.rooIgnoreController) {
 				this.rooIgnoreController.dispose()
 				this.rooIgnoreController = undefined
@@ -2794,7 +2596,6 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 			const { content: parsedUserContent, mode: slashCommandMode } = await processUserContentMentions({
 				userContent: currentUserContent,
 				cwd: this.cwd,
-				urlContentFetcher: this.urlContentFetcher,
 				fileContextTracker: this.fileContextTracker,
 				rooIgnoreController: this.rooIgnoreController,
 				showRooIgnoredFiles,
@@ -3062,18 +2863,118 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 								})
 
 								for (const event of events) {
-									this.handleToolCallEvent(event)
+									if (event.type === "tool_call_start") {
+										// Guard against duplicate tool_call_start events for the same tool ID.
+										// This can occur due to stream retry, reconnection, or API quirks.
+										// Without this check, duplicate tool_use blocks with the same ID would
+										// be added to assistantMessageContent, causing API 400 errors:
+										// "tool_use ids must be unique"
+										if (this.streamingToolCallIndices.has(event.id)) {
+											console.warn(
+												`[Task#${this.taskId}] Ignoring duplicate tool_call_start for ID: ${event.id} (tool: ${event.name})`,
+											)
+											continue
+										}
+
+										// Initialize streaming in NativeToolCallParser
+										NativeToolCallParser.startStreamingToolCall(event.id, event.name as ToolName)
+
+										// Before adding a new tool, finalize any preceding text block
+										// This prevents the text block from blocking tool presentation
+										const lastBlock =
+											this.assistantMessageContent[this.assistantMessageContent.length - 1]
+										if (lastBlock?.type === "text" && lastBlock.partial) {
+											lastBlock.partial = false
+										}
+
+										// Track the index where this tool will be stored
+										const toolUseIndex = this.assistantMessageContent.length
+										this.streamingToolCallIndices.set(event.id, toolUseIndex)
+
+										// Create initial partial tool use
+										const partialToolUse: ToolUse = {
+											type: "tool_use",
+											name: event.name as ToolName,
+											params: {},
+											partial: true,
+										}
+
+										// Store the ID for native protocol
+										;(partialToolUse as any).id = event.id
+
+										// Add to content and present
+										this.assistantMessageContent.push(partialToolUse)
+										this.userMessageContentReady = false
+										presentAssistantMessage(this)
+									} else if (event.type === "tool_call_delta") {
+										// Process chunk using streaming JSON parser
+										const partialToolUse = NativeToolCallParser.processStreamingChunk(
+											event.id,
+											event.delta,
+										)
+
+										if (partialToolUse) {
+											// Get the index for this tool call
+											const toolUseIndex = this.streamingToolCallIndices.get(event.id)
+											if (toolUseIndex !== undefined) {
+												// Store the ID for native protocol
+												;(partialToolUse as any).id = event.id
+
+												// Update the existing tool use with new partial data
+												this.assistantMessageContent[toolUseIndex] = partialToolUse
+
+												// Present updated tool use
+												presentAssistantMessage(this)
+											}
+										}
+									} else if (event.type === "tool_call_end") {
+										// Finalize the streaming tool call
+										const finalToolUse = NativeToolCallParser.finalizeStreamingToolCall(event.id)
+
+										// Get the index for this tool call
+										const toolUseIndex = this.streamingToolCallIndices.get(event.id)
+
+										if (finalToolUse) {
+											// Store the tool call ID
+											;(finalToolUse as any).id = event.id
+
+											// Get the index and replace partial with final
+											if (toolUseIndex !== undefined) {
+												this.assistantMessageContent[toolUseIndex] = finalToolUse
+											}
+
+											// Clean up tracking
+											this.streamingToolCallIndices.delete(event.id)
+
+											// Mark that we have new content to process
+											this.userMessageContentReady = false
+
+											// Present the finalized tool call
+											presentAssistantMessage(this)
+										} else if (toolUseIndex !== undefined) {
+											// finalizeStreamingToolCall returned null (malformed JSON or missing args)
+											// Mark the tool as non-partial so it's presented as complete, but execution
+											// will be short-circuited in presentAssistantMessage with a structured tool_result.
+											const existingToolUse = this.assistantMessageContent[toolUseIndex]
+											if (existingToolUse && existingToolUse.type === "tool_use") {
+												existingToolUse.partial = false
+												// Ensure it has the ID for native protocol
+												;(existingToolUse as any).id = event.id
+											}
+
+											// Clean up tracking
+											this.streamingToolCallIndices.delete(event.id)
+
+											// Mark that we have new content to process
+											this.userMessageContentReady = false
+
+											// Present the tool call - validation will handle missing params
+											presentAssistantMessage(this)
+										}
+									}
 								}
 								break
 							}
-
-							// Direct handlers for AI SDK tool streaming events (DeepSeek, Moonshot, etc.)
-							// These providers emit tool_call_start/delta/end directly instead of tool_call_partial
-							case "tool_call_start":
-							case "tool_call_delta":
-							case "tool_call_end":
-								this.handleToolCallEvent(chunk)
-								break
 
 							case "tool_call": {
 								// Legacy: Handle complete tool calls (for backward compatibility)
@@ -3340,17 +3241,9 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 						const cancelReason: ClineApiReqCancelReason = this.abort ? "user_cancelled" : "streaming_failed"
 
 						const rawErrorMessage = error.message ?? JSON.stringify(serializeError(error), null, 2)
-
-						// Check auto-retry state BEFORE abortStream so we can suppress the error
-						// message on the api_req_started row when backoffAndAnnounce will display it instead.
-						const stateForBackoff = await this.providerRef.deref()?.getState()
-						const willAutoRetry = !this.abort && stateForBackoff?.autoApprovalEnabled
-
 						const streamingFailedMessage = this.abort
 							? undefined
-							: willAutoRetry
-								? undefined // backoffAndAnnounce will display the error with retry countdown
-								: `${t("common:interruption.streamTerminatedByProvider")}: ${rawErrorMessage}`
+							: `${t("common:interruption.streamTerminatedByProvider")}: ${rawErrorMessage}`
 
 						// Clean up partial state
 						await abortStream(cancelReason, streamingFailedMessage)
@@ -3363,10 +3256,11 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 							// Stream failed - log the error and retry with the same content
 							// The existing rate limiting will prevent rapid retries
 							console.error(
-								`[Task#${this.taskId}.${this.instanceId}] Stream failed, will retry: ${rawErrorMessage}`,
+								`[Task#${this.taskId}.${this.instanceId}] Stream failed, will retry: ${streamingFailedMessage}`,
 							)
 
 							// Apply exponential backoff similar to first-chunk errors when auto-resubmit is enabled
+							const stateForBackoff = await this.providerRef.deref()?.getState()
 							if (stateForBackoff?.autoApprovalEnabled) {
 								await this.backoffAndAnnounce(currentItem.retryAttempt ?? 0, error)
 
@@ -3587,7 +3481,7 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 								const input = toolUse.nativeArgs || toolUse.params
 
 								// Use originalName (alias) if present for API history consistency.
-								// When tool aliases are used (e.g., "edit_file" -> "search_and_replace"),
+								// When tool aliases are used (e.g., "edit_file" -> "search_and_replace" -> "edit" (current canonical name)),
 								// we want the alias name in the conversation history to match what the model
 								// was told the tool was named, preventing confusion in multi-turn conversations.
 								const toolNameForHistory = toolUse.originalName ?? toolUse.name
@@ -3866,13 +3760,11 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 		const state = await this.providerRef.deref()?.getState()
 
 		const {
-			browserViewportSize,
 			mode,
 			customModes,
 			customModePrompts,
 			customInstructions,
 			experiments,
-			browserToolEnabled,
 			language,
 			apiConfiguration,
 			enableSubfolderRules,
@@ -3885,24 +3777,14 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 				throw new Error("Provider not available")
 			}
 
-			// Align browser tool enablement with generateSystemPrompt: require model image support,
-			// mode to include the browser group, and the user setting to be enabled.
-			const modeConfig = getModeBySlug(mode ?? defaultModeSlug, customModes)
-			const modeSupportsBrowser = modeConfig?.groups.some((group) => getGroupName(group) === "browser") ?? false
-
-			// Check if model supports browser capability (images)
 			const modelInfo = this.api.getModel().info
-			const modelSupportsBrowser = (modelInfo as any)?.supportsImages === true
-
-			const canUseBrowserTool = modelSupportsBrowser && modeSupportsBrowser && (browserToolEnabled ?? true)
 
 			return SYSTEM_PROMPT(
 				provider.context,
 				this.cwd,
-				canUseBrowserTool,
+				false,
 				mcpHub,
 				this.diffStrategy,
-				browserViewportSize ?? "900x600",
 				mode ?? defaultModeSlug,
 				customModePrompts,
 				customModes,
@@ -3912,7 +3794,6 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 				rooIgnoreInstructions,
 				{
 					todoListEnabled: apiConfiguration?.todoListEnabled ?? true,
-					browserToolEnabled: browserToolEnabled ?? true,
 					useAgentRules:
 						vscode.workspace.getConfiguration(Package.name).get<boolean>("useAgentRules") ?? true,
 					enableSubfolderRules: enableSubfolderRules ?? false,
@@ -3973,7 +3854,6 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 				customModes: state?.customModes,
 				experiments: state?.experiments,
 				apiConfiguration,
-				browserToolEnabled: state?.browserToolEnabled ?? true,
 				disabledTools: state?.disabledTools,
 				modelInfo,
 				includeAllToolsWithRestrictions: false,
@@ -4188,7 +4068,6 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 						customModes: state?.customModes,
 						experiments: state?.experiments,
 						apiConfiguration,
-						browserToolEnabled: state?.browserToolEnabled ?? true,
 						disabledTools: state?.disabledTools,
 						modelInfo,
 						includeAllToolsWithRestrictions: false,
@@ -4353,7 +4232,6 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 				customModes: state?.customModes,
 				experiments: state?.experiments,
 				apiConfiguration,
-				browserToolEnabled: state?.browserToolEnabled ?? true,
 				disabledTools: state?.disabledTools,
 				modelInfo,
 				includeAllToolsWithRestrictions: supportsAllowedFunctionNames,
@@ -4663,15 +4541,14 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 
 					continue
 				} else if (hasPlainTextReasoning) {
-					// Preserve plain-text reasoning blocks for:
-					// - models explicitly opting in via preserveReasoning
-					// - AI SDK providers (provider packages decide what to include in the native request)
-					const shouldPreserveForApi =
-						this.api.getModel().info.preserveReasoning === true || this.api.isAiSdkProvider()
-
+					// Check if the model's preserveReasoning flag is set
+					// If true, include the reasoning block in API requests
+					// If false/undefined, strip it out (stored for history only, not sent back to API)
+					const shouldPreserveForApi = this.api.getModel().info.preserveReasoning === true
 					let assistantContent: Anthropic.Messages.MessageParam["content"]
 
 					if (shouldPreserveForApi) {
+						// Include reasoning block in the content sent to API
 						assistantContent = contentArray
 					} else {
 						// Strip reasoning out - stored for history only, not sent back to API
@@ -4810,41 +4687,6 @@ export class Task extends EventEmitter<TaskEvents> implements TaskLike {
 			this._messageManager = new MessageManager(this)
 		}
 		return this._messageManager
-	}
-
-	/**
-	 * Broadcast browser session updates to the browser panel (if open)
-	 */
-	private broadcastBrowserSessionUpdate(): void {
-		const provider = this.providerRef.deref()
-		if (!provider) {
-			return
-		}
-
-		try {
-			const { BrowserSessionPanelManager } = require("../webview/BrowserSessionPanelManager")
-			const panelManager = BrowserSessionPanelManager.getInstance(provider)
-
-			// Get browser session messages
-			const browserSessionStartIndex = this.clineMessages.findIndex(
-				(m) =>
-					m.ask === "browser_action_launch" ||
-					(m.say === "browser_session_status" && m.text?.includes("opened")),
-			)
-
-			const browserSessionMessages =
-				browserSessionStartIndex !== -1 ? this.clineMessages.slice(browserSessionStartIndex) : []
-
-			const isBrowserSessionActive = this.browserSession?.isSessionActive() ?? false
-
-			// Update the panel asynchronously
-			panelManager.updateBrowserSession(browserSessionMessages, isBrowserSessionActive).catch((error: Error) => {
-				console.error("Failed to broadcast browser session update:", error)
-			})
-		} catch (error) {
-			// Silently fail if panel manager is not available
-			console.debug("Browser panel not available for update:", error)
-		}
 	}
 
 	/**

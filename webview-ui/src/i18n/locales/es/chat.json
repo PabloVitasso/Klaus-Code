@@ -347,8 +347,7 @@
 		},
 		"release": {
 			"heading": "Qué hay de nuevo:",
-			"claudeOpus": "Claude Opus 4.6: Ahora disponible en todos los proveedores—Roo Code Router, Anthropic, AWS Bedrock, Google Vertex y OpenRouter—trayendo el modelo más capaz de Anthropic a tu plataforma preferida.",
-			"gptCodex": "GPT-5.3-Codex: El último modelo de codificación de OpenAI ahora es compatible con el proveedor OpenAI - ChatGPT, ofreciendo generación de código de vanguardia y comprensión."
+			"smartCodeFolding": "Plegado de código inteligente: La condensación de contexto ahora preserva un mapa ligero de tus archivos—firmas de función, declaraciones de clase y definiciones de tipo. Esto proporciona mejor continuidad después de condensar y ediciones más inteligentes al referenciar trabajo anterior."
 		},
 		"cloudAgents": {
 			"heading": "Novedades en la Nube:",
@@ -363,44 +362,6 @@
 		"total": "Costo total: ${{cost}}",
 		"includesSubtasks": "Incluye costos de subtareas"
 	},
-	"browser": {
-		"session": "Sesión del navegador",
-		"active": "Activo",
-		"rooWantsToUse": "Roo quiere usar el navegador",
-		"consoleLogs": "Registros de la consola",
-		"noNewLogs": "(No hay nuevos registros)",
-		"screenshot": "Captura de pantalla del navegador",
-		"cursor": "cursor",
-		"navigation": {
-			"step": "Paso {{current}} de {{total}}",
-			"previous": "Anterior",
-			"next": "Siguiente"
-		},
-		"sessionStarted": "Sesión de navegador iniciada",
-		"actions": {
-			"title": "Acción del navegador: ",
-			"launched": "Navegador iniciado",
-			"launch": "Iniciar navegador en {{url}}",
-			"clicked": "Clic en: {{coordinate}}",
-			"click": "Clic ({{coordinate}})",
-			"typed": "Escrito: {{text}}",
-			"type": "Escribir \"{{text}}\"",
-			"pressed": "Pulsado: {{key}}",
-			"press": "Pulsar {{key}}",
-			"scrolledDown": "Desplazado hacia abajo",
-			"scrollDown": "Desplazar hacia abajo",
-			"scrolledUp": "Desplazado hacia arriba",
-			"scrollUp": "Desplazar hacia arriba",
-			"hovered": "Flotado en: {{coordinate}}",
-			"hover": "Flotar ({{coordinate}})",
-			"resized": "Tamaño cambiado a: {{size}}",
-			"resize": "Cambiar tamaño a {{size}}",
-			"screenshotSaved": "Captura de pantalla guardada",
-			"screenshot": "Guardar captura de pantalla en {{path}}",
-			"closed": "Navegador cerrado",
-			"close": "Cerrar navegador"
-		}
-	},
 	"codeblock": {
 		"tooltips": {
 			"expand": "Expandir bloque de código",
@@ -408,7 +369,6 @@
 			"copy_code": "Copiar código"
 		}
 	},
-	"systemPromptWarning": "ADVERTENCIA: Anulación de instrucciones del sistema personalizada activa. Esto puede romper gravemente la funcionalidad y causar un comportamiento impredecible.",
 	"profileViolationWarning": "El perfil actual no es compatible con la configuración de tu organización",
 	"shellIntegration": {
 		"title": "Advertencia de ejecución de comandos",

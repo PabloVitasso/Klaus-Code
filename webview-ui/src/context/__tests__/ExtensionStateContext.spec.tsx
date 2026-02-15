@@ -217,8 +217,8 @@ describe("mergeExtensionState", () => {
 			remoteControlEnabled: false,
 			taskSyncEnabled: false,
 			featureRoomoteControlEnabled: false,
-			isBrowserSessionActive: false,
 			checkpointTimeout: DEFAULT_CHECKPOINT_TIMEOUT_SECONDS, // Add the checkpoint timeout property
+			maxReadFileLine: -1,
 		}
 
 		const prevState: ExtensionState = {
@@ -288,8 +288,8 @@ describe("mergeExtensionState", () => {
 			remoteControlEnabled: false,
 			taskSyncEnabled: false,
 			featureRoomoteControlEnabled: false,
-			isBrowserSessionActive: false,
 			checkpointTimeout: DEFAULT_CHECKPOINT_TIMEOUT_SECONDS,
+			maxReadFileLine: -1,
 		}
 
 		const makeMessage = (ts: number, text: string): ClineMessage =>

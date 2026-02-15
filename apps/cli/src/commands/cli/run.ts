@@ -1,5 +1,6 @@
 import fs from "fs"
 import path from "path"
+import { createInterface } from "readline"
 import { fileURLToPath } from "url"
 
 import { createElement } from "react"
@@ -29,6 +30,24 @@ import { VERSION } from "@/lib/utils/version.js"
 import { ExtensionHost, ExtensionHostOptions } from "@/agent/index.js"
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
+
+async function* readPromptsFromStdinLines(): AsyncGenerator<string> {
+	const lineReader = createInterface({
+		input: process.stdin,
+		crlfDelay: Infinity,
+		terminal: false,
+	})
+
+	try {
+		for await (const line of lineReader) {
+			if (line.trim()) {
+				yield line
+			}
+		}
+	} finally {
+		lineReader.close()
+	}
+}
 
 export async function run(promptArg: string | undefined, flagOptions: FlagOptions) {
 	setLogger({
@@ -65,8 +84,10 @@ export async function run(promptArg: string | undefined, flagOptions: FlagOption
 		flagOptions.reasoningEffort || settings.reasoningEffort || DEFAULT_FLAGS.reasoningEffort
 	const effectiveProvider = flagOptions.provider ?? settings.provider ?? (rooToken ? "roo" : "openrouter")
 	const effectiveWorkspacePath = flagOptions.workspace ? path.resolve(flagOptions.workspace) : process.cwd()
-	const effectiveDangerouslySkipPermissions =
-		flagOptions.yes || flagOptions.dangerouslySkipPermissions || settings.dangerouslySkipPermissions || false
+	const legacyRequireApprovalFromSettings =
+		settings.requireApproval ??
+		(settings.dangerouslySkipPermissions === undefined ? undefined : !settings.dangerouslySkipPermissions)
+	const effectiveRequireApproval = flagOptions.requireApproval || legacyRequireApprovalFromSettings || false
 	const effectiveExitOnComplete = flagOptions.print || flagOptions.oneshot || settings.oneshot || false
 
 	const extensionHostOptions: ExtensionHostOptions = {
@@ -77,7 +98,7 @@ export async function run(promptArg: string | undefined, flagOptions: FlagOption
 		model: effectiveModel,
 		workspacePath: effectiveWorkspacePath,
 		extensionPath: path.resolve(flagOptions.extension || getDefaultExtensionPath(__dirname)),
-		nonInteractive: effectiveDangerouslySkipPermissions,
+		nonInteractive: !effectiveRequireApproval,
 		exitOnError: flagOptions.exitOnError,
 		ephemeral: flagOptions.ephemeral,
 		debug: flagOptions.debug,
@@ -183,15 +204,42 @@ export async function run(promptArg: string | undefined, flagOptions: FlagOption
 	// Output format only works with --print mode
 	if (outputFormat !== "text" && !flagOptions.print && isTuiSupported) {
 		console.error("[CLI] Error: --output-format requires --print mode")
-		console.error("[CLI] Usage: roo <prompt> --print --output-format json")
+		console.error("[CLI] Usage: roo --print --output-format json")
 		process.exit(1)
 	}
 
+	if (flagOptions.stdinPromptStream && !flagOptions.print) {
+		console.error("[CLI] Error: --stdin-prompt-stream requires --print mode")
+		console.error("[CLI] Usage: roo --print --stdin-prompt-stream [options]")
+		process.exit(1)
+	}
+
+	if (flagOptions.stdinPromptStream && process.stdin.isTTY) {
+		console.error("[CLI] Error: --stdin-prompt-stream requires piped stdin")
+		console.error("[CLI] Example: printf '1+1=?\\n10!=?\\n' | roo --print --stdin-prompt-stream [options]")
+		process.exit(1)
+	}
+
+	if (flagOptions.stdinPromptStream && prompt) {
+		console.error("[CLI] Error: cannot use positional prompt or --prompt-file with --stdin-prompt-stream")
+		console.error("[CLI] Usage: roo --print --stdin-prompt-stream [options]")
+		process.exit(1)
+	}
+
+	const useStdinPromptStream = flagOptions.stdinPromptStream
+
 	if (!isTuiEnabled) {
-		if (!prompt) {
-			console.error("[CLI] Error: prompt is required in print mode")
-			console.error("[CLI] Usage: roo <prompt> --print [options]")
-			console.error("[CLI] Run without -p for interactive mode")
+		if (!prompt && !useStdinPromptStream) {
+			if (flagOptions.print) {
+				console.error("[CLI] Error: no prompt provided")
+				console.error("[CLI] Usage: roo --print [options] <prompt>")
+				console.error("[CLI] For stdin control mode: roo --print --stdin-prompt-stream [options]")
+			} else {
+				console.error("[CLI] Error: prompt is required in non-interactive mode")
+				console.error("[CLI] Usage: roo <prompt> [options]")
+				console.error("[CLI] Run without -p for interactive mode")
+			}
+
 			process.exit(1)
 		}
 
@@ -256,7 +304,22 @@ export async function run(promptArg: string | undefined, flagOptions: FlagOption
 				jsonEmitter.attachToClient(host.client)
 			}
 
-			await host.runTask(prompt!)
+			if (useStdinPromptStream) {
+				let hasReceivedStdinPrompt = false
+
+				for await (const stdinPrompt of readPromptsFromStdinLines()) {
+					hasReceivedStdinPrompt = true
+					await host.runTask(stdinPrompt)
+					jsonEmitter?.clear()
+				}
+
+				if (!hasReceivedStdinPrompt) {
+					throw new Error("no prompt provided via stdin")
+				}
+			} else {
+				await host.runTask(prompt!)
+			}
+
 			jsonEmitter?.detach()
 			await host.dispose()
 			process.exit(0)
