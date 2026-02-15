@@ -8,7 +8,6 @@ import { ApiStream } from "./transform/stream"
 import {
 	AnthropicHandler,
 	AwsBedrockHandler,
-	AzureHandler,
 	ClaudeCodeHandler,
 	OpenRouterHandler,
 	VertexHandler,
@@ -123,8 +122,6 @@ export function buildApiHandler(configuration: ProviderSettings): ApiHandler {
 			return new AnthropicHandler(options)
 		case "claude-code":
 			return new ClaudeCodeHandler(options)
-		case "azure":
-			return new AzureHandler(options)
 		case "openrouter":
 			return new OpenRouterHandler(options)
 		case "bedrock":

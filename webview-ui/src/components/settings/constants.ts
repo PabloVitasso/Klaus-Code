@@ -2,9 +2,7 @@ import {
 	type ProviderName,
 	type ModelInfo,
 	anthropicModels,
-	azureModels,
 	bedrockModels,
-	claudeCodeModels,
 	deepSeekModels,
 	moonshotModels,
 	geminiModels,
@@ -23,9 +21,7 @@ import {
 
 export const MODELS_BY_PROVIDER: Partial<Record<ProviderName, Record<string, ModelInfo>>> = {
 	anthropic: anthropicModels,
-	azure: azureModels,
 	bedrock: bedrockModels,
-	"claude-code": claudeCodeModels,
 	deepseek: deepSeekModels,
 	moonshot: moonshotModels,
 	gemini: geminiModels,
@@ -45,8 +41,6 @@ export const MODELS_BY_PROVIDER: Partial<Record<ProviderName, Record<string, Mod
 export const PROVIDERS = [
 	{ value: "openrouter", label: "OpenRouter", proxy: false },
 	{ value: "anthropic", label: "Anthropic", proxy: false },
-	{ value: "claude-code", label: "Claude Code", proxy: false },
-	{ value: "azure", label: "Azure AI Foundry", proxy: false },
 	{ value: "gemini", label: "Google Gemini", proxy: false },
 	{ value: "deepseek", label: "DeepSeek", proxy: false },
 	{ value: "moonshot", label: "Moonshot", proxy: false },

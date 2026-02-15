@@ -20,6 +20,7 @@ import type { GitCommit } from "./git.js"
 import type { McpServer } from "./mcp.js"
 import type { ModelRecord, RouterModels } from "./model.js"
 import type { OpenAiCodexRateLimitInfo } from "./providers/openai-codex-rate-limits.js"
+import type { ClaudeCodeRateLimitInfo } from "./providers/claude-code.js"
 import type { SkillMetadata } from "./skills.js"
 import type { WorktreeIncludeStatus } from "./worktree.js"
 
@@ -93,6 +94,7 @@ export interface ExtensionMessage {
 		| "modes"
 		| "taskWithAggregatedCosts"
 		| "openAiCodexRateLimits"
+		| "claudeCodeRateLimits"
 		// Worktree response types
 		| "worktreeList"
 		| "worktreeResult"
@@ -243,6 +245,12 @@ export interface OpenAiCodexRateLimitsMessage {
 	error?: string
 }
 
+export interface ClaudeCodeRateLimitsMessage {
+	type: "claudeCodeRateLimits"
+	values?: ClaudeCodeRateLimitInfo
+	error?: string
+}
+
 export type ExtensionState = Pick<
 	GlobalSettings,
 	| "currentApiConfigName"
@@ -370,6 +378,7 @@ export type ExtensionState = Pick<
 	taskSyncEnabled: boolean
 	featureRoomoteControlEnabled: boolean
 	openAiCodexIsAuthenticated?: boolean
+	claudeCodeIsAuthenticated?: boolean
 	debug?: boolean
 
 	/**
@@ -504,6 +513,8 @@ export interface WebviewMessage {
 		| "rooCloudManualUrl"
 		| "openAiCodexSignIn"
 		| "openAiCodexSignOut"
+		| "claudeCodeSignIn"
+		| "claudeCodeSignOut"
 		| "switchOrganization"
 		| "condenseTaskContextRequest"
 		| "requestIndexingStatus"
@@ -552,6 +563,7 @@ export interface WebviewMessage {
 		| "openDebugUiHistory"
 		| "downloadErrorDiagnostics"
 		| "requestOpenAiCodexRateLimits"
+		| "requestClaudeCodeRateLimits"
 		| "refreshCustomTools"
 		| "requestModes"
 		| "switchMode"
@@ -685,6 +697,10 @@ export interface WebviewMessage {
 
 export interface RequestOpenAiCodexRateLimitsMessage {
 	type: "requestOpenAiCodexRateLimits"
+}
+
+export interface RequestClaudeCodeRateLimitsMessage {
+	type: "requestClaudeCodeRateLimits"
 }
 
 export const checkoutDiffPayloadSchema = z.object({

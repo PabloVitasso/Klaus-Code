@@ -23,9 +23,7 @@ import {
 	mainlandZAiModels,
 	fireworksModels,
 	basetenModels,
-	azureModels,
 	qwenCodeModels,
-	claudeCodeModels,
 	litellmDefaultModelInfo,
 	lMStudioDefaultModelInfo,
 	BEDROCK_1M_CONTEXT_MODEL_IDS,
@@ -333,25 +331,10 @@ function getSelectedModel({
 			const info = routerModels["vercel-ai-gateway"]?.[id]
 			return { id, info }
 		}
-		case "azure": {
-			// apiModelId holds the base model selection (from model picker).
-			// azureDeploymentName is the deployment name sent to the Azure API.
-			// Only use apiModelId if it matches a known Azure model (prevents stale values from other providers).
-			const explicitModelId = apiConfiguration.apiModelId
-			const matchesAzureModel = explicitModelId && azureModels[explicitModelId as keyof typeof azureModels]
-			const id = matchesAzureModel ? explicitModelId : defaultModelId
-			const info = azureModels[id as keyof typeof azureModels]
-			return { id, info: info || undefined }
-		}
-		case "claude-code": {
-			const id = apiConfiguration.apiModelId ?? defaultModelId
-			const info = claudeCodeModels[id as keyof typeof claudeCodeModels]
-			return { id, info: info || undefined }
-		}
 		// case "anthropic":
 		// case "fake-ai":
 		default: {
-			provider satisfies "anthropic" | "claude-code" | "gemini-cli" | "fake-ai"
+			provider satisfies "anthropic" | "gemini-cli" | "fake-ai"
 			const id = apiConfiguration.apiModelId ?? defaultModelId
 			const baseInfo = anthropicModels[id as keyof typeof anthropicModels]
 
