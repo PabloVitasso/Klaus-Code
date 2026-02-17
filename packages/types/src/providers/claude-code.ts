@@ -47,40 +47,31 @@ const DATE_SUFFIX_PATTERN = /-\d{8}$/
 // Models that work with Claude Code OAuth tokens
 // See: https://docs.anthropic.com/en/docs/claude-code
 // NOTE: Claude Code is subscription-based with no per-token cost - pricing fields are 0
+// Current as of claude-code CLI v2.1.45 (2026-02-17)
 export const claudeCodeModels = {
-	"claude-haiku-4-5": {
+	// Full versioned ID required by API - no reasoning/thinking for haiku
+	"claude-haiku-4-5-20251001": {
 		maxTokens: 32768,
 		contextWindow: 200_000,
 		supportsImages: true,
 		supportsPromptCache: true,
-		supportsReasoningEffort: ["disable", "low", "medium", "high"],
-		reasoningEffort: "medium",
 		description: "Claude Haiku 4.5",
 	},
-	"claude-sonnet-4-5": {
+	// Adaptive thinking with effort levels (low/medium/high)
+	"claude-sonnet-4-6": {
 		maxTokens: 32768,
 		contextWindow: 200_000,
 		supportsImages: true,
 		supportsPromptCache: true,
 		supportsReasoningEffort: ["disable", "low", "medium", "high"],
-		reasoningEffort: "medium",
-		description: "Claude Sonnet 4.5",
-	},
-	"claude-opus-4-5": {
-		maxTokens: 32768,
-		contextWindow: 200_000,
-		supportsImages: true,
-		supportsPromptCache: true,
-		supportsReasoningEffort: ["disable", "low", "medium", "high"],
-		reasoningEffort: "medium",
-		description: "Claude Opus 4.5",
+		reasoningEffort: "low",
+		description: "Claude Sonnet 4.6",
 	},
 	"claude-opus-4-6": {
-		maxTokens: 128_000, // 128K max tokens (4x more than Opus 4.5)
-		contextWindow: 200_000, // 200K base context
+		maxTokens: 128_000,
+		contextWindow: 200_000,
 		supportsImages: true,
 		supportsPromptCache: true,
-		supportsReasoningBudget: true,
 		supportsReasoningEffort: ["disable", "low", "medium", "high"],
 		reasoningEffort: "medium",
 		description: "Claude Opus 4.6",
@@ -89,7 +80,7 @@ export const claudeCodeModels = {
 
 // Claude Code - Only models that work with Claude Code OAuth tokens
 export type ClaudeCodeModelId = keyof typeof claudeCodeModels
-export const claudeCodeDefaultModelId: ClaudeCodeModelId = "claude-sonnet-4-5"
+export const claudeCodeDefaultModelId: ClaudeCodeModelId = "claude-sonnet-4-6"
 
 /**
  * Model family patterns for normalization.
@@ -100,12 +91,14 @@ export const claudeCodeDefaultModelId: ClaudeCodeModelId = "claude-sonnet-4-5"
 const MODEL_FAMILY_PATTERNS: Array<{ pattern: RegExp; target: ClaudeCodeModelId }> = [
 	// Opus 4.6 (specific version) → claude-opus-4-6
 	{ pattern: /opus.*4[._-]?6/i, target: "claude-opus-4-6" },
-	// Opus models (any other version) → claude-opus-4-5
-	{ pattern: /opus/i, target: "claude-opus-4-5" },
-	// Haiku models (any version) → claude-haiku-4-5
-	{ pattern: /haiku/i, target: "claude-haiku-4-5" },
-	// Sonnet models (any version) → claude-sonnet-4-5
-	{ pattern: /sonnet/i, target: "claude-sonnet-4-5" },
+	// Opus models (any other version) → claude-opus-4-6 (fallback to latest)
+	{ pattern: /opus/i, target: "claude-opus-4-6" },
+	// Haiku models (any version) → claude-haiku-4-5-20251001
+	{ pattern: /haiku/i, target: "claude-haiku-4-5-20251001" },
+	// Sonnet 4.6 specifically → claude-sonnet-4-6
+	{ pattern: /sonnet.*4[._-]?6/i, target: "claude-sonnet-4-6" },
+	// Sonnet models (any other version) → claude-sonnet-4-6 (fallback to latest)
+	{ pattern: /sonnet/i, target: "claude-sonnet-4-6" },
 ]
 
 /**
@@ -113,18 +106,17 @@ const MODEL_FAMILY_PATTERNS: Array<{ pattern: RegExp; target: ClaudeCodeModelId 
  *
  * This function handles backward compatibility for legacy model names
  * that may include version numbers or date suffixes. It maps:
- * - claude-sonnet-4-5-20250929, claude-sonnet-4-20250514, claude-3-7-sonnet-20250219, claude-3-5-sonnet-20241022 → claude-sonnet-4-5
- * - claude-opus-4-6-20260205 → claude-opus-4-6
- * - claude-opus-4-5-20251101, claude-opus-4-1-20250805, claude-opus-4-20250514 → claude-opus-4-5
- * - claude-haiku-4-5-20251001, claude-3-5-haiku-20241022 → claude-haiku-4-5
+ * - claude-sonnet-4-6, claude-sonnet-4-5-*, claude-3-7-sonnet-*, etc. → claude-sonnet-4-6
+ * - claude-opus-4-6 → claude-opus-4-6
+ * - claude-haiku-4-5-20251001, claude-haiku-4-5, claude-3-5-haiku-* → claude-haiku-4-5-20251001
  *
  * @param modelId - The model ID to normalize (may be a legacy format)
- * @returns A valid ClaudeCodeModelId, or the original ID if already valid
+ * @returns A valid ClaudeCodeModelId, or the default if no match
  *
  * @example
- * normalizeClaudeCodeModelId("claude-sonnet-4-5") // returns "claude-sonnet-4-5"
- * normalizeClaudeCodeModelId("claude-3-5-sonnet-20241022") // returns "claude-sonnet-4-5"
- * normalizeClaudeCodeModelId("claude-opus-4-1-20250805") // returns "claude-opus-4-5"
+ * normalizeClaudeCodeModelId("claude-sonnet-4-6") // returns "claude-sonnet-4-6"
+ * normalizeClaudeCodeModelId("claude-3-5-sonnet-20241022") // returns "claude-sonnet-4-6"
+ * normalizeClaudeCodeModelId("claude-haiku-4-5-20251001") // returns "claude-haiku-4-5-20251001"
  */
 export function normalizeClaudeCodeModelId(modelId: string): ClaudeCodeModelId {
 	// If already a valid model ID, return as-is
@@ -153,19 +145,20 @@ export function normalizeClaudeCodeModelId(modelId: string): ClaudeCodeModelId {
 }
 
 /**
- * Reasoning effort configuration for Claude Code thinking mode.
- * Maps reasoning effort level to budget_tokens for the thinking process.
+ * Reasoning effort levels for Claude Code adaptive thinking mode (v2.1.45+).
+ * Models claude-sonnet-4-6 and claude-opus-4-6 use adaptive thinking with
+ * output_config.effort instead of budget_tokens.
  *
- * Note: With interleaved thinking (enabled via beta header), budget_tokens
- * can exceed max_tokens as the token limit becomes the entire context window.
- * The max_tokens is drawn from the model's maxTokens definition.
+ * API request body:
+ *   thinking: { type: "adaptive" }
+ *   output_config: { effort: "low" | "medium" | "high" }  (omit to use model default)
  *
- * @see https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking#interleaved-thinking
+ * "disable" → send thinking: {type: "adaptive"} with no output_config
  */
 export const claudeCodeReasoningConfig = {
-	low: { budgetTokens: 16_000 },
-	medium: { budgetTokens: 32_000 },
-	high: { budgetTokens: 64_000 },
+	low: { effort: "low" as const },
+	medium: { effort: "medium" as const },
+	high: { effort: "high" as const },
 } as const
 
 export type ClaudeCodeReasoningLevel = keyof typeof claudeCodeReasoningConfig

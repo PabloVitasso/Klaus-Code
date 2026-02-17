@@ -424,14 +424,14 @@ describe("useSelectedModel", () => {
 
 			const apiConfiguration: ProviderSettings = {
 				apiProvider: "claude-code",
-				apiModelId: "claude-sonnet-4-5", // Use valid claude-code model ID
+				apiModelId: "claude-sonnet-4-6", // Use valid claude-code model ID
 			}
 
 			const wrapper = createWrapper()
 			const { result } = renderHook(() => useSelectedModel(apiConfiguration), { wrapper })
 
 			expect(result.current.provider).toBe("claude-code")
-			expect(result.current.id).toBe("claude-sonnet-4-5")
+			expect(result.current.id).toBe("claude-sonnet-4-6")
 			expect(result.current.info).toBeDefined()
 			expect(result.current.info?.supportsImages).toBe(true) // Claude Code now supports images
 			expect(result.current.info?.supportsPromptCache).toBe(true) // Claude Code now supports prompt cache
@@ -467,7 +467,7 @@ describe("useSelectedModel", () => {
 			const { result } = renderHook(() => useSelectedModel(apiConfiguration), { wrapper })
 
 			expect(result.current.provider).toBe("claude-code")
-			expect(result.current.id).toBe("claude-sonnet-4-5") // Default model
+			expect(result.current.id).toBe("claude-sonnet-4-6") // Default model
 			expect(result.current.info).toBeDefined()
 			expect(result.current.info?.supportsImages).toBe(true) // Claude Code now supports images
 		})

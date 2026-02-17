@@ -245,27 +245,35 @@ export const CLAUDE_CODE_API_CONFIG = {
 	endpoint: "https://api.anthropic.com/v1/messages?beta=true",
 	usageEndpoint: "https://api.anthropic.com/api/oauth/usage",
 	version: "2023-06-01",
-	// Beta headers for messages endpoint
-	// Order matches official Claude Code CLI (2.1.39) exactly
-	// NOTE: claude-code-20250219 is ONLY for /v1/messages/count_tokens, NOT for regular /v1/messages
+	// Beta headers for haiku / older models (no adaptive thinking)
+	// Order matches official Claude Code CLI (2.1.45) exactly
 	defaultBetas: [
 		"oauth-2025-04-20", // Required for OAuth authentication
-		"interleaved-thinking-2025-05-14", // Required for extended thinking
-		"prompt-caching-scope-2026-01-05", // Scope-based prompt caching (official CLI uses this, not 2024-07-31)
+		"interleaved-thinking-2025-05-14", // Extended thinking for older models
+		"prompt-caching-scope-2026-01-05", // Scope-based prompt caching
+	],
+	// Beta headers for adaptive thinking models (claude-sonnet-4-6, claude-opus-4-6)
+	// Observed from claude-code CLI v2.1.45 HAR analysis (2026-02-17)
+	adaptiveBetas: [
+		"claude-code-20250219", // Required for sonnet/opus-4-6 messages
+		"oauth-2025-04-20", // Required for OAuth authentication
+		"adaptive-thinking-2026-01-28", // Adaptive thinking (replaces interleaved-thinking)
+		"prompt-caching-scope-2026-01-05", // Scope-based prompt caching
+		"effort-2025-11-24", // Enables output_config.effort field
 	],
 	// User agents for different API endpoints (matches official Claude Code CLI behavior)
-	// CRITICAL: Must match exact format from HAR analysis - extra identifiers cause auth rejection
+	// CRITICAL: Must match exact format from HAR analysis
 	userAgents: {
-		messages: `claude-cli/2.1.39 (external, cli)`, // For /v1/messages - EXACT match with official CLI
+		messages: `claude-cli/2.1.45 (external, cli)`, // For /v1/messages - EXACT match with official CLI
 		usage: `claude-code/${Package.version}`, // For /api/oauth/usage
 	},
 	// Application identifier for Claude Code API
 	// Using "cli" to match official Claude Code CLI requests
 	xApp: "cli",
-	// Stainless SDK headers (hardcoded to emulate official Claude Code CLI)
+	// Stainless SDK headers (hardcoded to emulate official Claude Code CLI v2.1.45)
 	stainlessHeaders: {
 		"X-Stainless-Lang": "js",
-		"X-Stainless-Package-Version": "0.73.0",
+		"X-Stainless-Package-Version": "0.74.0",
 		"X-Stainless-Retry-Count": "0", // Match official CLI
 		"X-Stainless-Timeout": "600", // Match official CLI (10 minutes)
 		"X-Stainless-OS": process.platform === "win32" ? "Windows" : process.platform === "darwin" ? "MacOS" : "Linux",
@@ -274,6 +282,16 @@ export const CLAUDE_CODE_API_CONFIG = {
 		"X-Stainless-Runtime-Version": process.version,
 	} as const,
 } as const
+
+/**
+ * Models that use adaptive thinking with output_config.effort
+ * (claude-sonnet-4-6, claude-opus-4-6 as of v2.1.45)
+ */
+const ADAPTIVE_THINKING_MODELS = new Set(["claude-sonnet-4-6", "claude-opus-4-6"])
+
+function isAdaptiveThinkingModel(model: string): boolean {
+	return ADAPTIVE_THINKING_MODELS.has(model)
+}
 
 /**
  * SSE Event types from Anthropic streaming API
@@ -294,12 +312,18 @@ export interface SSEEvent {
 }
 
 /**
- * Thinking configuration for extended thinking mode
+ * Thinking configuration for extended thinking mode.
+ * - "enabled": old budget_tokens style (haiku / pre-4-6 models)
+ * - "adaptive": new adaptive style for claude-sonnet-4-6, claude-opus-4-6
+ * - "disabled": no thinking
  */
 export type ThinkingConfig =
 	| {
 			type: "enabled"
 			budget_tokens: number
+	  }
+	| {
+			type: "adaptive"
 	  }
 	| {
 			type: "disabled"
@@ -315,6 +339,8 @@ export interface StreamMessageOptions {
 	messages: Anthropic.Messages.MessageParam[]
 	maxTokens?: number
 	thinking?: ThinkingConfig
+	/** Effort level for adaptive thinking models (claude-sonnet-4-6, claude-opus-4-6) */
+	reasoningEffort?: "low" | "medium" | "high" | null
 	tools?: Anthropic.Messages.Tool[]
 	toolChoice?: Anthropic.Messages.ToolChoice
 	metadata?: {
@@ -484,6 +510,7 @@ export async function* createStreamingMessage(options: StreamMessageOptions): As
 		messages,
 		maxTokens,
 		thinking,
+		reasoningEffort,
 		tools,
 		toolChoice,
 		metadata,
@@ -518,17 +545,30 @@ export async function* createStreamingMessage(options: StreamMessageOptions): As
 		body.max_tokens = maxTokens
 	}
 
-	// Add thinking configuration for extended thinking mode
-	if (thinking) {
-		body.thinking = thinking
+	// Add thinking configuration based on model type
+	if (thinking && thinking.type !== "disabled") {
+		if (thinking.type === "adaptive") {
+			// Adaptive thinking for claude-sonnet-4-6 / claude-opus-4-6
+			body.thinking = { type: "adaptive" }
+			// output_config.effort is optional - omit when effort is null/disabled
+			if (reasoningEffort) {
+				body.output_config = { effort: reasoningEffort }
+			}
+		} else if (thinking.type === "enabled") {
+			// Budget-based thinking for older models
+			body.thinking = thinking
+		}
 	}
 
 	// System prompt as array of content blocks (Claude Code format)
-	// Prepend Claude Code branding as required by the API
-	// Add cache_control to the last text block for prompt caching
-	// System prompt caching is preserved even when thinking parameters change
-	// Note: x-anthropic-billing-header is a reserved keyword and cannot be used in system prompt
+	// First block: billing/telemetry header (matches official CLI v2.1.45 behavior)
+	// Second block: Claude Code branding
+	// Third block: actual system prompt with cache breakpoint
 	body.system = [
+		{
+			type: "text",
+			text: `x-anthropic-billing-header: cc_version=${Package.version}; cc_entrypoint=vscode-extension; cch=00000;`,
+		},
 		{ type: "text", text: "You are Claude Code, Anthropic's official CLI for Claude." },
 		...(systemPrompt ? [{ type: "text", text: systemPrompt, cache_control: { type: "ephemeral" } }] : []),
 	]
@@ -549,8 +589,10 @@ export async function* createStreamingMessage(options: StreamMessageOptions): As
 		body.tool_choice = prefixToolChoice(toolChoice)
 	}
 
-	// Build beta headers
-	const betas: string[] = [...CLAUDE_CODE_API_CONFIG.defaultBetas]
+	// Build beta headers - model-aware: adaptive models use different beta flags
+	const betas = isAdaptiveThinkingModel(model)
+		? [...CLAUDE_CODE_API_CONFIG.adaptiveBetas]
+		: [...CLAUDE_CODE_API_CONFIG.defaultBetas]
 
 	// Build headers matching Claude Code CLI exactly
 	const headers: Record<string, string> = {

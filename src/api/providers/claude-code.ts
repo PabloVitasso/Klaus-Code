@@ -4,7 +4,6 @@ import {
 	claudeCodeDefaultModelId,
 	type ClaudeCodeModelId,
 	claudeCodeModels,
-	claudeCodeReasoningConfig,
 	type ClaudeCodeReasoningLevel,
 	type ModelInfo,
 } from "@klaus-code/types"
@@ -151,18 +150,11 @@ export class ClaudeCodeHandler implements ApiHandler, SingleCompletionHandler {
 			const reasoningLevel = this.getReasoningEffort(model.info)
 
 			let thinking: ThinkingConfig
-			// With interleaved thinking (enabled via beta header), budget_tokens can exceed max_tokens
-			// as the token limit becomes the entire context window. We use the model's maxTokens.
-			// See: https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking#interleaved-thinking
 			const maxTokens = model.info.maxTokens ?? 16384
 
 			if (reasoningLevel) {
-				// Use thinking mode with budget_tokens from config
-				const config = claudeCodeReasoningConfig[reasoningLevel]
-				thinking = {
-					type: "enabled",
-					budget_tokens: config.budgetTokens,
-				}
+				// Adaptive thinking for claude-sonnet-4-6 / claude-opus-4-6
+				thinking = { type: "adaptive" }
 			} else {
 				// Explicitly disable thinking
 				thinking = { type: "disabled" }
@@ -176,6 +168,7 @@ export class ClaudeCodeHandler implements ApiHandler, SingleCompletionHandler {
 				messages,
 				maxTokens,
 				thinking,
+				reasoningEffort: reasoningLevel ?? null,
 				tools: anthropicTools,
 				toolChoice: anthropicToolChoice,
 				metadata: {

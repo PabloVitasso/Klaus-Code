@@ -38,14 +38,25 @@ describe("Claude Code Streaming Client", () => {
 			expect(CLAUDE_CODE_API_CONFIG.version).toBe("2023-06-01")
 		})
 
-		test("should have correct default betas", () => {
-			// Note: claude-code-20250219 is only for /v1/messages/count_tokens, NOT for regular /v1/messages
+		test("should have correct default betas (haiku / older models)", () => {
 			expect(CLAUDE_CODE_API_CONFIG.defaultBetas).toContain("oauth-2025-04-20")
 			expect(CLAUDE_CODE_API_CONFIG.defaultBetas).toContain("interleaved-thinking-2025-05-14")
 			expect(CLAUDE_CODE_API_CONFIG.defaultBetas).toContain("prompt-caching-scope-2026-01-05")
 			// Verify order matches official Claude Code
 			expect(CLAUDE_CODE_API_CONFIG.defaultBetas[0]).toBe("oauth-2025-04-20")
 			expect(CLAUDE_CODE_API_CONFIG.defaultBetas[1]).toBe("interleaved-thinking-2025-05-14")
+		})
+
+		test("should have correct adaptive betas (claude-sonnet-4-6 / claude-opus-4-6)", () => {
+			expect(CLAUDE_CODE_API_CONFIG.adaptiveBetas).toContain("claude-code-20250219")
+			expect(CLAUDE_CODE_API_CONFIG.adaptiveBetas).toContain("oauth-2025-04-20")
+			expect(CLAUDE_CODE_API_CONFIG.adaptiveBetas).toContain("adaptive-thinking-2026-01-28")
+			expect(CLAUDE_CODE_API_CONFIG.adaptiveBetas).toContain("prompt-caching-scope-2026-01-05")
+			expect(CLAUDE_CODE_API_CONFIG.adaptiveBetas).toContain("effort-2025-11-24")
+			// claude-code-20250219 should be first
+			expect(CLAUDE_CODE_API_CONFIG.adaptiveBetas[0]).toBe("claude-code-20250219")
+			// adaptive betas should NOT include interleaved-thinking
+			expect(CLAUDE_CODE_API_CONFIG.adaptiveBetas).not.toContain("interleaved-thinking-2025-05-14")
 		})
 
 		test("should have correct user agents (allows pre-release suffixes)", () => {
@@ -139,8 +150,9 @@ describe("Claude Code Streaming Client", () => {
 			expect(body.model).toBe("claude-3-5-sonnet-20241022")
 			expect(body.stream).toBe(true)
 			expect(body.max_tokens).toBe(4096)
-			// System prompt should have cache_control on the user-provided text
+			// System prompt: billing header first, then branding, then user prompt with cache_control
 			expect(body.system).toEqual([
+				{ type: "text", text: expect.stringContaining("x-anthropic-billing-header:") },
 				{ type: "text", text: "You are Claude Code, Anthropic's official CLI for Claude." },
 				{ type: "text", text: "You are helpful", cache_control: { type: "ephemeral" } },
 			])
@@ -612,6 +624,169 @@ describe("Claude Code Streaming Client", () => {
 				outputTokens: 20,
 				cacheReadTokens: 5,
 			})
+		})
+
+		test("should use adaptiveBetas for claude-sonnet-4-6", async () => {
+			const mockFetch = vi.fn().mockResolvedValue({
+				ok: true,
+				body: {
+					getReader: () => ({
+						read: vi.fn().mockResolvedValue({ done: true, value: undefined }),
+						releaseLock: vi.fn(),
+					}),
+				},
+			})
+			global.fetch = mockFetch
+
+			const { createStreamingMessage } = await import("../streaming-client")
+
+			const stream = createStreamingMessage({
+				accessToken: "test-token",
+				model: "claude-sonnet-4-6",
+				systemPrompt: "You are helpful",
+				messages: [{ role: "user", content: "Hello" }],
+			})
+
+			for await (const _ of stream) {
+				// Just consume
+			}
+
+			const call = mockFetch.mock.calls[0]
+			const betaHeader = call[1].headers["Anthropic-Beta"]
+			expect(betaHeader).toContain("claude-code-20250219")
+			expect(betaHeader).toContain("adaptive-thinking-2026-01-28")
+			expect(betaHeader).toContain("effort-2025-11-24")
+			expect(betaHeader).not.toContain("interleaved-thinking-2025-05-14")
+		})
+
+		test("should use defaultBetas for claude-haiku-4-5-20251001", async () => {
+			const mockFetch = vi.fn().mockResolvedValue({
+				ok: true,
+				body: {
+					getReader: () => ({
+						read: vi.fn().mockResolvedValue({ done: true, value: undefined }),
+						releaseLock: vi.fn(),
+					}),
+				},
+			})
+			global.fetch = mockFetch
+
+			const { createStreamingMessage } = await import("../streaming-client")
+
+			const stream = createStreamingMessage({
+				accessToken: "test-token",
+				model: "claude-haiku-4-5-20251001",
+				systemPrompt: "You are helpful",
+				messages: [{ role: "user", content: "Hello" }],
+			})
+
+			for await (const _ of stream) {
+				// Just consume
+			}
+
+			const call = mockFetch.mock.calls[0]
+			const betaHeader = call[1].headers["Anthropic-Beta"]
+			expect(betaHeader).toContain("interleaved-thinking-2025-05-14")
+			expect(betaHeader).not.toContain("claude-code-20250219")
+			expect(betaHeader).not.toContain("adaptive-thinking-2026-01-28")
+		})
+
+		test("should send adaptive thinking body for adaptive thinking config", async () => {
+			const mockFetch = vi.fn().mockResolvedValue({
+				ok: true,
+				body: {
+					getReader: () => ({
+						read: vi.fn().mockResolvedValue({ done: true, value: undefined }),
+						releaseLock: vi.fn(),
+					}),
+				},
+			})
+			global.fetch = mockFetch
+
+			const { createStreamingMessage } = await import("../streaming-client")
+
+			const stream = createStreamingMessage({
+				accessToken: "test-token",
+				model: "claude-sonnet-4-6",
+				systemPrompt: "You are helpful",
+				messages: [{ role: "user", content: "Hello" }],
+				thinking: { type: "adaptive" },
+				reasoningEffort: "medium",
+			})
+
+			for await (const _ of stream) {
+				// Just consume
+			}
+
+			const call = mockFetch.mock.calls[0]
+			const body = JSON.parse(call[1].body)
+			expect(body.thinking).toEqual({ type: "adaptive" })
+			expect(body.output_config).toEqual({ effort: "medium" })
+		})
+
+		test("should omit output_config when reasoningEffort is null", async () => {
+			const mockFetch = vi.fn().mockResolvedValue({
+				ok: true,
+				body: {
+					getReader: () => ({
+						read: vi.fn().mockResolvedValue({ done: true, value: undefined }),
+						releaseLock: vi.fn(),
+					}),
+				},
+			})
+			global.fetch = mockFetch
+
+			const { createStreamingMessage } = await import("../streaming-client")
+
+			const stream = createStreamingMessage({
+				accessToken: "test-token",
+				model: "claude-sonnet-4-6",
+				systemPrompt: "You are helpful",
+				messages: [{ role: "user", content: "Hello" }],
+				thinking: { type: "adaptive" },
+				reasoningEffort: null,
+			})
+
+			for await (const _ of stream) {
+				// Just consume
+			}
+
+			const call = mockFetch.mock.calls[0]
+			const body = JSON.parse(call[1].body)
+			expect(body.thinking).toEqual({ type: "adaptive" })
+			expect(body.output_config).toBeUndefined()
+		})
+
+		test("should omit thinking and output_config when thinking is disabled", async () => {
+			const mockFetch = vi.fn().mockResolvedValue({
+				ok: true,
+				body: {
+					getReader: () => ({
+						read: vi.fn().mockResolvedValue({ done: true, value: undefined }),
+						releaseLock: vi.fn(),
+					}),
+				},
+			})
+			global.fetch = mockFetch
+
+			const { createStreamingMessage } = await import("../streaming-client")
+
+			const stream = createStreamingMessage({
+				accessToken: "test-token",
+				model: "claude-sonnet-4-6",
+				systemPrompt: "You are helpful",
+				messages: [{ role: "user", content: "Hello" }],
+				thinking: { type: "disabled" },
+			})
+
+			for await (const _ of stream) {
+				// Just consume
+			}
+
+			const call = mockFetch.mock.calls[0]
+			const body = JSON.parse(call[1].body)
+			expect(body.thinking).toBeUndefined()
+			expect(body.output_config).toBeUndefined()
 		})
 
 		test("should prefix tool names when sending to API", async () => {

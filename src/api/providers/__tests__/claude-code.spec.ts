@@ -33,14 +33,14 @@ describe("ClaudeCodeHandler", () => {
 	beforeEach(() => {
 		vi.clearAllMocks()
 		const options: ApiHandlerOptions = {
-			apiModelId: "claude-sonnet-4-5",
+			apiModelId: "claude-sonnet-4-6",
 		}
 		handler = new ClaudeCodeHandler(options)
 	})
 
 	test("should create handler with correct model configuration", () => {
 		const model = handler.getModel()
-		expect(model.id).toBe("claude-sonnet-4-5")
+		expect(model.id).toBe("claude-sonnet-4-6")
 		expect(model.info.supportsImages).toBe(true)
 		expect(model.info.supportsPromptCache).toBe(true)
 	})
@@ -52,31 +52,31 @@ describe("ClaudeCodeHandler", () => {
 		const handlerWithInvalidModel = new ClaudeCodeHandler(options)
 		const model = handlerWithInvalidModel.getModel()
 
-		expect(model.id).toBe("claude-sonnet-4-5") // default model
+		expect(model.id).toBe("claude-sonnet-4-6") // default model
 	})
 
 	test("should return model maxTokens from model definition", () => {
 		const options: ApiHandlerOptions = {
-			apiModelId: "claude-opus-4-5",
+			apiModelId: "claude-opus-4-6",
 		}
 		const handlerWithModel = new ClaudeCodeHandler(options)
 		const model = handlerWithModel.getModel()
 
-		expect(model.id).toBe("claude-opus-4-5")
-		// Model maxTokens is 32768 as defined in claudeCodeModels for opus
-		expect(model.info.maxTokens).toBe(32768)
+		expect(model.id).toBe("claude-opus-4-6")
+		// Model maxTokens is 128_000 as defined in claudeCodeModels for opus-4-6
+		expect(model.info.maxTokens).toBe(128_000)
 	})
 
 	test("should support reasoning effort configuration", () => {
 		const options: ApiHandlerOptions = {
-			apiModelId: "claude-sonnet-4-5",
+			apiModelId: "claude-sonnet-4-6",
 		}
 		const handler = new ClaudeCodeHandler(options)
 		const model = handler.getModel()
 
-		// Default model has supportsReasoningEffort
+		// sonnet-4-6 has supportsReasoningEffort with default "low"
 		expect(model.info.supportsReasoningEffort).toEqual(["disable", "low", "medium", "high"])
-		expect(model.info.reasoningEffort).toBe("medium")
+		expect(model.info.reasoningEffort).toBe("low")
 	})
 
 	test("should throw error when not authenticated", async () => {
@@ -91,7 +91,7 @@ describe("ClaudeCodeHandler", () => {
 		await expect(iterator.next()).rejects.toThrow(/not authenticated/i)
 	})
 
-	test("should call createStreamingMessage with thinking enabled by default", async () => {
+	test("should call createStreamingMessage with adaptive thinking enabled by default", async () => {
 		const systemPrompt = "You are a helpful assistant"
 		const messages = [{ role: "user" as const, content: "Hello" }]
 
@@ -109,20 +109,17 @@ describe("ClaudeCodeHandler", () => {
 		const iterator = stream[Symbol.asyncIterator]()
 		await iterator.next()
 
-		// Verify createStreamingMessage was called with correct parameters
-		// Default model has reasoning effort of "medium" so thinking should be enabled
-		// With interleaved thinking, maxTokens comes from model definition (32768 for claude-sonnet-4-5)
+		// Verify createStreamingMessage was called with adaptive thinking
+		// Default for claude-sonnet-4-6 is reasoningEffort "low"
 		expect(mockCreateStreamingMessage).toHaveBeenCalledWith(
 			expect.objectContaining({
 				accessToken: "test-access-token",
-				model: "claude-sonnet-4-5",
+				model: "claude-sonnet-4-6",
 				systemPrompt,
 				messages,
 				maxTokens: 32768, // model's maxTokens from claudeCodeModels definition
-				thinking: {
-					type: "enabled",
-					budget_tokens: 32000, // medium reasoning budget_tokens
-				},
+				thinking: { type: "adaptive" },
+				reasoningEffort: "low", // model default
 				// Tools are now always present (minimum 6 from ALWAYS_AVAILABLE_TOOLS)
 				tools: expect.any(Array),
 				toolChoice: expect.any(Object),
@@ -135,7 +132,7 @@ describe("ClaudeCodeHandler", () => {
 
 	test("should disable thinking when reasoningEffort is set to disable", async () => {
 		const options: ApiHandlerOptions = {
-			apiModelId: "claude-sonnet-4-5",
+			apiModelId: "claude-sonnet-4-6",
 			reasoningEffort: "disable",
 		}
 		const handlerNoThinking = new ClaudeCodeHandler(options)
@@ -161,11 +158,12 @@ describe("ClaudeCodeHandler", () => {
 		expect(mockCreateStreamingMessage).toHaveBeenCalledWith(
 			expect.objectContaining({
 				accessToken: "test-access-token",
-				model: "claude-sonnet-4-5",
+				model: "claude-sonnet-4-6",
 				systemPrompt,
 				messages,
-				maxTokens: 32768, // model maxTokens from claudeCodeModels definition
+				maxTokens: 32768,
 				thinking: { type: "disabled" },
+				reasoningEffort: null,
 				// Tools are now always present (minimum 6 from ALWAYS_AVAILABLE_TOOLS)
 				tools: expect.any(Array),
 				toolChoice: expect.any(Object),
@@ -176,9 +174,9 @@ describe("ClaudeCodeHandler", () => {
 		)
 	})
 
-	test("should use high reasoning config when reasoningEffort is high", async () => {
+	test("should use high reasoning effort when reasoningEffort is high", async () => {
 		const options: ApiHandlerOptions = {
-			apiModelId: "claude-sonnet-4-5",
+			apiModelId: "claude-sonnet-4-6",
 			reasoningEffort: "high",
 		}
 		const handlerHighThinking = new ClaudeCodeHandler(options)
@@ -200,19 +198,16 @@ describe("ClaudeCodeHandler", () => {
 		const iterator = stream[Symbol.asyncIterator]()
 		await iterator.next()
 
-		// Verify createStreamingMessage was called with high thinking config
-		// With interleaved thinking, maxTokens comes from model definition (32768 for claude-sonnet-4-5)
+		// Verify createStreamingMessage was called with adaptive thinking + high effort
 		expect(mockCreateStreamingMessage).toHaveBeenCalledWith(
 			expect.objectContaining({
 				accessToken: "test-access-token",
-				model: "claude-sonnet-4-5",
+				model: "claude-sonnet-4-6",
 				systemPrompt,
 				messages,
-				maxTokens: 32768, // model's maxTokens from claudeCodeModels definition
-				thinking: {
-					type: "enabled",
-					budget_tokens: 64000, // high reasoning budget_tokens
-				},
+				maxTokens: 32768,
+				thinking: { type: "adaptive" },
+				reasoningEffort: "high",
 				// Tools are now always present (minimum 6 from ALWAYS_AVAILABLE_TOOLS)
 				tools: expect.any(Array),
 				toolChoice: expect.any(Object),
@@ -535,17 +530,19 @@ describe("ClaudeCodeHandler", () => {
 			// Verify createStreamingMessage was called with correct parameters
 			// System prompt is empty because the prompt text contains all context
 			// createStreamingMessage will still prepend the Claude Code branding
-			expect(mockCreateStreamingMessage).toHaveBeenCalledWith({
-				accessToken: "test-access-token",
-				model: "claude-sonnet-4-5",
-				systemPrompt: "", // Empty - branding is added by createStreamingMessage
-				messages: [{ role: "user", content: "Test prompt" }],
-				maxTokens: 32768,
-				thinking: { type: "disabled" }, // No thinking for simple completions
-				metadata: {
-					user_id: "user_abc123_account_def456_session_ghi789",
-				},
-			})
+			expect(mockCreateStreamingMessage).toHaveBeenCalledWith(
+				expect.objectContaining({
+					accessToken: "test-access-token",
+					model: "claude-sonnet-4-6",
+					systemPrompt: "", // Empty - branding is added by createStreamingMessage
+					messages: [{ role: "user", content: "Test prompt" }],
+					maxTokens: 32768,
+					thinking: { type: "disabled" }, // No thinking for simple completions
+					metadata: {
+						user_id: "user_abc123_account_def456_session_ghi789",
+					},
+				}),
+			)
 		})
 
 		test("should handle API errors from streaming", async () => {
@@ -578,9 +575,9 @@ describe("ClaudeCodeHandler", () => {
 			expect(result).toBe("")
 		})
 
-		test("should use opus model maxTokens when configured", async () => {
+		test("should use opus-4-6 model maxTokens when configured", async () => {
 			const options: ApiHandlerOptions = {
-				apiModelId: "claude-opus-4-5",
+				apiModelId: "claude-opus-4-6",
 			}
 			const handlerOpus = new ClaudeCodeHandler(options)
 
@@ -597,8 +594,8 @@ describe("ClaudeCodeHandler", () => {
 
 			expect(mockCreateStreamingMessage).toHaveBeenCalledWith(
 				expect.objectContaining({
-					model: "claude-opus-4-5",
-					maxTokens: 32768, // opus model maxTokens
+					model: "claude-opus-4-6",
+					maxTokens: 128_000, // opus-4-6 model maxTokens
 				}),
 			)
 		})

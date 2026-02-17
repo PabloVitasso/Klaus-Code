@@ -36,6 +36,14 @@ claude
 in browser check the requests:
 http://127.0.0.1:8081
 
+**Parsing saved flow files (.mitm):**
+
+```bash
+pip install mitmproxy
+python docs/parse-mitm-flows.py docs/2026.02.17-claude-code2.1.45.har       # summary
+python docs/parse-mitm-flows.py docs/2026.02.17-claude-code2.1.45.har --json # full JSON
+```
+
 ### Critical Files & Line Numbers
 
 | File                                               | Key Lines | Purpose                                         |
@@ -60,17 +68,24 @@ http://127.0.0.1:8081
 ```typescript
 TOOL_NAME_PREFIX = "oc_" // streaming-client.ts:10
 CLAUDE_CODE_API_ENDPOINT = "..." // streaming-client.ts:20
-claudeCodeDefaultModelId = "claude-sonnet-4-5" // claude-code.ts:78
+claudeCodeDefaultModelId = "claude-sonnet-4-6" // claude-code.ts:78
+X_STAINLESS_PACKAGE_VERSION = "0.74.0" // updated from 0.70.0 (v2.1.45)
 ```
 
 ### Model Support Matrix
 
-| Model             | Max Tokens | Context | Reasoning       | Status                  |
-| ----------------- | ---------- | ------- | --------------- | ----------------------- |
-| claude-haiku-4-5  | 32K        | 200K    | Effort + Budget | ✅ Supported            |
-| claude-sonnet-4-5 | 32K        | 200K    | Effort + Budget | ✅ Supported (default)  |
-| claude-opus-4-5   | 32K        | 200K    | Effort + Budget | ✅ Supported            |
-| claude-opus-4-6   | 128K       | 200K→1M | Effort + Budget | ✅ Supported (v3.47.2+) |
+**Current models (v2.1.45 / 2026-02-17):**
+
+| Model             | API Model ID                | Max Tokens | Context | Reasoning                           | Status       |
+| ----------------- | --------------------------- | ---------- | ------- | ----------------------------------- | ------------ |
+| claude-haiku-4-5  | `claude-haiku-4-5-20251001` | 32K        | 200K    | None (no effort/thinking)           | ✅ Supported |
+| claude-sonnet-4-6 | `claude-sonnet-4-6`         | 32K        | 200K    | Adaptive + effort (low/medium/high) | ✅ Default   |
+| claude-opus-4-6   | `claude-opus-4-6`           | 128K       | 200K→1M | Adaptive + effort (low/medium/high) | ✅ Supported |
+
+**Removed models** (no longer offered by Claude Code 2.1.45):
+
+- `claude-sonnet-4-5` - removed
+- `claude-opus-4-5` - removed
 
 ## Overview
 
@@ -139,43 +154,51 @@ Claude Code OAuth tokens require specific metadata:
 
 ### Required API Headers
 
-**Updated 2026-01-25**: Headers now match official Claude Code CLI exactly based on reverse engineering analysis.
+**Updated 2026-02-17**: Headers from claude-code CLI v2.1.45 reverse engineering.
 
 ```typescript
+// POST /v1/messages?beta=true  (opus-4-6/sonnet-4-6 example)
 const headers: Record<string, string> = {
+	// Core
 	Accept: "application/json",
 	Authorization: `Bearer ${accessToken}`,
 	"Content-Type": "application/json",
-	"User-Agent": `klaus-code/${Package.version} (vscode, extension)`,
-	"Anthropic-Version": "2023-06-01",
-	"Anthropic-Beta": "claude-code-20250219,oauth-2025-04-20,interleaved-thinking-2025-05-14",
-	"x-app": "vscode-extension",
+	"anthropic-version": "2023-06-01",
 	"anthropic-dangerous-direct-browser-access": "true",
-	"accept-language": "*",
-	"sec-fetch-mode": "cors",
-	"accept-encoding": "br, gzip, deflate",
-	// Stainless SDK headers (emulating official CLI)
+
+	// Identity (Klaus Code uses vscode variant)
+	"User-Agent": "claude-cli/2.1.45 (external, cli)", // Klaus: `klaus-code/${version} (vscode, extension)`
+	"x-app": "cli", // Klaus: "vscode-extension"
+
+	// Stainless SDK headers (v0.74.0 as of 2026-02-17, was 0.70.0)
 	"X-Stainless-Lang": "js",
-	"X-Stainless-Package-Version": "0.70.0",
+	"X-Stainless-Package-Version": "0.74.0",
 	"X-Stainless-OS": "Linux", // or "Windows"/"MacOS"
 	"X-Stainless-Arch": "x64", // or "arm64"
 	"X-Stainless-Runtime": "node",
 	"X-Stainless-Runtime-Version": "v22.14.0",
+	"X-Stainless-Retry-Count": "0",
+	"X-Stainless-Timeout": "600",
+
+	// Browser-like headers
+	"accept-language": "*",
+	"sec-fetch-mode": "cors",
+	"accept-encoding": "br, gzip, deflate",
+
+	// anthropic-beta: varies by call type (see Beta Flags table below)
+	"anthropic-beta": "...",
 }
 ```
 
-**Key Changes from Previous Version:**
+**Note on Billing/Telemetry in System Prompt:**
 
-- Changed User-Agent to match `klaus-code/{version} (vscode, extension)` format
-- Added `x-app: vscode-extension` for application identification
-- Added `anthropic-dangerous-direct-browser-access: true` for OAuth flows
-- Added X-Stainless-\* headers to emulate official Claude Code CLI SDK
-- Changed Accept from `text/event-stream` to `application/json`
-- Kept `prompt-caching-2024-07-31` and `fine-grained-tool-streaming-2025-05-14` betas (NOT used by official CLI, but enabled for Klaus Code's prompt caching and tool streaming functionality)
+The official Claude Code CLI v2.1.45 injects a billing metadata entry as the FIRST system prompt block:
 
-**Note on Billing Headers:**
+```json
+{ "type": "text", "text": "x-anthropic-billing-header: cc_version=2.1.45.adc; cc_entrypoint=cli; cch=00000;" }
+```
 
-`x-anthropic-billing-header` is a reserved keyword in Anthropic's API and cannot be used in system prompts. Previous attempts to include billing metadata in system prompts will result in API errors. Billing/usage tracking is handled automatically by the API based on OAuth token and request headers.
+Klaus Code should inject the equivalent for its version (`cc_entrypoint=vscode-extension`). **This is a system prompt text entry, NOT a request header.** If Klaus Code previously had errors with this, check that it's formatted as a `type: "text"` block — NOT as an HTTP header or a different format.
 
 ## Usage Tracking
 
@@ -189,44 +212,66 @@ Claude Code tracks usage and quota through a combination of:
 
 ### API Endpoints for Usage
 
-**Discovered from reverse engineering (2026-02-06):**
+**Updated 2026-02-17 (v2.1.45):**
 
-| Endpoint                      | Method | Purpose                                |
-| ----------------------------- | ------ | -------------------------------------- |
-| `/api/oauth/account/settings` | GET    | Fetch account settings and preferences |
-| `/api/claude_code_grove`      | GET    | Unknown (possibly feature flags)       |
-| `/v1/messages?beta=true`      | POST   | Message API (includes usage data)      |
+| Endpoint                            | Method | Purpose                                            |
+| ----------------------------------- | ------ | -------------------------------------------------- |
+| `/api/oauth/account/settings`       | GET    | Account settings and preferences (startup)         |
+| `/api/oauth/usage`                  | GET    | **NEW** — Usage utilization by tier                |
+| `/api/claude_code_grove`            | GET    | Feature flags (`grove_enabled`, `domain_excluded`) |
+| `/api/oauth/claude_cli/client_data` | GET    | **NEW** — Client config data (returns `{}`)        |
+| `/api/claude_code_penguin_mode`     | GET    | **NEW** — Extra usage status                       |
+| `/v1/messages?beta=true`            | POST   | Message API (includes usage data)                  |
 
-### Account Settings Endpoint
+All GET requests use:
 
-**Request:**
-
-```typescript
-GET /api/oauth/account/settings
-Host: api.anthropic.com
-
-Headers:
-  Accept: application/json, text/plain, */*
-  Authorization: Bearer {oauth_token}
-  anthropic-beta: oauth-2025-04-20
-  User-Agent: claude-code/2.1.34
-  Accept-Encoding: gzip, compress, deflate, br
-  Connection: close
+```
+User-Agent: claude-code/2.1.45   (or axios/1.8.4 for penguin_mode)
+anthropic-beta: oauth-2025-04-20
+Accept: application/json, text/plain, */*
+Accept-Encoding: gzip, compress, deflate, br
+Connection: close
 ```
 
-**Response Headers:**
+### Usage Endpoint (NEW)
 
-```typescript
+**GET `/api/oauth/usage`** returns per-tier utilization — prefer this over rate limit response headers:
+
+```json
 {
-  "Content-Type": "application/json",
-  "anthropic-organization-id": "{org_uuid}",
-  "request-id": "req_...",
-  "Content-Encoding": "gzip",
-  // Standard security headers...
+	"five_hour": {
+		"utilization": 0.0,
+		"resets_at": "2026-02-17T21:00:00.276803+00:00"
+	},
+	"seven_day": {
+		"utilization": 5.0,
+		"resets_at": "2026-02-23T09:00:00.276824+00:00"
+	},
+	"seven_day_oauth_apps": null,
+	"seven_day_opus": null,
+	"seven_day_sonnet": null,
+	"seven_day_cowork": null,
+	"iguana_necktie": null,
+	"extra_usage": {
+		"is_enabled": false,
+		"monthly_limit": null,
+		"used_credits": null,
+		"utilization": null
+	}
 }
 ```
 
-This endpoint is called at startup to fetch user preferences and account configuration. Klaus Code should implement this to maintain feature parity with official Claude Code.
+### Penguin Mode Endpoint (NEW)
+
+**GET `/api/claude_code_penguin_mode`** — extra/paid usage status:
+
+```json
+{ "enabled": false, "disabled_reason": "extra_usage_disabled" }
+```
+
+### Account Settings Endpoint
+
+**GET `/api/oauth/account/settings`** — called at startup for user preferences. Response includes account configuration and dismissed banner IDs.
 
 ### API Endpoint
 
@@ -238,60 +283,33 @@ POST https://api.anthropic.com/v1/messages?beta=true
 
 Without this parameter, the API returns "invalid x-api-key" error even with valid OAuth tokens.
 
-### Normal Message Request Headers
+### Beta Flags by Call Type
 
-**Complete headers from official Claude Code CLI (claude-cli/2.1.34):**
+**Updated 2026-02-17 (claude-code v2.1.45):**
 
-```typescript
-// POST /v1/messages?beta=true HTTP/1.1
-const headers = {
-	// Core request headers
-	host: "api.anthropic.com",
-	connection: "keep-alive",
-	Accept: "application/json",
+| Call Type                               | anthropic-beta                                                                                                                 |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| Quota check (haiku, max_tokens=1)       | `oauth-2025-04-20,interleaved-thinking-2025-05-14,prompt-caching-scope-2026-01-05`                                             |
+| Haiku (standard / structured output)    | `oauth-2025-04-20,interleaved-thinking-2025-05-14,prompt-caching-scope-2026-01-05,structured-outputs-2025-12-15`               |
+| Sonnet-4-6 / Opus-4-6 messages          | `claude-code-20250219,oauth-2025-04-20,adaptive-thinking-2026-01-28,prompt-caching-scope-2026-01-05,effort-2025-11-24`         |
+| `/v1/messages/count_tokens` (any model) | `claude-code-20250219,oauth-2025-04-20,adaptive-thinking-2026-01-28,prompt-caching-scope-2026-01-05,token-counting-2024-11-01` |
 
-	// Stainless SDK headers (Anthropic's official TypeScript SDK)
-	"X-Stainless-Retry-Count": "0",
-	"X-Stainless-Timeout": "600",
-	"X-Stainless-Lang": "js",
-	"X-Stainless-Package-Version": "0.70.0",
-	"X-Stainless-OS": "Linux", // or "Windows"/"MacOS"
-	"X-Stainless-Arch": "x64", // or "arm64"
-	"X-Stainless-Runtime": "node",
-	"X-Stainless-Runtime-Version": "v22.14.0",
+**Beta flag details:**
 
-	// Anthropic API headers
-	"anthropic-dangerous-direct-browser-access": "true",
-	"anthropic-version": "2023-06-01",
-	authorization: `Bearer ${oauthToken}`, // OAuth token
-	"x-app": "cli", // "vscode-extension" for Klaus Code
-	"User-Agent": "claude-cli/2.1.34 (external, cli)",
-	"content-type": "application/json",
+| Beta Flag                                | Purpose / Notes                                                                   |
+| ---------------------------------------- | --------------------------------------------------------------------------------- |
+| `oauth-2025-04-20`                       | Required for OAuth — present in ALL calls                                         |
+| `interleaved-thinking-2025-05-14`        | Haiku thinking (old models)                                                       |
+| `adaptive-thinking-2026-01-28`           | **NEW** — replaces `interleaved-thinking` for sonnet/opus-4-6                     |
+| `prompt-caching-scope-2026-01-05`        | Scope-based caching — present in ALL calls (replaces `prompt-caching-2024-07-31`) |
+| `effort-2025-11-24`                      | **NEW** — enables `output_config.effort` field for sonnet/opus-4-6                |
+| `claude-code-20250219`                   | Required for sonnet-4-6/opus-4-6 messages AND count_tokens                        |
+| `token-counting-2024-11-01`              | count_tokens endpoint only                                                        |
+| `structured-outputs-2025-12-15`          | Added when using structured output (haiku)                                        |
+| `prompt-caching-2024-07-31`              | **OBSOLETE** — replaced by `prompt-caching-scope-2026-01-05`                      |
+| `fine-grained-tool-streaming-2025-05-14` | Not used by official CLI                                                          |
 
-	// Beta feature flags
-	"anthropic-beta": "oauth-2025-04-20,interleaved-thinking-2025-05-14,prompt-caching-scope-2026-01-05",
-
-	// Browser-like headers (required for CORS)
-	"accept-language": "*",
-	"sec-fetch-mode": "cors",
-	"accept-encoding": "br, gzip, deflate",
-
-	// Content length (dynamic based on request body)
-	"content-length": "284", // Varies by request
-}
-```
-
-**Key differences from previously documented headers:**
-
-1. **Connection**: `keep-alive` (not `close`) for persistent connections
-2. **Accept**: `application/json` (streaming-client.ts should match this)
-3. **Beta flags**: Includes `prompt-caching-scope-2026-01-05` (new caching beta)
-4. **No `accept: text/event-stream`**: Official CLI uses `application/json` even for streaming
-
-**Klaus Code should use these exact headers** to match official behavior, except:
-
-- `x-app: "vscode-extension"` instead of `"cli"`
-- `User-Agent: "klaus-code/{version} (vscode, extension)"`
+**BREAKING CHANGE from v2.1.39**: `claude-code-20250219` is now included in regular `/v1/messages` requests for sonnet-4-6 and opus-4-6 (was previously only for count_tokens).
 
 ### Klaus Code Implementation Status
 
@@ -304,59 +322,22 @@ const headers: Record<string, string> = {
 	"Content-Type": "application/json", // ✅ Matches official
 	"User-Agent": CLAUDE_CODE_API_CONFIG.userAgent, // ✅ Matches format
 	"Anthropic-Version": CLAUDE_CODE_API_CONFIG.version, // ✅ Matches official
-	"Anthropic-Beta": betas.join(","), // ⚠️ Partial match (see below)
+	"Anthropic-Beta": betas.join(","), // ✅ Model-aware (see beta table)
 	"x-app": CLAUDE_CODE_API_CONFIG.xApp, // ✅ Intentionally different
 	"anthropic-dangerous-direct-browser-access": "true", // ✅ Matches official
 	"accept-language": "*", // ✅ Matches official
 	"sec-fetch-mode": "cors", // ✅ Matches official
 	"accept-encoding": "br, gzip, deflate", // ✅ Matches official
-	...CLAUDE_CODE_API_CONFIG.stainlessHeaders, // ⚠️ Partial match (see below)
+	...CLAUDE_CODE_API_CONFIG.stainlessHeaders, // ✅ X-Stainless-Package-Version: 0.74.0
 }
 ```
 
-**Beta flags comparison (2.1.39 analysis):**
+**Implementation is current as of v2.1.45 (2026-02-17):**
 
-| Beta Flag                                | `/v1/messages` | `/v1/messages/count_tokens` | Notes                                         |
-| ---------------------------------------- | -------------- | --------------------------- | --------------------------------------------- |
-| `oauth-2025-04-20`                       | ✅             | ✅                          | Required for OAuth                            |
-| `interleaved-thinking-2025-05-14`        | ✅             | ✅                          | Required for extended thinking                |
-| `prompt-caching-scope-2026-01-05`        | ✅             | ✅                          | New scope-based caching (replaces 2024-07-31) |
-| `claude-code-20250219`                   | ❌             | ✅                          | **ONLY for count_tokens endpoint**            |
-| `token-counting-2024-11-01`              | ❌             | ✅                          | Token counting beta                           |
-| `structured-outputs-2025-12-15`          | Optional       | ❌                          | Added when using structured output            |
-| `prompt-caching-2024-07-31`              | ❌             | ❌                          | Old caching (replaced by scope-2026-01-05)    |
-| `fine-grained-tool-streaming-2025-05-14` | ❌             | ❌                          | Not used by official CLI                      |
-
-**CRITICAL**: `claude-code-20250219` should **NOT** be included in regular `/v1/messages` requests. It's only for the `/v1/messages/count_tokens` endpoint.
-
-**Missing Stainless headers:**
-
-| Header                    | Official CLI | Klaus Code |
-| ------------------------- | ------------ | ---------- |
-| `X-Stainless-Retry-Count` | `0`          | ❌         |
-| `X-Stainless-Timeout`     | `600`        | ❌         |
-
-**Recommendations:**
-
-1. **Add missing Stainless headers** for better compatibility:
-
-    ```typescript
-    stainlessHeaders: {
-        "X-Stainless-Lang": "js",
-        "X-Stainless-Package-Version": "0.70.0",
-        "X-Stainless-Retry-Count": "0",      // ADD THIS
-        "X-Stainless-Timeout": "600",        // ADD THIS
-        // ... rest of headers
-    }
-    ```
-
-2. **Consider updating beta flags** to match official CLI:
-
-    - Replace `prompt-caching-2024-07-31` with `prompt-caching-scope-2026-01-05`
-    - Evaluate if `claude-code-20250219` is still needed
-    - Keep `fine-grained-tool-streaming-2025-05-14` for Klaus Code functionality
-
-3. **Test with official beta flags** to verify API compatibility
+- `X-Stainless-Package-Version`: `0.74.0` ✅
+- Beta flags are model-aware: adaptive models (`sonnet-4-6`/`opus-4-6`) get `adaptiveBetas`, others get `defaultBetas` ✅
+- Uses `prompt-caching-scope-2026-01-05` (old `prompt-caching-2024-07-31` removed) ✅
+- `adaptive-thinking-2026-01-28` and `effort-2025-11-24` included for 4-6 models ✅
 
 ### Quota Check Request
 
@@ -586,7 +567,7 @@ case "tool_use": {
 
 ## Adding New Models
 
-### Process for Adding Claude Models (Example: Opus 4.6)
+### Process for Adding Claude Models
 
 **File to modify**: `packages/types/src/providers/claude-code.ts`
 
@@ -595,24 +576,35 @@ case "tool_use": {
 1. **Add model definition** to `claudeCodeModels` object (L46-74):
 
     ```typescript
-    "claude-opus-4-6": {
-        maxTokens: 128_000,              // From Anthropic docs
-        contextWindow: 200_000,          // Base context (1M with beta flag)
+    // For haiku (no thinking/effort):
+    "claude-haiku-4-5-20251001": {
+        maxTokens: 32_000,
+        contextWindow: 200_000,
         supportsImages: true,
         supportsPromptCache: true,
-        supportsReasoningBudget: true,   // New in 4.6
-        supportsReasoningEffort: ["disable", "low", "medium", "high"],
-        reasoningEffort: "medium",
-        description: "Claude Opus 4.6 - Most capable with extended output",
+        supportsReasoningBudget: false,
+        supportsReasoningEffort: false,
+        description: "Claude Haiku 4.5 - Fast and lightweight",
+    }
+
+    // For sonnet/opus with adaptive thinking + effort:
+    "claude-sonnet-4-6": {
+        maxTokens: 32_000,
+        contextWindow: 200_000,
+        supportsImages: true,
+        supportsPromptCache: true,
+        supportsReasoningBudget: false,  // uses adaptive, not budget
+        supportsReasoningEffort: ["low", "medium", "high"],  // no "disable"
+        reasoningEffort: "low",           // default
+        description: "Claude Sonnet 4.6 - Balanced performance",
     }
     ```
 
 2. **Update model family patterns** (L86-93) for normalization:
 
     ```typescript
-    // Add specific pattern BEFORE generic pattern:
-    { pattern: /opus.*4[._-]?6/i, target: "claude-opus-4-6" },  // NEW
-    { pattern: /opus/i, target: "claude-opus-4-5" },             // Existing
+    { pattern: /sonnet.*4[._-]?6/i, target: "claude-sonnet-4-6" },
+    { pattern: /opus.*4[._-]?6/i, target: "claude-opus-4-6" },
     ```
 
 3. **Update JSDoc examples** (L96-103) to document the mapping.
@@ -627,12 +619,34 @@ case "tool_use": {
 
 **Model string is passed directly to API** - no additional logic needed in `streaming-client.ts`.
 
+### Reasoning API: Adaptive Thinking (NEW v2.1.45)
+
+**BREAKING CHANGE**: 4-6 models no longer use `budget_tokens`. Instead:
+
+```json
+// v2.1.45 API body (sonnet-4-6 / opus-4-6):
+{
+	"model": "claude-sonnet-4-6",
+	"max_tokens": 32000,
+	"thinking": { "type": "adaptive" },
+	"output_config": { "effort": "low" },
+	"stream": true
+}
+```
+
+| Field                  | Value                           | Notes                                     |
+| ---------------------- | ------------------------------- | ----------------------------------------- |
+| `thinking.type`        | `"adaptive"`                    | Replaces `"enabled"` with `budget_tokens` |
+| `output_config.effort` | `"low"` / `"medium"` / `"high"` | Replaces top-level `"effort"` field       |
+
+**Haiku** does NOT send `thinking` or `output_config` at all.
+
 ### Capabilities Reference
 
 - `supportsImages`: Image input support
 - `supportsPromptCache`: Prompt caching support
-- `supportsReasoningBudget`: Budget-based reasoning (Opus 4.6+)
-- `supportsReasoningEffort`: Effort levels (disable/low/medium/high)
+- `supportsReasoningBudget`: Budget-based thinking (old models, `false` for 4-6)
+- `supportsReasoningEffort`: Adaptive effort levels (`["low","medium","high"]`) or `false`
 
 ### Model Selection Flow
 
@@ -949,6 +963,27 @@ If OAuth fails:
 1. Check `user_id` generation in `generateUserId()`
 2. Verify OAuth token is valid and not expired
 3. Ensure all required beta headers are set
+
+### Wrong Default Model for Claude Code Provider
+
+**Symptom**: Tests or webview show `claude-sonnet-4-5` as default for claude-code provider instead of `claude-sonnet-4-6`
+
+**Cause**: `getProviderDefaultModelId("claude-code")` in `packages/types/src/providers/index.ts` was missing an explicit `case "claude-code":` and fell through to `anthropicDefaultModelId`.
+
+**Status**: Fixed. `packages/types/src/providers/index.ts` now has `case "claude-code": return claudeCodeDefaultModelId`.
+
+### Stale Types Build Causes Test Failures After Model Changes
+
+**Symptom**: Tests in `src/` or `webview-ui/` fail with outdated model IDs after editing `packages/types/src/providers/claude-code.ts`
+
+**Cause**: These packages import the compiled dist of `@klaus-code/types`, not source. Vitest does not recompile on source changes.
+
+**Solution**:
+
+```bash
+pnpm --filter @klaus-code/types build  # Rebuild types dist
+pnpm test                              # Now picks up new model IDs
+```
 
 ## See Also
 

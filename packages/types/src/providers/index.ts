@@ -26,6 +26,7 @@ export * from "./zai.js"
 export * from "./minimax.js"
 
 import { anthropicDefaultModelId } from "./anthropic.js"
+import { claudeCodeDefaultModelId } from "./claude-code.js"
 import { basetenDefaultModelId } from "./baseten.js"
 import { bedrockDefaultModelId } from "./bedrock.js"
 import { deepSeekDefaultModelId } from "./deepseek.js"
@@ -108,8 +109,9 @@ export function getProviderDefaultModelId(
 			return qwenCodeDefaultModelId
 		case "vercel-ai-gateway":
 			return vercelAiGatewayDefaultModelId
-		case "anthropic":
 		case "claude-code":
+			return claudeCodeDefaultModelId
+		case "anthropic":
 		case "gemini-cli":
 		case "fake-ai":
 		default:
