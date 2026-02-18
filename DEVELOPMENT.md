@@ -527,16 +527,13 @@ Testing:
 git push origin merge-upstream-$(date +%Y%m%d)
 ```
 
-**5. Create Pull Request and Get Operator Approval**
+**5. Get Operator Approval**
 
 ```bash
-# Create PR (or do manually in browser)
-gh pr create --title "Merge upstream Roo Code changes ($(date +%Y-%m-%d))" \
-    --body "Merges N commits from upstream Roo Code." \
-    --base main --head merge-upstream-$(date +%Y%m%d)
+# Create PR manually in browser or with gh CLI
+# https://github.com/PabloVitasso/Klaus-Code/pull/new/merge-upstream-$(date +%Y%m%d)
 
 # Wait for operator approval before proceeding to step 6
-# Review: https://github.com/PabloVitasso/Klaus-Code/pull/new/merge-upstream-$(date +%Y%m%d)
 ```
 
 **6. Merge to Main (After Operator Approval)**
