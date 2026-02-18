@@ -455,6 +455,8 @@ Before starting a merge, review the [Fork Divergence from Upstream](#fork-diverg
 
 ### Quick Merge Process (Recommended for Most Merges)
 
+> **Important**: Merge to main requires operator approval. Push to branch first, create PR, then wait for approval before merging to main.
+
 **1. Merge and Resolve Conflicts**
 
 ```bash
@@ -522,7 +524,27 @@ Testing:
 - Claude Code validation: [x] PASSED (./scripts/validate-claude-code-integration.sh)
 - Claude Code tests (N/N): [x] PASSED"
 
-git checkout main && git merge merge-upstream-$(date +%Y%m%d) --no-edit
+git push origin merge-upstream-$(date +%Y%m%d)
+```
+
+**5. Create Pull Request and Get Operator Approval**
+
+```bash
+# Create PR (or do manually in browser)
+gh pr create --title "Merge upstream Roo Code changes ($(date +%Y-%m-%d))" \
+    --body "Merges N commits from upstream Roo Code." \
+    --base main --head merge-upstream-$(date +%Y%m%d)
+
+# Wait for operator approval before proceeding to step 6
+# Review: https://github.com/PabloVitasso/Klaus-Code/pull/new/merge-upstream-$(date +%Y%m%d)
+```
+
+**6. Merge to Main (After Operator Approval)**
+
+```bash
+# Only proceed after operator approval!
+git checkout main && git pull origin main
+git merge merge-upstream-$(date +%Y%m%d) --no-edit
 git push origin main
 ```
 
