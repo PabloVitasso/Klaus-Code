@@ -8,8 +8,12 @@ interface ClaudeCodeRateLimitDashboardProps {
 
 /**
  * Formats a Unix timestamp reset time into a human-readable duration
+ * Returns null when resetTime is 0 and utilization is 0 (session not started)
  */
-function formatResetTime(resetTimestamp: number): string {
+function formatResetTime(resetTimestamp: number, utilization: number): string | null {
+	if (!resetTimestamp && utilization === 0) {
+		return null // Session hasn't started
+	}
 	if (!resetTimestamp) return "N/A"
 
 	const now = Date.now() / 1000 // Current time in seconds
@@ -163,7 +167,11 @@ export const ClaudeCodeRateLimitDashboard: React.FC<ClaudeCodeRateLimitDashboard
 						<span className="text-xs font-medium text-vscode-foreground">Current session</span>
 					</div>
 					<div className="flex items-center justify-between text-xs text-vscode-descriptionForeground mb-1.5">
-						<span>Resets in {formatResetTime(rateLimits.fiveHour.resetTime)}</span>
+						<span>
+							{formatResetTime(rateLimits.fiveHour.resetTime, rateLimits.fiveHour.utilization)
+								? `Resets in ${formatResetTime(rateLimits.fiveHour.resetTime, rateLimits.fiveHour.utilization)}`
+								: "Starts when a message is sent"}
+						</span>
 						<span className="font-medium">{formatUtilization(rateLimits.fiveHour.utilization)} used</span>
 					</div>
 					<UsageProgressBar utilization={rateLimits.fiveHour.utilization} label="" />
@@ -176,7 +184,13 @@ export const ClaudeCodeRateLimitDashboard: React.FC<ClaudeCodeRateLimitDashboard
 							<span className="text-xs font-medium text-vscode-foreground">Weekly limits</span>
 						</div>
 						<div className="flex items-center justify-between text-xs text-vscode-descriptionForeground mb-1.5">
-							<span>Resets in {formatResetTime(rateLimits.weeklyUnified.resetTime)}</span>
+							<span>
+								Resets in{" "}
+								{formatResetTime(
+									rateLimits.weeklyUnified.resetTime,
+									rateLimits.weeklyUnified.utilization,
+								) ?? "N/A"}
+							</span>
 							<span className="font-medium">
 								{formatUtilization(rateLimits.weeklyUnified.utilization)} used
 							</span>
@@ -192,7 +206,10 @@ export const ClaudeCodeRateLimitDashboard: React.FC<ClaudeCodeRateLimitDashboard
 							<span className="text-xs font-medium text-vscode-foreground">Extra usage</span>
 						</div>
 						<div className="flex items-center justify-between text-xs text-vscode-descriptionForeground mb-1.5">
-							<span>Resets in {formatResetTime(rateLimits.overage.resetTime)}</span>
+							<span>
+								Resets in{" "}
+								{formatResetTime(rateLimits.overage.resetTime, rateLimits.overage.utilization) ?? "N/A"}
+							</span>
 							<span className="font-medium">
 								{formatUtilization(rateLimits.overage.utilization)} used
 							</span>
