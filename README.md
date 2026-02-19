@@ -1,3 +1,11 @@
+
+
+## WARNING - THIS CODE IS PROOF-OF-CONCEPT ONLY. USAGE RESULTS IN VIOLATION OF ANTHROPIC CONSUMER TERMS OF SERVICE
+
+https://code.claude.com/docs/en/legal-and-compliance
+
+> OAuth authentication (used with Free, Pro, and Max plans) is intended exclusively for Claude Code and Claude.ai. Using OAuth tokens obtained through Claude Free, Pro, or Max accounts in any other product, tool, or service — including the Agent SDK — is not permitted and constitutes a violation of the [Consumer Terms of Service](https://www.anthropic.com/legal/consumer-terms).
+
 # Klaus Code
 
 > A fork of [Roo Code](https://github.com/RooCodeInc/Roo-Code) that preserves the Claude Code provider feature.
@@ -17,9 +25,7 @@ The code is published for educational and interoperability research purposes. No
 
 ### Key differences from upstream
 
-- **Claude Code Provider**: Restored and maintained - screen from 2026.02.18 (Sonnet 4.6): <img width="549" height="747" alt="image" src="https://github.com/user-attachments/assets/690abcdf-724e-4a5f-8a3e-1331f37d88a6" />
-
-
+- **Claude Code Provider**: Restored and maintained (AS PROOF OF CONCEPT)
 - **Branding**: Renamed from "Roo Code" to "Klaus Code"
 
 ### Original project
