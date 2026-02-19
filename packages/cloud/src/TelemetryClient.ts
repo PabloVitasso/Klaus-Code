@@ -257,10 +257,21 @@ export class CloudTelemetryClient extends BaseTelemetryClient {
 		}
 	}
 
-	public override updateTelemetryState(_didUserOptIn: boolean) {}
+	public override updateTelemetryState(didUserOptIn: boolean): void {
+		let globalTelemetryEnabled = true
+		try {
+			// eslint-disable-next-line @typescript-eslint/no-require-imports
+			const vscode = require("vscode")
+			const telemetryLevel: string = vscode.workspace.getConfiguration("telemetry").get("telemetryLevel") ?? "all"
+			globalTelemetryEnabled = telemetryLevel === "all"
+		} catch {
+			// Not in a VS Code environment; defer to didUserOptIn only.
+		}
+		this.telemetryEnabled = globalTelemetryEnabled && didUserOptIn
+	}
 
 	public override isTelemetryEnabled(): boolean {
-		return true
+		return this.telemetryEnabled
 	}
 
 	protected override isEventCapturable(eventName: TelemetryEventName): boolean {
