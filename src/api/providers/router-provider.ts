@@ -2,6 +2,11 @@ import OpenAI from "openai"
 
 import { type ModelInfo, type ModelRecord } from "@klaus-code/types"
 
+// Install undici-based fetch wrapper when using router-based providers
+// This fixes connection issues with localhost on Node.js 20+
+import { installUndisciFetchWrapper } from "../utils/undici-fetch-wrapper"
+installUndisciFetchWrapper()
+
 import { ApiHandlerOptions, RouterName } from "../../shared/api"
 
 import { BaseProvider } from "./base-provider"

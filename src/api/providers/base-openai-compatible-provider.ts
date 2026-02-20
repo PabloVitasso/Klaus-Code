@@ -3,6 +3,11 @@ import OpenAI from "openai"
 
 import type { ModelInfo } from "@klaus-code/types"
 
+// Install undici-based fetch wrapper when using OpenAI-compatible providers
+// This fixes connection issues with localhost on Node.js 20+
+import { installUndisciFetchWrapper } from "../utils/undici-fetch-wrapper"
+installUndisciFetchWrapper()
+
 import { type ApiHandlerOptions, getModelMaxOutputTokens } from "../../shared/api"
 import { TagMatcher } from "../../utils/tag-matcher"
 import { ApiStream, ApiStreamUsageChunk } from "../transform/stream"
