@@ -366,9 +366,9 @@
 		},
 		"release": {
 			"heading": "What's New:",
-			"item1": "Added Claude Sonnet 4.6 support across all providers",
-			"item2": "Updated Claude Code CLI to v2.1.45 with new models and API",
-			"item3": "Added MiniMax-M2.5 and highspeed model variants"
+			"item1": "Fixed localhost connection issues with OpenAI-compatible providers on Node.js 20",
+			"item2": "Added Claude Sonnet 4.6 support across all providers",
+			"item3": "Updated Claude Code CLI to v2.1.45 with new models and API"
 		},
 		"cloudAgents": {
 			"heading": "New in the Cloud:",
