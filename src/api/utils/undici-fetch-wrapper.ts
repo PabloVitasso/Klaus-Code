@@ -1,44 +1,35 @@
 /**
- * Wrapper to fix OpenAI SDK connection issues with Node.js 20+ and localhost
- *
- * Problem: Node.js 20+ uses undici for fetch(), which has bugs with localhost connections.
- * Both native fetch() and OpenAI SDK fail silently on localhost in streaming mode.
- *
- * Solution: Use undici.Client directly instead of fetch(), which works correctly.
- * This wrapper replaces global fetch with an undici-based implementation.
+ * Undici-based fetch wrapper for fixing Node.js 20+ localhost streaming issues
  */
 
-import * as undici from "undici"
+import { Client, Dispatcher } from "undici"
 
-const clientCache = new Map<string, undici.Client>()
+const clientCache = new Map<string, Client>()
 
-function getOrCreateClient(baseURL: string): undici.Client {
+function getOrCreateClient(baseURL: string): Client {
 	if (!clientCache.has(baseURL)) {
-		clientCache.set(baseURL, new undici.Client(baseURL))
+		clientCache.set(baseURL, new Client(baseURL))
 	}
 	return clientCache.get(baseURL)!
 }
 
 interface FetchHeaders {
-	[key: string]: string | string[]
+	[key: string]: string | string[] | undefined
 }
 
-/**
- * Wrapper for headers that implements the Headers interface
- */
 class HeadersWrapper {
-	private headersMap: Map<string, string>
+	private headersMap = new Map<string, string>()
 
 	constructor(headers: FetchHeaders) {
-		this.headersMap = new Map()
 		for (const [key, value] of Object.entries(headers)) {
+			if (value === undefined) continue
 			const headerValue = Array.isArray(value) ? value.join(",") : String(value)
 			this.headersMap.set(key.toLowerCase(), headerValue)
 		}
 	}
 
 	get(name: string): string | null {
-		return this.headersMap.get(name.toLowerCase()) || null
+		return this.headersMap.get(name.toLowerCase()) ?? null
 	}
 
 	has(name: string): boolean {
@@ -49,19 +40,11 @@ class HeadersWrapper {
 		return this.headersMap.entries()
 	}
 
-	keys(): IterableIterator<string> {
-		return this.headersMap.keys()
-	}
-
-	values(): IterableIterator<string> {
-		return this.headersMap.values()
-	}
-
 	[Symbol.iterator](): IterableIterator<[string, string]> {
 		return this.headersMap.entries()
 	}
 
-	forEach(callback: (value: string, key: string, parent: HeadersWrapper) => void, thisArg?: any): void {
+	forEach(callback: (value: string, key: string, parent: HeadersWrapper) => void, thisArg?: unknown): void {
 		this.headersMap.forEach((value, key) => {
 			callback.call(thisArg, value, key, this)
 		})
@@ -74,7 +57,7 @@ class FetchResponse {
 	statusText: string
 	headers: HeadersWrapper
 	body: AsyncIterable<Buffer>
-	bodyUsed: boolean = false
+	bodyUsed = false
 
 	constructor(statusCode: number, headers: FetchHeaders, body: AsyncIterable<Buffer>) {
 		this.status = statusCode
@@ -84,15 +67,12 @@ class FetchResponse {
 		this.body = body
 	}
 
-	async json() {
-		let data = ""
-		for await (const chunk of this.body) {
-			data += chunk.toString()
-		}
-		return JSON.parse(data)
+	async json(): Promise<any> {
+		const text = await this.text()
+		return JSON.parse(text)
 	}
 
-	async text() {
+	async text(): Promise<string> {
 		let data = ""
 		for await (const chunk of this.body) {
 			data += chunk.toString()
@@ -100,7 +80,12 @@ class FetchResponse {
 		return data
 	}
 
-	async blob() {
+	async arrayBuffer(): Promise<ArrayBuffer> {
+		const buffer = await this.blob()
+		return buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength)
+	}
+
+	async blob(): Promise<Buffer> {
 		let data = Buffer.alloc(0)
 		for await (const chunk of this.body) {
 			data = Buffer.concat([data, chunk])
@@ -108,36 +93,44 @@ class FetchResponse {
 		return data
 	}
 
-	async arrayBuffer() {
-		const blob = await this.blob()
-		return blob.buffer.slice(blob.byteOffset, blob.byteOffset + blob.byteLength)
-	}
-
-	clone() {
-		throw new Error("Response.clone() not implemented in undici wrapper")
+	clone(): never {
+		throw new Error("Response.clone() not implemented")
 	}
 }
 
 /**
- * Undici-based fetch wrapper that works with OpenAI SDK
+ * Create undici-based fetch
  */
-export function createUndicsiFetch() {
-	return async function fetch(url: string | URL, options?: RequestInit & { timeout?: number }): Promise<Response> {
+export function createUndiciFetch() {
+	return async function fetch(url: string | URL, options?: RequestInit & { timeout?: number }): Promise<any> {
 		const urlObj = new URL(url)
 		const baseURL = `${urlObj.protocol}//${urlObj.host}`
-		const path = urlObj.pathname + (urlObj.search || "")
+		const path = urlObj.pathname + (urlObj.search ?? "")
 
 		const client = getOrCreateClient(baseURL)
 
+		const method: Dispatcher.HttpMethod = (options?.method?.toUpperCase() ?? "GET") as Dispatcher.HttpMethod
+
+		const headers = (options?.headers as Record<string, string>) ?? undefined
+
+		// Narrow body for undici
+		let body: string | Buffer | Uint8Array | null | undefined = undefined
+
+		if (typeof options?.body === "string") body = options.body
+		else if (options?.body instanceof Buffer) body = options.body
+		else if (options?.body instanceof Uint8Array) body = options.body
+		else if (options?.body == null) body = undefined
+		else body = String(options.body)
+
 		try {
-			const response = await client.request({
+			const response: Dispatcher.ResponseData = await client.request({
 				path,
-				method: options?.method || "GET",
-				headers: options?.headers as Record<string, string>,
-				body: options?.body,
+				method,
+				headers,
+				body,
 			})
 
-			return new FetchResponse(response.statusCode, response.headers as FetchHeaders, response.body) as any
+			return new FetchResponse(response.statusCode, response.headers as FetchHeaders, response.body)
 		} catch (error) {
 			throw new Error(`Fetch failed: ${error instanceof Error ? error.message : String(error)}`)
 		}
@@ -145,27 +138,23 @@ export function createUndicsiFetch() {
 }
 
 /**
- * Install the undici-based fetch wrapper as global fetch
- * Call this at the top of your application initialization
+ * Install global fetch override
  */
-export function installUndisciFetchWrapper() {
-	if (typeof globalThis !== "undefined") {
-		// Store original fetch for debugging/fallback
-		const originalFetch = (globalThis as any).fetch
+export function installUndiciFetchWrapper(): (() => void) | void {
+	if (typeof globalThis === "undefined") {
+		return
+	}
 
-		// Override global fetch
-		;(globalThis as any).fetch = createUndicsiFetch()
+	const originalFetch = (globalThis as any).fetch
+	;(globalThis as any).fetch = createUndiciFetch()
 
-		console.log("[undici-fetch-wrapper] Global fetch replaced with undici-based implementation")
+	console.log("[undici-fetch-wrapper] Global fetch replaced with undici Client implementation")
 
-		// Return cleanup function
-		return () => {
-			;(globalThis as any).fetch = originalFetch
-			// Close all cached clients
-			for (const client of clientCache.values()) {
-				client.close().catch(() => {})
-			}
-			clientCache.clear()
+	return () => {
+		;(globalThis as any).fetch = originalFetch
+		for (const client of clientCache.values()) {
+			client.close().catch(() => {})
 		}
+		clientCache.clear()
 	}
 }
