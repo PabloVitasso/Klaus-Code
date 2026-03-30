@@ -1,6 +1,6 @@
 import * as vscode from "vscode"
 
-import { TodoItem } from "@roo-code/types"
+import { TodoItem } from "@klaus-code/types"
 
 import { Task } from "../task/Task"
 import { getModeBySlug } from "../../shared/modes"
@@ -107,12 +107,6 @@ export class NewTaskTool extends BaseTool<"new_task"> {
 
 			if (!didApprove) {
 				return
-			}
-
-			// Provider is guaranteed to be defined here due to earlier check.
-
-			if (task.enableCheckpoints) {
-				task.checkpointSave(true)
 			}
 
 			// Delegate parent and open child as sole active task

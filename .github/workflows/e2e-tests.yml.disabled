@@ -1,0 +1,72 @@
+name: E2E Tests
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * 0" # Weekly on Sunday
+  push:
+    branches: [main]
+    paths:
+      - "apps/vscode-e2e/**"
+      - "src/**"
+
+env:
+  NODE_VERSION: "20.x"
+  VSCODE_VERSION: "1.101.2"
+
+jobs:
+  e2e-test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build extension
+        run: pnpm bundle
+
+      - name: Build webview
+        run: pnpm --filter @klaus-code/vscode-webview build
+
+      - name: Cache VSCode
+        uses: actions/cache@v4
+        with:
+          path: ~/.vscode-test
+          key: vscode-${{ runner.os }}-${{ env.VSCODE_VERSION }}
+
+      - name: Run E2E tests (Linux)
+        if: runner.os == 'Linux'
+        run: xvfb-run -a pnpm --filter @klaus-code/vscode-e2e test:run
+        env:
+          DISPLAY: ":99.0"
+          VSCODE_VERSION: ${{ env.VSCODE_VERSION }}
+          VSCODE_EXTENSION_ID: "KlausCode.klaus-code"
+
+      - name: Run E2E tests (Windows/macOS)
+        if: runner.os != 'Linux'
+        run: pnpm --filter @klaus-code/vscode-e2e test:run
+        env:
+          VSCODE_VERSION: ${{ env.VSCODE_VERSION }}
+          VSCODE_EXTENSION_ID: "KlausCode.klaus-code"
+
+      - name: Upload test artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-test-results-${{ matrix.os }}
+          path: |
+            .vscode-test/
+            apps/vscode-e2e/test-results/
+          retention-days: 7

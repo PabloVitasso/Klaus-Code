@@ -9,7 +9,7 @@ vi.mock("react-i18next", () => ({
 	useTranslation: () => ({
 		t: (key: string) => {
 			const map: Record<string, string> = {
-				"chat:fileOperations.wantsToEdit": "Roo wants to edit this file",
+				"chat:fileOperations.wantsToEdit": "Klaus wants to edit this file",
 			}
 			return map[key] || key
 		},

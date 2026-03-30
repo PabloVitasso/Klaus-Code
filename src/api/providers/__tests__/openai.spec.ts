@@ -4,7 +4,7 @@ import { OpenAiHandler, getOpenAiModels } from "../openai"
 import { ApiHandlerOptions } from "../../../shared/api"
 import { Anthropic } from "@anthropic-ai/sdk"
 import OpenAI from "openai"
-import { openAiModelInfoSaneDefaults } from "@roo-code/types"
+import { openAiModelInfoSaneDefaults } from "@klaus-code/types"
 import { Package } from "../../../shared/package"
 import axios from "axios"
 
@@ -112,7 +112,7 @@ describe("OpenAiHandler", () => {
 				apiKey: expect.any(String),
 				defaultHeaders: {
 					"HTTP-Referer": "https://github.com/RooVetGit/Roo-Cline",
-					"X-Title": "Roo Code",
+					"X-Title": "Klaus Code",
 					"User-Agent": `RooCode/${Package.version}`,
 				},
 				timeout: expect.any(Number),
@@ -635,7 +635,7 @@ describe("OpenAiHandler", () => {
 					temperature: 0,
 					tools: undefined,
 					tool_choice: undefined,
-					parallel_tool_calls: false,
+					parallel_tool_calls: true,
 				},
 				{ path: "/models/chat/completions" },
 			)
@@ -684,7 +684,7 @@ describe("OpenAiHandler", () => {
 					],
 					tools: undefined,
 					tool_choice: undefined,
-					parallel_tool_calls: false,
+					parallel_tool_calls: true,
 				},
 				{ path: "/models/chat/completions" },
 			)

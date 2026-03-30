@@ -11,9 +11,9 @@
 </sub>
 </div>
 
-# Roo Codeへの貢献
+# Klaus Codeへの貢献
 
-Roo Codeはコミュニティ主導のプロジェクトであり、すべての貢献を深く評価しています。共同作業を円滑にするため、私たちは[課題第一のアプローチ](#課題第一のアプローチ)で運営しています。つまり、すべての[プルリクエスト（PR）](#プルリクエストの提出)は、まずGitHubの課題にリンクされている必要があります。このガイドを注意深く確認してください。
+Klaus Codeはコミュニティ主導のプロジェクトであり、すべての貢献を深く評価しています。共同作業を円滑にするため、私たちは[課題第一のアプローチ](#課題第一のアプローチ)で運営しています。つまり、すべての[プルリクエスト（PR）](#プルリクエストの提出)は、まずGitHubの課題にリンクされている必要があります。このガイドを注意深く確認してください。
 
 ## 目次
 
@@ -52,9 +52,9 @@ Roo Codeはコミュニティ主導のプロジェクトであり、すべての
 
 PRでこれらの分野との連携について言及してください。
 
-### 3. Roo Codeコミュニティに参加する
+### 3. Klaus Codeコミュニティに参加する
 
-- **プライマリ：** [Discord](https://discord.gg/roocode)に参加し、**Hannes Rudolph (`hrudolph`)**にDMしてください。
+- **プライマリ：** [Discord](https://discord.tbd)に参加し、**Hannes Rudolph (`hrudolph`)**にDMしてください。
 - **代替：** 経験豊富な貢献者は、[GitHubプロジェクト](https://github.com/orgs/RooCodeInc/projects/1)を介して直接関与できます。
 
 ## 貢献内容の検索と計画
@@ -73,13 +73,13 @@ PRでこれらの分野との連携について言及してください。
 - **課題を作成する**：
     - **機能強化：** 「機能強化リクエスト」テンプレート（ユーザーの利益に焦点を当てた平易な言葉）。
     - **バグ：** 「バグレポート」テンプレート（最小限の再現+期待値と実際値+バージョン）。
-- **それに取り組みたいですか？** 課題に「Claiming」とコメントし、[Discord](https://discord.gg/roocode)で**Hannes Rudolph（`hrudolph`）**にDMして割り当てを受けてください。割り当てはスレッドで確認されます。
+- **それに取り組みたいですか？** 課題に「Claiming」とコメントし、[Discord](https://discord.tbd)で**Hannes Rudolph（`hrudolph`）**にDMして割り当てを受けてください。割り当てはスレッドで確認されます。
 - **PRは課題にリンクする必要があります。** リンクされていないPRはクローズされる場合があります。
 
 ### 何に取り組むかを決める
 
 - 「課題[未割り当て]」の課題については、[GitHubプロジェクト](https://github.com/orgs/RooCodeInc/projects/1)を確認してください。
-- ドキュメントについては、[Roo Codeドキュメント](https://github.com/RooCodeInc/Roo-Code-Docs)をご覧ください。
+- ドキュメントについては、[Klaus Codeドキュメント](https://github.com/RooCodeInc/Roo-Code-Docs)をご覧ください。
 
 ### バグの報告
 
@@ -87,7 +87,7 @@ PRでこれらの分野との連携について言及してください。
 - 次の情報を含む[「バグレポート」テンプレート](https://github.com/RooCodeInc/Roo-Code/issues/new/choose)を使用して新しいバグを作成します。
     - 明確で番号付きの再現手順
     - 期待される結果と実際の結果
-    - Roo Codeのバージョン（必須）。関連する場合はAPIプロバイダー/モデル
+    - Klaus Codeのバージョン（必須）。関連する場合はAPIプロバイダー/モデル
 - **セキュリティの問題**：[セキュリティアドバイザリ](https://github.com/RooCodeInc/Roo-Code/security/advisories/new)を介して非公開で報告してください。
 
 ## 開発と提出のプロセス
@@ -126,7 +126,7 @@ pnpm install
 
 ### プルリクエストポリシー
 
-- 割り当てられたGitHubの課題を参照する必要があります。割り当てを受けるには、課題に「Claiming」とコメントし、[Discord](https://discord.gg/roocode)で**Hannes Rudolph（`hrudolph`）**にDMしてください。割り当てはスレッドで確認されます。
+- 割り当てられたGitHubの課題を参照する必要があります。割り当てを受けるには、課題に「Claiming」とコメントし、[Discord](https://discord.tbd)で**Hannes Rudolph（`hrudolph`）**にDMしてください。割り当てはスレッドで確認されます。
 - リンクされていないPRはクローズされる場合があります。
 - PRはCIテストに合格し、ロードマップに沿っており、明確なドキュメントが必要です。
 
@@ -138,4 +138,4 @@ pnpm install
 
 ## 法務
 
-貢献することにより、あなたの貢献がRoo Codeのライセンスと一致するApache 2.0ライセンスの下でライセンスされることに同意したことになります。
+貢献することにより、あなたの貢献がKlaus Codeのライセンスと一致するApache 2.0ライセンスの下でライセンスされることに同意したことになります。

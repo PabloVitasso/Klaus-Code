@@ -7,7 +7,7 @@ const mockFetch = vi.fn()
 global.fetch = mockFetch as any
 
 describe("getRooModels", () => {
-	const baseUrl = "https://api.roocode.com/proxy"
+	const baseUrl = "https://api.tbd/proxy"
 	const apiKey = "test-api-key"
 
 	beforeEach(() => {
@@ -53,7 +53,7 @@ describe("getRooModels", () => {
 		const models = await getRooModels(baseUrl, apiKey)
 
 		expect(mockFetch).toHaveBeenCalledWith(
-			"https://api.roocode.com/proxy/v1/models",
+			"https://api.tbd/proxy/v1/models",
 			expect.objectContaining({
 				headers: expect.objectContaining({
 					"Content-Type": "application/json",
@@ -210,7 +210,7 @@ describe("getRooModels", () => {
 		const models = await getRooModels(baseUrl)
 
 		expect(mockFetch).toHaveBeenCalledWith(
-			"https://api.roocode.com/proxy/v1/models",
+			"https://api.tbd/proxy/v1/models",
 			expect.objectContaining({
 				headers: expect.not.objectContaining({
 					Authorization: expect.anything(),
@@ -229,7 +229,7 @@ describe("getRooModels", () => {
 		})
 
 		await expect(getRooModels(baseUrl, apiKey)).rejects.toThrow(
-			"Failed to fetch Roo Code Cloud models: HTTP 401: Unauthorized",
+			"Failed to fetch Klaus Code Cloud models: HTTP 401: Unauthorized",
 		)
 	})
 
@@ -240,7 +240,7 @@ describe("getRooModels", () => {
 		mockFetch.mockRejectedValueOnce(abortError)
 
 		await expect(getRooModels(baseUrl, apiKey)).rejects.toThrow(
-			"Failed to fetch Roo Code Cloud models: Request timed out",
+			"Failed to fetch Klaus Code Cloud models: Request timed out",
 		)
 	})
 
@@ -255,7 +255,7 @@ describe("getRooModels", () => {
 		})
 
 		await expect(getRooModels(baseUrl, apiKey)).rejects.toThrow(
-			"Failed to fetch Roo Code Cloud models: Unexpected response format",
+			"Failed to fetch Klaus Code Cloud models: Unexpected response format",
 		)
 	})
 
@@ -270,9 +270,9 @@ describe("getRooModels", () => {
 			json: async () => mockResponse,
 		})
 
-		await getRooModels("https://api.roocode.com/proxy/v1", apiKey)
+		await getRooModels("https://api.tbd/proxy/v1", apiKey)
 
-		expect(mockFetch).toHaveBeenCalledWith("https://api.roocode.com/proxy/v1/models", expect.any(Object))
+		expect(mockFetch).toHaveBeenCalledWith("https://api.tbd/proxy/v1/models", expect.any(Object))
 	})
 
 	it("should handle deprecated models", async () => {
@@ -478,7 +478,7 @@ describe("getRooModels", () => {
 		mockFetch.mockRejectedValueOnce(new TypeError("Network error"))
 
 		await expect(getRooModels(baseUrl, apiKey)).rejects.toThrow(
-			"Failed to fetch Roo Code Cloud models: No response from server",
+			"Failed to fetch Klaus Code Cloud models: No response from server",
 		)
 	})
 

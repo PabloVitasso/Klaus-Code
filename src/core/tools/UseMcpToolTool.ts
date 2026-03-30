@@ -1,9 +1,10 @@
-import type { ClineAskUseMcpServer, McpExecutionStatus } from "@roo-code/types"
+import type { ClineAskUseMcpServer, McpExecutionStatus } from "@klaus-code/types"
 
 import { Task } from "../task/Task"
 import { formatResponse } from "../prompts/responses"
 import { t } from "../../i18n"
 import type { ToolUse } from "../../shared/tools"
+import { toolNamesMatch } from "../../utils/mcp-name"
 
 import { BaseTool, ToolCallbacks } from "./BaseTool"
 
@@ -43,6 +44,10 @@ export class UseMcpToolTool extends BaseTool<"use_mcp_tool"> {
 				return
 			}
 
+			// Use the resolved tool name (original name from the server) for MCP calls
+			// This handles cases where models mangle hyphens to underscores
+			const resolvedToolName = toolValidation.resolvedToolName ?? toolName
+
 			// Reset mistake count on successful validation
 			task.consecutiveMistakeCount = 0
 
@@ -50,7 +55,7 @@ export class UseMcpToolTool extends BaseTool<"use_mcp_tool"> {
 			const completeMessage = JSON.stringify({
 				type: "use_mcp_tool",
 				serverName,
-				toolName,
+				toolName: resolvedToolName,
 				arguments: params.arguments ? JSON.stringify(params.arguments) : undefined,
 			} satisfies ClineAskUseMcpServer)
 
@@ -65,7 +70,7 @@ export class UseMcpToolTool extends BaseTool<"use_mcp_tool"> {
 			await this.executeToolAndProcessResult(
 				task,
 				serverName,
-				toolName,
+				resolvedToolName,
 				parsedArguments,
 				executionId,
 				pushToolResult,
@@ -137,7 +142,7 @@ export class UseMcpToolTool extends BaseTool<"use_mcp_tool"> {
 		serverName: string,
 		toolName: string,
 		pushToolResult: (content: string) => void,
-	): Promise<{ isValid: boolean; availableTools?: string[] }> {
+	): Promise<{ isValid: boolean; availableTools?: string[]; resolvedToolName?: string }> {
 		try {
 			// Get the MCP hub to access server information
 			const provider = task.providerRef.deref()
@@ -186,8 +191,8 @@ export class UseMcpToolTool extends BaseTool<"use_mcp_tool"> {
 				return { isValid: false, availableTools: [] }
 			}
 
-			// Check if the requested tool exists
-			const tool = server.tools.find((tool) => tool.name === toolName)
+			// Check if the requested tool exists (using fuzzy matching to handle model mangling of hyphens)
+			const tool = server.tools.find((t) => toolNamesMatch(t.name, toolName))
 
 			if (!tool) {
 				// Tool not found - provide list of available tools
@@ -232,8 +237,8 @@ export class UseMcpToolTool extends BaseTool<"use_mcp_tool"> {
 				return { isValid: false, availableTools: enabledToolNames }
 			}
 
-			// Tool exists and is enabled
-			return { isValid: true, availableTools: server.tools.map((tool) => tool.name) }
+			// Tool exists and is enabled - return the original tool name for use with the MCP server
+			return { isValid: true, availableTools: server.tools.map((t) => t.name), resolvedToolName: tool.name }
 		} catch (error) {
 			// If there's an error during validation, log it but don't block the tool execution
 			// The actual tool call might still fail with a proper error
@@ -250,12 +255,14 @@ export class UseMcpToolTool extends BaseTool<"use_mcp_tool"> {
 		})
 	}
 
-	private processToolContent(toolResult: any): string {
+	private processToolContent(toolResult: any): { text: string; images: string[] } {
 		if (!toolResult?.content || toolResult.content.length === 0) {
-			return ""
+			return { text: "", images: [] }
 		}
 
-		return toolResult.content
+		const images: string[] = []
+
+		const textContent = toolResult.content
 			.map((item: any) => {
 				if (item.type === "text") {
 					return item.text
@@ -264,10 +271,23 @@ export class UseMcpToolTool extends BaseTool<"use_mcp_tool"> {
 					const { blob: _, ...rest } = item.resource
 					return JSON.stringify(rest, null, 2)
 				}
+				if (item.type === "image") {
+					// Handle image content (MCP image content has mimeType and data properties)
+					if (item.mimeType && item.data) {
+						if (item.data.startsWith("data:")) {
+							images.push(item.data)
+						} else {
+							images.push(`data:${item.mimeType};base64,${item.data}`)
+						}
+					}
+					return ""
+				}
 				return ""
 			})
 			.filter(Boolean)
 			.join("\n\n")
+
+		return { text: textContent, images }
 	}
 
 	private async executeToolAndProcessResult(
@@ -291,18 +311,22 @@ export class UseMcpToolTool extends BaseTool<"use_mcp_tool"> {
 		const toolResult = await task.providerRef.deref()?.getMcpHub()?.callTool(serverName, toolName, parsedArguments)
 
 		let toolResultPretty = "(No response)"
+		let images: string[] = []
 
 		if (toolResult) {
-			const outputText = this.processToolContent(toolResult)
+			const { text: outputText, images: extractedImages } = this.processToolContent(toolResult)
+			images = extractedImages
 
-			if (outputText) {
+			if (outputText || images.length > 0) {
 				await this.sendExecutionStatus(task, {
 					executionId,
 					status: "output",
-					response: outputText,
+					response: outputText || (images.length > 0 ? `[${images.length} image(s)]` : ""),
 				})
 
-				toolResultPretty = (toolResult.isError ? "Error:\n" : "") + outputText
+				toolResultPretty =
+					(toolResult.isError ? "Error:\n" : "") +
+					(outputText || (images.length > 0 ? `[${images.length} image(s) received]` : ""))
 			}
 
 			// Send completion status
@@ -321,8 +345,8 @@ export class UseMcpToolTool extends BaseTool<"use_mcp_tool"> {
 			})
 		}
 
-		await task.say("mcp_server_response", toolResultPretty)
-		pushToolResult(formatResponse.toolResult(toolResultPretty))
+		await task.say("mcp_server_response", toolResultPretty, images)
+		pushToolResult(formatResponse.toolResult(toolResultPretty, images))
 	}
 }
 

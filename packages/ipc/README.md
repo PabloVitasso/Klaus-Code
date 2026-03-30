@@ -1,6 +1,6 @@
 # IPC (Inter-Process Communication)
 
-This package provides IPC functionality for Roo Code, allowing external applications to communicate with the extension through a socket-based interface.
+This package provides IPC functionality for Klaus Code, allowing external applications to communicate with the extension through a socket-based interface.
 
 ## Available Commands
 
@@ -49,7 +49,7 @@ Resumes a task from history.
 ## Usage Example
 
 ```typescript
-import { IpcClient } from "@roo-code/ipc"
+import { IpcClient } from "@klaus-code/ipc"
 
 const client = new IpcClient("/path/to/socket")
 

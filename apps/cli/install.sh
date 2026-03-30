@@ -1,5 +1,5 @@
 #!/bin/sh
-# Roo Code CLI Installer
+# Klaus Code CLI Installer
 # Usage: curl -fsSL https://raw.githubusercontent.com/RooCodeInc/Roo-Code/main/apps/cli/install.sh | sh
 #
 # Environment variables:
@@ -267,7 +267,7 @@ verify_install() {
 # Print success message
 print_success() {
     echo ""
-    printf "${GREEN}${BOLD}✓ Roo Code CLI installed successfully!${NC}\n"
+    printf "${GREEN}${BOLD}✓ Klaus Code CLI installed successfully!${NC}\n"
     echo ""
     echo "  Installation: $INSTALL_DIR"
     echo "  Binary: $BIN_DIR/roo"
@@ -278,7 +278,7 @@ print_success() {
     echo ""
     echo "  ${BOLD}Example:${NC}"
     echo "    export OPENROUTER_API_KEY=sk-or-v1-..."
-    echo "    roo ~/my-project -P \"What is this project?\""
+    echo "    cd ~/my-project && roo \"What is this project?\""
     echo ""
 }
 
@@ -287,7 +287,7 @@ main() {
     echo ""
     printf "${BLUE}${BOLD}"
     echo "  ╭─────────────────────────────────╮"
-    echo "  │     Roo Code CLI Installer      │"
+    echo "  │     Klaus Code CLI Installer      │"
     echo "  ╰─────────────────────────────────╯"
     printf "${NC}"
     echo ""

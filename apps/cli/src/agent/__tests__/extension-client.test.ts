@@ -5,7 +5,7 @@ import {
 	isResumableAsk,
 	isInteractiveAsk,
 	isNonBlockingAsk,
-} from "@roo-code/types"
+} from "@klaus-code/types"
 
 import { AgentLoopState, detectAgentState } from "../agent-state.js"
 import { createMockClient } from "../extension-client.js"
@@ -91,13 +91,6 @@ describe("detectAgentState", () => {
 			expect(state.state).toBe(AgentLoopState.WAITING_FOR_INPUT)
 			expect(state.currentAsk).toBe("followup")
 			expect(state.requiredAction).toBe("answer")
-		})
-
-		it("should detect waiting for browser_action_launch approval", () => {
-			const messages = [createMessage({ type: "ask", ask: "browser_action_launch", partial: false })]
-			const state = detectAgentState(messages)
-			expect(state.state).toBe(AgentLoopState.WAITING_FOR_INPUT)
-			expect(state.requiredAction).toBe("approve")
 		})
 
 		it("should detect waiting for use_mcp_server approval", () => {
@@ -202,7 +195,6 @@ describe("Type Guards", () => {
 			expect(isInteractiveAsk("tool")).toBe(true)
 			expect(isInteractiveAsk("command")).toBe(true)
 			expect(isInteractiveAsk("followup")).toBe(true)
-			expect(isInteractiveAsk("browser_action_launch")).toBe(true)
 			expect(isInteractiveAsk("use_mcp_server")).toBe(true)
 		})
 

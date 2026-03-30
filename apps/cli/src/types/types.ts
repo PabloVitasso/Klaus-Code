@@ -1,4 +1,4 @@
-import type { ProviderName, ReasoningEffortExtended } from "@roo-code/types"
+import type { ProviderName, ReasoningEffortExtended } from "@klaus-code/types"
 import type { OutputFormat } from "./json-events.js"
 
 export const supportedProviders = [
@@ -22,10 +22,11 @@ export type FlagOptions = {
 	promptFile?: string
 	workspace?: string
 	print: boolean
+	stdinPromptStream: boolean
 	extension?: string
 	debug: boolean
-	yes: boolean
-	dangerouslySkipPermissions: boolean
+	requireApproval: boolean
+	exitOnError: boolean
 	apiKey?: string
 	provider?: SupportedProvider
 	model?: string
@@ -57,7 +58,9 @@ export interface CliSettings {
 	model?: string
 	/** Default reasoning effort level */
 	reasoningEffort?: ReasoningEffortFlagOptions
-	/** Auto-approve all prompts (use with caution) */
+	/** Require manual approval for tools/commands/browser/MCP actions */
+	requireApproval?: boolean
+	/** @deprecated Legacy inverse setting kept for backward compatibility */
 	dangerouslySkipPermissions?: boolean
 	/** Exit upon task completion */
 	oneshot?: boolean

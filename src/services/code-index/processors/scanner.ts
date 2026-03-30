@@ -26,8 +26,8 @@ import {
 	MAX_PENDING_BATCHES,
 } from "../constants"
 import { isPathInIgnoredDirectory } from "../../glob/ignore-utils"
-import { TelemetryService } from "@roo-code/telemetry"
-import { TelemetryEventName } from "@roo-code/types"
+import { TelemetryService } from "@klaus-code/telemetry"
+import { TelemetryEventName } from "@klaus-code/types"
 import { sanitizeErrorMessage } from "../shared/validation-helpers"
 import { Package } from "../../../shared/package"
 
@@ -96,7 +96,8 @@ export class DirectoryScanner implements IDirectoryScanner {
 			const relativeFilePath = generateRelativeFilePath(filePath, scanWorkspace)
 
 			// Check if file is in an ignored directory using the shared helper
-			if (isPathInIgnoredDirectory(filePath)) {
+			// Use relative path to avoid matching parent directories outside the workspace
+			if (isPathInIgnoredDirectory(relativeFilePath)) {
 				return false
 			}
 

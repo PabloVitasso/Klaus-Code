@@ -1,19 +1,11 @@
 import { useState, useEffect, useCallback } from "react"
 
-import type { Worktree } from "@roo-code/types"
+import type { Worktree } from "@klaus-code/types"
 
 import { vscode } from "@/utils/vscode"
 import { useAppTranslation } from "@/i18n/TranslationContext"
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-	Button,
-	Checkbox,
-} from "@/components/ui"
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Button, Checkbox } from "@/components/ui"
+import { Folder, GitBranch, TriangleAlert } from "lucide-react"
 
 interface DeleteWorktreeModalProps {
 	open: boolean
@@ -26,7 +18,7 @@ export const DeleteWorktreeModal = ({ open, onClose, worktree, onSuccess }: Dele
 	const { t } = useAppTranslation()
 
 	const [isDeleting, setIsDeleting] = useState(false)
-	const [forceDelete, setForceDelete] = useState(false)
+	const [forceDeleteLocked, setForceDeleteLocked] = useState(false)
 	const [error, setError] = useState<string | null>(null)
 
 	useEffect(() => {
@@ -52,56 +44,62 @@ export const DeleteWorktreeModal = ({ open, onClose, worktree, onSuccess }: Dele
 		setError(null)
 		setIsDeleting(true)
 
+		// Always force delete unless worktree is locked and user hasn't opted in
+		const shouldForce = worktree.isLocked ? forceDeleteLocked : true
+
 		vscode.postMessage({
 			type: "deleteWorktree",
 			worktreePath: worktree.path,
-			worktreeForce: forceDelete,
+			worktreeForce: shouldForce,
 		})
-	}, [worktree.path, forceDelete])
+	}, [worktree.path, worktree.isLocked, forceDeleteLocked])
 
 	return (
 		<Dialog open={open} onOpenChange={(isOpen: boolean) => !isOpen && onClose()}>
 			<DialogContent>
 				<DialogHeader>
-					<div className="flex items-center gap-2">
-						<span className="codicon codicon-warning text-vscode-charts-yellow text-xl" />
-						<DialogTitle>{t("worktrees:deleteWorktree")}</DialogTitle>
-					</div>
-					<DialogDescription>{t("worktrees:deleteWorktreeDescription")}</DialogDescription>
+					<DialogTitle>{t("worktrees:deleteWorktree")}</DialogTitle>
 				</DialogHeader>
 
 				<div className="flex flex-col gap-3 overflow-hidden">
 					{/* Worktree info */}
-					<div className="px-2 py-1.5 rounded bg-vscode-input-background border border-vscode-input-border">
-						<div className="flex items-center gap-2">
-							<span className="codicon codicon-git-branch flex-shrink-0" />
-							<span className="font-medium text-vscode-foreground truncate">
+					<div className="flex flex-col p-5 gap-2 cursor-default rounded-xl text-vscode-foreground bg-vscode-input-background">
+						<p className="flex items-center gap-2 m-0">
+							<GitBranch className="size-4 shrink-0" />
+							<span className="font-medium truncate">
 								{worktree.branch ||
 									(worktree.isDetached ? t("worktrees:detachedHead") : t("worktrees:noBranch"))}
 							</span>
-						</div>
-						<div className="text-xs text-vscode-descriptionForeground mt-0.5 truncate">{worktree.path}</div>
+						</p>
+
+						<p className="flex items-start gap-2 m-0">
+							<Folder className="size-4 shrink-0" />
+							<span className="m-0 text-sm font-mono font-medium text-vscode-descriptionForeground">
+								{worktree.path}
+							</span>
+						</p>
 					</div>
 
 					{/* Warning message */}
-					<div className="flex items-start gap-2 p-2 rounded bg-vscode-inputValidation-warningBackground border border-vscode-inputValidation-warningBorder text-sm">
-						<span className="codicon codicon-warning text-vscode-charts-yellow flex-shrink-0 mt-0.5" />
-						<div className="min-w-0">
-							<p className="text-vscode-foreground m-0">{t("worktrees:deleteWarning")}</p>
-							<ul className="mt-1 mb-0 pl-0 list-none space-y-0.5 text-vscode-descriptionForeground">
-								<li>• {t("worktrees:deleteWarningBranch", { branch: worktree.branch || "HEAD" })}</li>
+					<div className="flex items-start gap-2 px-5 py-2">
+						<TriangleAlert className="size-4 text-vscode-charts-yellow flex-shrink-0" />
+						<div className="flex flex-col min-w-0 gap-2">
+							<p className="m-0 text-vscode-foreground">{t("worktrees:deleteWarning")}</p>
+							<ul className="m-0 pl-0 list-none space-y-1 text-vscode-descriptionForeground">
+								<li>• {t("worktrees:deleteWarningBranch")}</li>
 								<li>• {t("worktrees:deleteWarningFiles")}</li>
 							</ul>
+							<p className="m-0 text-vscode-descriptionForeground">{t("worktrees:deleteNoticeLarge")}</p>
 						</div>
 					</div>
 
-					{/* Force delete option (if worktree is locked) */}
+					{/* Force delete option (only shown if worktree is locked) */}
 					{worktree.isLocked && (
 						<div className="flex items-center gap-2">
 							<Checkbox
 								id="force-delete"
-								checked={forceDelete}
-								onCheckedChange={(checked) => setForceDelete(checked === true)}
+								checked={forceDeleteLocked}
+								onCheckedChange={(checked) => setForceDeleteLocked(checked === true)}
 							/>
 							<label htmlFor="force-delete" className="text-sm text-vscode-foreground cursor-pointer">
 								{t("worktrees:forceDelete")}

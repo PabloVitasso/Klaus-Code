@@ -15,9 +15,9 @@ import {
 	geminiDefaultModelId,
 	geminiModels,
 	ApiProviderError,
-} from "@roo-code/types"
-import { safeJsonParse } from "@roo-code/core"
-import { TelemetryService } from "@roo-code/telemetry"
+} from "@klaus-code/types"
+import { safeJsonParse } from "@klaus-code/core"
+import { TelemetryService } from "@klaus-code/telemetry"
 
 import type { ApiHandlerOptions } from "../../shared/api"
 
@@ -404,14 +404,6 @@ export class GeminiHandler extends BaseProvider implements SingleCompletionHandl
 		const { id: model, info } = this.getModel()
 
 		try {
-			const tools: GenerateContentConfig["tools"] = []
-			if (this.options.enableUrlContext) {
-				tools.push({ urlContext: {} })
-			}
-			if (this.options.enableGrounding) {
-				tools.push({ googleSearch: {} })
-			}
-
 			const supportsTemperature = info.supportsTemperature !== false
 			const temperatureConfig: number | undefined = supportsTemperature
 				? (this.options.modelTemperature ?? info.defaultTemperature ?? 1)
@@ -422,7 +414,6 @@ export class GeminiHandler extends BaseProvider implements SingleCompletionHandl
 					? { baseUrl: this.options.googleGeminiBaseUrl }
 					: undefined,
 				temperature: temperatureConfig,
-				...(tools.length > 0 ? { tools } : {}),
 			}
 
 			const request = {

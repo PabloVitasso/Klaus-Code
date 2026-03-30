@@ -94,26 +94,21 @@ export type OrganizationAllowList = z.infer<typeof organizationAllowListSchema>
 export const organizationDefaultSettingsSchema = globalSettingsSchema
 	.pick({
 		enableCheckpoints: true,
-		fuzzyMatchThreshold: true,
 		maxOpenTabsContext: true,
-		maxReadFileLine: true,
 		maxWorkspaceFiles: true,
 		showRooIgnoredFiles: true,
 		terminalCommandDelay: true,
-		terminalCompressProgressBar: true,
-		terminalOutputLineLimit: true,
 		terminalShellIntegrationDisabled: true,
 		terminalShellIntegrationTimeout: true,
 		terminalZshClearEolMark: true,
+		disabledTools: true,
 	})
 	// Add stronger validations for some fields.
 	.merge(
 		z.object({
 			maxOpenTabsContext: z.number().int().nonnegative().optional(),
-			maxReadFileLine: z.number().int().gte(-1).optional(),
 			maxWorkspaceFiles: z.number().int().nonnegative().optional(),
 			terminalCommandDelay: z.number().int().nonnegative().optional(),
-			terminalOutputLineLimit: z.number().int().nonnegative().optional(),
 			terminalShellIntegrationTimeout: z.number().int().nonnegative().optional(),
 		}),
 	)

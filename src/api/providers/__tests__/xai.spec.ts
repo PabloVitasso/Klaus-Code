@@ -2,7 +2,7 @@
 
 // Mock TelemetryService - must come before other imports
 const mockCaptureException = vitest.hoisted(() => vitest.fn())
-vitest.mock("@roo-code/telemetry", () => ({
+vitest.mock("@klaus-code/telemetry", () => ({
 	TelemetryService: {
 		instance: {
 			captureException: mockCaptureException,
@@ -24,7 +24,7 @@ vitest.mock("openai", () => {
 import OpenAI from "openai"
 import type { Anthropic } from "@anthropic-ai/sdk"
 
-import { xaiDefaultModelId, xaiModels } from "@roo-code/types"
+import { xaiDefaultModelId, xaiModels } from "@klaus-code/types"
 
 import { XAIHandler } from "../xai"
 
@@ -339,7 +339,7 @@ describe("XAIHandler", () => {
 							}),
 						}),
 					]),
-					parallel_tool_calls: false,
+					parallel_tool_calls: true,
 				}),
 			)
 		})
@@ -393,7 +393,7 @@ describe("XAIHandler", () => {
 			const callArgs = mockCreate.mock.calls[mockCreate.mock.calls.length - 1][0]
 			expect(callArgs).toHaveProperty("tools")
 			expect(callArgs).toHaveProperty("tool_choice")
-			expect(callArgs).toHaveProperty("parallel_tool_calls", false)
+			expect(callArgs).toHaveProperty("parallel_tool_calls", true)
 		})
 
 		it("should yield tool_call_partial chunks during streaming", async () => {

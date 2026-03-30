@@ -1,4 +1,4 @@
-import { type ModelInfo, type VertexModelId, vertexDefaultModelId, vertexModels } from "@roo-code/types"
+import { type ModelInfo, type VertexModelId, vertexDefaultModelId, vertexModels } from "@klaus-code/types"
 
 import type { ApiHandlerOptions } from "../../shared/api"
 
@@ -16,7 +16,13 @@ export class VertexHandler extends GeminiHandler implements SingleCompletionHand
 		const modelId = this.options.apiModelId
 		let id = modelId && modelId in vertexModels ? (modelId as VertexModelId) : vertexDefaultModelId
 		const info: ModelInfo = vertexModels[id]
-		const params = getModelParams({ format: "gemini", modelId: id, model: info, settings: this.options })
+		const params = getModelParams({
+			format: "gemini",
+			modelId: id,
+			model: info,
+			settings: this.options,
+			defaultTemperature: info.defaultTemperature ?? 1,
+		})
 
 		// The `:thinking` suffix indicates that the model is a "Hybrid"
 		// reasoning model and that reasoning is required to be enabled.

@@ -1,0 +1,170 @@
+name: Weekly Build
+
+on:
+  schedule:
+    - cron: '0 0 * * 0' # Run every Sunday at midnight UTC
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  publish-weekly:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write # Required for creating releases
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Node.js and pnpm
+        uses: ./.github/actions/setup-node-pnpm
+        with:
+          install-args: '--frozen-lockfile'
+      - name: Cache Turbo build artifacts
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-
+      - name: Generate nightly version from main package
+        id: version
+        run: |
+          # Read version from src/package.json
+          MAIN_VERSION=$(node -p "require('./src/package.json').version")
+          DATE_SUFFIX=$(date +%Y%m%d)
+          NIGHTLY_VERSION="${MAIN_VERSION}.nightly${DATE_SUFFIX}"
+
+          echo "main=${MAIN_VERSION}" >> $GITHUB_OUTPUT
+          echo "nightly=${NIGHTLY_VERSION}" >> $GITHUB_OUTPUT
+          echo "date=${DATE_SUFFIX}" >> $GITHUB_OUTPUT
+
+          echo "🔖 Main version: ${MAIN_VERSION}"
+          echo "🔖 Nightly version: ${NIGHTLY_VERSION}"
+      - name: Patch package.json version
+        env:
+          NIGHTLY_VERSION: ${{ steps.version.outputs.nightly }}
+        run: |
+          node <<'EOF'
+            const fs = require('fs');
+            const path = require('path');
+            const pkgPath = path.join(__dirname, 'apps', 'vscode-nightly', 'package.nightly.json');
+            const pkg = JSON.parse(fs.readFileSync(pkgPath,'utf8'));
+            pkg.version = process.env.NIGHTLY_VERSION;
+            fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2));
+            console.log(`🔖 Nightly version set to ${pkg.version}`);
+          EOF
+      - name: Build dependencies
+        run: pnpm build
+      - name: Build VSIX
+        run: pnpm vsix:nightly # Produces bin/klaus-code-nightly-X.Y.Z-klaus.N.nightlyYYYYMMDD.vsix
+      - name: Generate Changelog
+        id: changelog
+        run: |
+          # Find last weekly tag
+          LAST_TAG=$(git tag --list 'weekly-v*' --sort=-version:refname | head -n1)
+
+          if [ -z "$LAST_TAG" ]; then
+            echo "📝 First weekly build - generating full changelog"
+            COMMIT_RANGE="HEAD~50..HEAD"  # Last 50 commits for first build
+            LAST_TAG="initial"
+          else
+            echo "📝 Generating changelog from $LAST_TAG to HEAD"
+            COMMIT_RANGE="${LAST_TAG}..HEAD"
+          fi
+
+          # Count commits
+          COMMIT_COUNT=$(git rev-list --count $COMMIT_RANGE 2>/dev/null || echo "0")
+
+          if [ "$COMMIT_COUNT" = "0" ]; then
+            echo "No new commits since last weekly build"
+            CHANGELOG="No changes since last weekly build."
+          else
+            # Generate changelog
+            CHANGELOG="## What's Changed
+
+          "
+
+            # Features
+            FEATURES=$(git log $COMMIT_RANGE --oneline --no-merges --grep="^feat" --perl-regexp --pretty=format:"- %s" 2>/dev/null || true)
+            if [ -n "$FEATURES" ]; then
+              CHANGELOG="${CHANGELOG}### ✨ Features
+
+          ${FEATURES}
+
+          "
+            fi
+
+            # Bug Fixes
+            FIXES=$(git log $COMMIT_RANGE --oneline --no-merges --grep="^fix" --perl-regexp --pretty=format:"- %s" 2>/dev/null || true)
+            if [ -n "$FIXES" ]; then
+              CHANGELOG="${CHANGELOG}### 🐛 Bug Fixes
+
+          ${FIXES}
+
+          "
+            fi
+
+            # Documentation
+            DOCS=$(git log $COMMIT_RANGE --oneline --no-merges --grep="^docs" --perl-regexp --pretty=format:"- %s" 2>/dev/null || true)
+            if [ -n "$DOCS" ]; then
+              CHANGELOG="${CHANGELOG}### 📚 Documentation
+
+          ${DOCS}
+
+          "
+            fi
+
+            # Other changes
+            OTHERS=$(git log $COMMIT_RANGE --oneline --no-merges --invert-grep --grep="^feat" --grep="^fix" --grep="^docs" --perl-regexp --pretty=format:"- %s" 2>/dev/null | head -20 || true)
+            if [ -n "$OTHERS" ]; then
+              CHANGELOG="${CHANGELOG}### 🔧 Other Changes
+
+          ${OTHERS}
+
+          "
+            fi
+
+            # Add footer
+            CHANGELOG="${CHANGELOG}---
+
+          **Full Changelog**: https://github.com/${{ github.repository }}/compare/${LAST_TAG}...weekly-v${{ steps.version.outputs.nightly }}
+
+          📊 **$COMMIT_COUNT** commits in this release
+          🏷️  **Based on**: Klaus Code v${{ steps.version.outputs.main }}"
+          fi
+
+          # Save to file (GitHub Actions doesn't handle multiline output well)
+          echo "$CHANGELOG" > /tmp/changelog.md
+          echo "changelog_file=/tmp/changelog.md" >> $GITHUB_OUTPUT
+          echo "commit_count=$COMMIT_COUNT" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Pre-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          NIGHTLY_VERSION="${{ steps.version.outputs.nightly }}"
+          MAIN_VERSION="${{ steps.version.outputs.main }}"
+          VSIX_FILE=$(ls bin/*.vsix | head -n1)
+          VSIX_FILENAME=$(basename "$VSIX_FILE")
+          CHANGELOG_FILE="${{ steps.changelog.outputs.changelog_file }}"
+
+          # Create pre-release with generated changelog
+          gh release create "weekly-v${NIGHTLY_VERSION}" \
+            --title "Weekly Build v${NIGHTLY_VERSION} (based on v${MAIN_VERSION})" \
+            --notes-file "$CHANGELOG_FILE" \
+            --prerelease \
+            "$VSIX_FILE"
+
+          echo "✅ Created weekly pre-release v${NIGHTLY_VERSION} with ${VSIX_FILENAME}"
+          echo "📝 Based on Klaus Code v${MAIN_VERSION}"
+          echo "📝 Changelog includes ${{ steps.changelog.outputs.commit_count }} commits"
+      # - name: Publish to VS Code Marketplace
+      #   env:
+      #     VSCE_PAT: ${{ secrets.VSCE_PAT }}
+      #   run: npx vsce publish --packagePath "bin/$(/bin/ls bin | head -n1)"
+      # - name: Publish to Open VSX Registry
+      #   env:
+      #     OVSX_PAT: ${{ secrets.OVSX_PAT }}
+      #   run: npx ovsx publish "bin/$(ls bin | head -n1)"

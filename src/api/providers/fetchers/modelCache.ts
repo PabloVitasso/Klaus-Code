@@ -5,9 +5,9 @@ import * as fsSync from "fs"
 import NodeCache from "node-cache"
 import { z } from "zod"
 
-import type { ProviderName, ModelRecord } from "@roo-code/types"
-import { modelInfoSchema, TelemetryEventName } from "@roo-code/types"
-import { TelemetryService } from "@roo-code/telemetry"
+import type { ProviderName, ModelRecord } from "@klaus-code/types"
+import { modelInfoSchema, TelemetryEventName } from "@klaus-code/types"
+import { TelemetryService } from "@klaus-code/telemetry"
 
 import { safeWriteJson } from "../../../utils/safeWriteJson"
 
@@ -19,16 +19,11 @@ import { fileExistsAtPath } from "../../../utils/fs"
 import { getOpenRouterModels } from "./openrouter"
 import { getVercelAiGatewayModels } from "./vercel-ai-gateway"
 import { getRequestyModels } from "./requesty"
-import { getUnboundModels } from "./unbound"
 import { getLiteLLMModels } from "./litellm"
 import { GetModelsOptions } from "../../../shared/api"
 import { getOllamaModels } from "./ollama"
 import { getLMStudioModels } from "./lmstudio"
-import { getIOIntelligenceModels } from "./io-intelligence"
-import { getDeepInfraModels } from "./deepinfra"
-import { getHuggingFaceModels } from "./huggingface"
 import { getRooModels } from "./roo"
-import { getChutesModels } from "./chutes"
 
 const memoryCache = new NodeCache({ stdTTL: 5 * 60, checkperiod: 5 * 60 })
 
@@ -73,10 +68,6 @@ async function fetchModelsFromProvider(options: GetModelsOptions): Promise<Model
 			// Requesty models endpoint requires an API key for per-user custom policies.
 			models = await getRequestyModels(options.baseUrl, options.apiKey)
 			break
-		case "unbound":
-			// Unbound models endpoint requires an API key to fetch application specific models.
-			models = await getUnboundModels(options.apiKey)
-			break
 		case "litellm":
 			// Type safety ensures apiKey and baseUrl are always provided for LiteLLM.
 			models = await getLiteLLMModels(options.apiKey, options.baseUrl)
@@ -87,27 +78,15 @@ async function fetchModelsFromProvider(options: GetModelsOptions): Promise<Model
 		case "lmstudio":
 			models = await getLMStudioModels(options.baseUrl)
 			break
-		case "deepinfra":
-			models = await getDeepInfraModels(options.apiKey, options.baseUrl)
-			break
-		case "io-intelligence":
-			models = await getIOIntelligenceModels(options.apiKey)
-			break
 		case "vercel-ai-gateway":
 			models = await getVercelAiGatewayModels()
 			break
-		case "huggingface":
-			models = await getHuggingFaceModels()
-			break
 		case "roo": {
-			// Roo Code Cloud provider requires baseUrl and optional apiKey
-			const rooBaseUrl = options.baseUrl ?? process.env.ROO_CODE_PROVIDER_URL ?? "https://api.roocode.com/proxy"
+			// Klaus Code Cloud provider requires baseUrl and optional apiKey
+			const rooBaseUrl = options.baseUrl ?? process.env.ROO_CODE_PROVIDER_URL ?? "https://api.tbd/proxy"
 			models = await getRooModels(rooBaseUrl, options.apiKey)
 			break
 		}
-		case "chutes":
-			models = await getChutesModels(options.apiKey)
-			break
 		default: {
 			// Ensures router is exhaustively checked if RouterName is a strict union.
 			const exhaustiveCheck: never = provider
@@ -249,7 +228,6 @@ export async function initializeModelCacheRefresh(): Promise<void> {
 		const publicProviders: Array<{ provider: RouterName; options: GetModelsOptions }> = [
 			{ provider: "openrouter", options: { provider: "openrouter" } },
 			{ provider: "vercel-ai-gateway", options: { provider: "vercel-ai-gateway" } },
-			{ provider: "chutes", options: { provider: "chutes" } },
 		]
 
 		// Refresh each provider in background (fire and forget)

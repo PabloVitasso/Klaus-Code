@@ -8,7 +8,7 @@ import OpenAI from "openai"
 
 import { VercelAiGatewayHandler } from "../vercel-ai-gateway"
 import { ApiHandlerOptions } from "../../../shared/api"
-import { vercelAiGatewayDefaultModelId, VERCEL_AI_GATEWAY_DEFAULT_TEMPERATURE } from "@roo-code/types"
+import { vercelAiGatewayDefaultModelId, VERCEL_AI_GATEWAY_DEFAULT_TEMPERATURE } from "@klaus-code/types"
 
 // Mock dependencies
 vitest.mock("openai")
@@ -97,7 +97,7 @@ describe("VercelAiGatewayHandler", () => {
 			apiKey: mockOptions.vercelAiGatewayApiKey,
 			defaultHeaders: expect.objectContaining({
 				"HTTP-Referer": "https://github.com/RooVetGit/Roo-Cline",
-				"X-Title": "Roo Code",
+				"X-Title": "Klaus Code",
 				"User-Agent": expect.stringContaining("RooCode/"),
 			}),
 		})
@@ -366,7 +366,7 @@ describe("VercelAiGatewayHandler", () => {
 				)
 			})
 
-			it("should include parallel_tool_calls: false by default", async () => {
+			it("should include parallel_tool_calls: true by default", async () => {
 				const handler = new VercelAiGatewayHandler(mockOptions)
 
 				const messageGenerator = handler.createMessage("test prompt", [], {
@@ -378,7 +378,7 @@ describe("VercelAiGatewayHandler", () => {
 				expect(mockCreate).toHaveBeenCalledWith(
 					expect.objectContaining({
 						tools: expect.any(Array),
-						parallel_tool_calls: false,
+						parallel_tool_calls: true,
 					}),
 				)
 			})

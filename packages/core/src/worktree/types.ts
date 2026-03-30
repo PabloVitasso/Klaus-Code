@@ -1,7 +1,7 @@
 /**
  * Worktree Types
  *
- * Re-exports platform-agnostic type definitions from @roo-code/types.
+ * Re-exports platform-agnostic type definitions from @klaus-code/types.
  */
 
 export type {
@@ -9,9 +9,7 @@ export type {
 	WorktreeResult,
 	BranchInfo,
 	CreateWorktreeOptions,
-	MergeWorktreeOptions,
-	MergeWorktreeResult,
 	WorktreeIncludeStatus,
 	WorktreeListResponse,
 	WorktreeDefaultsResponse,
-} from "@roo-code/types"
+} from "@klaus-code/types"

@@ -9,8 +9,8 @@ import {
 	vertexModels,
 	ANTHROPIC_DEFAULT_MAX_TOKENS,
 	VERTEX_1M_CONTEXT_MODEL_IDS,
-} from "@roo-code/types"
-import { safeJsonParse } from "@roo-code/core"
+} from "@klaus-code/types"
+import { safeJsonParse } from "@klaus-code/core"
 
 import { ApiHandlerOptions } from "../../shared/api"
 
@@ -231,7 +231,13 @@ export class AnthropicVertexHandler extends BaseProvider implements SingleComple
 			}
 		}
 
-		const params = getModelParams({ format: "anthropic", modelId: id, model: info, settings: this.options })
+		const params = getModelParams({
+			format: "anthropic",
+			modelId: id,
+			model: info,
+			settings: this.options,
+			defaultTemperature: 0,
+		})
 
 		// Build betas array for request headers
 		const betas: string[] = []

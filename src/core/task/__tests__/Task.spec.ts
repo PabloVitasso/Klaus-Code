@@ -6,8 +6,8 @@ import * as path from "path"
 import * as vscode from "vscode"
 import { Anthropic } from "@anthropic-ai/sdk"
 
-import type { GlobalState, ProviderSettings, ModelInfo } from "@roo-code/types"
-import { TelemetryService } from "@roo-code/telemetry"
+import type { GlobalState, ProviderSettings, ModelInfo } from "@klaus-code/types"
+import { TelemetryService } from "@klaus-code/telemetry"
 
 import { Task } from "../Task"
 import { ClineProvider } from "../../webview/ClineProvider"
@@ -15,8 +15,6 @@ import { ApiStreamChunk } from "../../../api/transform/stream"
 import { ContextProxy } from "../../config/ContextProxy"
 import { processUserContentMentions } from "../../mentions/processUserContentMentions"
 import { MultiSearchReplaceDiffStrategy } from "../../diff/strategies/multi-search-replace"
-import { MultiFileSearchReplaceDiffStrategy } from "../../diff/strategies/multi-file-search-replace"
-import { EXPERIMENT_IDS } from "../../../shared/experiments"
 
 // Mock delay before any imports that might use it
 vi.mock("delay", () => ({
@@ -67,6 +65,8 @@ vi.mock("fs/promises", async (importOriginal) => {
 		}),
 		unlink: vi.fn().mockResolvedValue(undefined),
 		rmdir: vi.fn().mockResolvedValue(undefined),
+		stat: vi.fn().mockRejectedValue({ code: "ENOENT" }),
+		readdir: vi.fn().mockResolvedValue([]),
 	}
 
 	return {
@@ -140,7 +140,7 @@ vi.mock("vscode", () => {
 
 vi.mock("../../mentions", () => ({
 	parseMentions: vi.fn().mockImplementation((text) => {
-		return Promise.resolve({ text: `processed: ${text}`, mode: undefined })
+		return Promise.resolve({ text: `processed: ${text}`, mode: undefined, contentBlocks: [] })
 	}),
 	openMention: vi.fn(),
 	getLatestTerminalOutput: vi.fn(),
@@ -313,31 +313,15 @@ describe("Cline", () => {
 	})
 
 	describe("constructor", () => {
-		it("should respect provided settings", async () => {
+		it("should always have diff strategy defined", async () => {
 			const cline = new Task({
 				provider: mockProvider,
 				apiConfiguration: mockApiConfig,
-				fuzzyMatchThreshold: 0.95,
 				task: "test task",
 				startTask: false,
 			})
 
-			expect(cline.diffEnabled).toBe(false)
-		})
-
-		it("should use default fuzzy match threshold when not provided", async () => {
-			const cline = new Task({
-				provider: mockProvider,
-				apiConfiguration: mockApiConfig,
-				enableDiff: true,
-				fuzzyMatchThreshold: 0.95,
-				task: "test task",
-				startTask: false,
-			})
-
-			expect(cline.diffEnabled).toBe(true)
-
-			// The diff strategy should be created with default threshold (1.0).
+			// Diff is always enabled - diffStrategy should be defined
 			expect(cline.diffStrategy).toBeDefined()
 		})
 
@@ -925,7 +909,6 @@ describe("Cline", () => {
 					const { content: processedContent } = await processUserContentMentions({
 						userContent,
 						cwd: cline.cwd,
-						urlContentFetcher: cline.urlContentFetcher,
 						fileContextTracker: cline.fileContextTracker,
 					})
 
@@ -980,9 +963,15 @@ describe("Cline", () => {
 				mockProvider = {
 					context: {
 						globalStorageUri: { fsPath: "/test/storage" },
+						globalState: {
+							get: vi.fn().mockImplementation(() => undefined),
+							update: vi.fn().mockResolvedValue(undefined),
+							keys: vi.fn().mockReturnValue([]),
+						},
 					},
 					getState: vi.fn().mockResolvedValue({
 						apiConfiguration: mockApiConfig,
+						mcpEnabled: false,
 					}),
 					getMcpHub: vi.fn().mockReturnValue(undefined),
 					getSkillsManager: vi.fn().mockReturnValue(undefined),
@@ -1014,6 +1003,7 @@ describe("Cline", () => {
 					task: "parent task",
 					startTask: false,
 				})
+				vi.spyOn(parent as any, "getSystemPrompt").mockResolvedValue("mock system prompt")
 
 				// Mock the API stream response
 				const mockStream = {
@@ -1050,6 +1040,7 @@ describe("Cline", () => {
 					rootTask: parent,
 					startTask: false,
 				})
+				vi.spyOn(child as any, "getSystemPrompt").mockResolvedValue("mock system prompt")
 
 				// Spy on child.say to verify the emitted message type
 				const saySpy = vi.spyOn(child, "say")
@@ -1101,6 +1092,7 @@ describe("Cline", () => {
 					task: "parent task",
 					startTask: false,
 				})
+				vi.spyOn(parent as any, "getSystemPrompt").mockResolvedValue("mock system prompt")
 
 				// Mock the API stream response
 				const mockStream = {
@@ -1139,6 +1131,7 @@ describe("Cline", () => {
 					rootTask: parent,
 					startTask: false,
 				})
+				vi.spyOn(child as any, "getSystemPrompt").mockResolvedValue("mock system prompt")
 
 				vi.spyOn(child.api, "createMessage").mockReturnValue(mockStream)
 
@@ -1161,6 +1154,7 @@ describe("Cline", () => {
 					task: "parent task",
 					startTask: false,
 				})
+				vi.spyOn(parent as any, "getSystemPrompt").mockResolvedValue("mock system prompt")
 
 				// Mock the API stream response
 				const mockStream = {
@@ -1194,6 +1188,7 @@ describe("Cline", () => {
 					rootTask: parent,
 					startTask: false,
 				})
+				vi.spyOn(child1 as any, "getSystemPrompt").mockResolvedValue("mock system prompt")
 
 				vi.spyOn(child1.api, "createMessage").mockReturnValue(mockStream)
 
@@ -1217,6 +1212,7 @@ describe("Cline", () => {
 					rootTask: parent,
 					startTask: false,
 				})
+				vi.spyOn(child2 as any, "getSystemPrompt").mockResolvedValue("mock system prompt")
 
 				vi.spyOn(child2.api, "createMessage").mockReturnValue(mockStream)
 
@@ -1233,6 +1229,7 @@ describe("Cline", () => {
 				mockApiConfig.rateLimitSeconds = 0
 				mockProvider.getState.mockResolvedValue({
 					apiConfiguration: mockApiConfig,
+					mcpEnabled: false,
 				})
 
 				// Create parent task
@@ -1242,6 +1239,7 @@ describe("Cline", () => {
 					task: "parent task",
 					startTask: false,
 				})
+				vi.spyOn(parent as any, "getSystemPrompt").mockResolvedValue("mock system prompt")
 
 				// Mock the API stream response
 				const mockStream = {
@@ -1275,6 +1273,7 @@ describe("Cline", () => {
 					rootTask: parent,
 					startTask: false,
 				})
+				vi.spyOn(child as any, "getSystemPrompt").mockResolvedValue("mock system prompt")
 
 				vi.spyOn(child.api, "createMessage").mockReturnValue(mockStream)
 
@@ -1294,6 +1293,7 @@ describe("Cline", () => {
 					task: "test task",
 					startTask: false,
 				})
+				vi.spyOn(task as any, "getSystemPrompt").mockResolvedValue("mock system prompt")
 
 				// Mock the API stream response
 				const mockStream = {
@@ -1346,49 +1346,18 @@ describe("Cline", () => {
 			})
 
 			it("should use MultiSearchReplaceDiffStrategy by default", async () => {
-				mockProvider.getState.mockResolvedValue({
-					experiments: {
-						[EXPERIMENT_IDS.MULTI_FILE_APPLY_DIFF]: false,
-					},
-				})
+				mockProvider.getState.mockResolvedValue({})
 
 				const task = new Task({
 					provider: mockProvider,
 					apiConfiguration: mockApiConfig,
-					enableDiff: true,
 					task: "test task",
 					startTask: false,
 				})
 
-				// Initially should be MultiSearchReplaceDiffStrategy
+				// Should be MultiSearchReplaceDiffStrategy
 				expect(task.diffStrategy).toBeInstanceOf(MultiSearchReplaceDiffStrategy)
 				expect(task.diffStrategy?.getName()).toBe("MultiSearchReplace")
-			})
-
-			it("should switch to MultiFileSearchReplaceDiffStrategy when experiment is enabled", async () => {
-				mockProvider.getState.mockResolvedValue({
-					experiments: {
-						[EXPERIMENT_IDS.MULTI_FILE_APPLY_DIFF]: true,
-					},
-				})
-
-				const task = new Task({
-					provider: mockProvider,
-					apiConfiguration: mockApiConfig,
-					enableDiff: true,
-					task: "test task",
-					startTask: false,
-				})
-
-				// Initially should be MultiSearchReplaceDiffStrategy
-				expect(task.diffStrategy).toBeInstanceOf(MultiSearchReplaceDiffStrategy)
-
-				// Wait for async strategy update
-				await new Promise((resolve) => setTimeout(resolve, 10))
-
-				// Should have switched to MultiFileSearchReplaceDiffStrategy
-				expect(task.diffStrategy).toBeInstanceOf(MultiFileSearchReplaceDiffStrategy)
-				expect(task.diffStrategy?.getName()).toBe("MultiFileSearchReplace")
 			})
 
 			it("should keep MultiSearchReplaceDiffStrategy when experiments are undefined", async () => {
@@ -1397,7 +1366,6 @@ describe("Cline", () => {
 				const task = new Task({
 					provider: mockProvider,
 					apiConfiguration: mockApiConfig,
-					enableDiff: true,
 					task: "test task",
 					startTask: false,
 				})
@@ -1411,19 +1379,6 @@ describe("Cline", () => {
 				// Should still be MultiSearchReplaceDiffStrategy
 				expect(task.diffStrategy).toBeInstanceOf(MultiSearchReplaceDiffStrategy)
 				expect(task.diffStrategy?.getName()).toBe("MultiSearchReplace")
-			})
-
-			it("should not create diff strategy when enableDiff is false", async () => {
-				const task = new Task({
-					provider: mockProvider,
-					apiConfiguration: mockApiConfig,
-					enableDiff: false,
-					task: "test task",
-					startTask: false,
-				})
-
-				expect(task.diffEnabled).toBe(false)
-				expect(task.diffStrategy).toBeUndefined()
 			})
 		})
 
@@ -1862,6 +1817,49 @@ describe("Cline", () => {
 				// Verify cancelCurrentRequest was called
 				expect(cancelSpy).toHaveBeenCalled()
 			})
+		})
+	})
+
+	describe("start()", () => {
+		it("should be a no-op if the task was already started in the constructor", () => {
+			const task = new Task({
+				provider: mockProvider,
+				apiConfiguration: mockApiConfig,
+				task: "test task",
+				startTask: false,
+			})
+
+			// Manually trigger start
+			const startTaskSpy = vi.spyOn(task as any, "startTask").mockImplementation(async () => {})
+			task.start()
+
+			expect(startTaskSpy).toHaveBeenCalledTimes(1)
+
+			// Calling start() again should be a no-op
+			task.start()
+			expect(startTaskSpy).toHaveBeenCalledTimes(1)
+		})
+
+		it("should not call startTask if already started via constructor", () => {
+			// Create a task that starts immediately (startTask defaults to true)
+			// but mock startTask to prevent actual execution
+			const startTaskSpy = vi.spyOn(Task.prototype as any, "startTask").mockImplementation(async () => {})
+
+			const task = new Task({
+				provider: mockProvider,
+				apiConfiguration: mockApiConfig,
+				task: "test task",
+				startTask: true,
+			})
+
+			// startTask was called by the constructor
+			expect(startTaskSpy).toHaveBeenCalledTimes(1)
+
+			// Calling start() should be a no-op since _started is already true
+			task.start()
+			expect(startTaskSpy).toHaveBeenCalledTimes(1)
+
+			startTaskSpy.mockRestore()
 		})
 	})
 })

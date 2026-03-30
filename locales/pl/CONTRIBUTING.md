@@ -11,9 +11,9 @@
 </sub>
 </div>
 
-# Wkład w Roo Code
+# Wkład w Klaus Code
 
-Roo Code to projekt społecznościowy i głęboko cenimy każdy wkład. Aby usprawnić współpracę, działamy w oparciu o [podejście „najpierw zgłoszenie”](#podejście-najpierw-zgłoszenie), co oznacza, że wszystkie [żądania ściągnięcia (PR)](#przesyłanie-żądania-ściągnięcia) muszą być najpierw połączone ze zgłoszeniem na GitHubie. Prosimy o uważne zapoznanie się z tym przewodnikiem.
+Klaus Code to projekt społecznościowy i głęboko cenimy każdy wkład. Aby usprawnić współpracę, działamy w oparciu o [podejście „najpierw zgłoszenie”](#podejście-najpierw-zgłoszenie), co oznacza, że wszystkie [żądania ściągnięcia (PR)](#przesyłanie-żądania-ściągnięcia) muszą być najpierw połączone ze zgłoszeniem na GitHubie. Prosimy o uważne zapoznanie się z tym przewodnikiem.
 
 ## Spis treści
 
@@ -52,9 +52,9 @@ Nasza mapa drogowa wyznacza kierunek projektu. Dostosuj swój wkład do tych klu
 
 Wspomnij o dostosowaniu do tych obszarów w swoich PR-ach.
 
-### 3. Dołącz do społeczności Roo Code
+### 3. Dołącz do społeczności Klaus Code
 
-- **Głównie:** Dołącz do naszego [Discorda](https://discord.gg/roocode) i wyślij wiadomość prywatną do **Hannes Rudolph (`hrudolph`)**.
+- **Głównie:** Dołącz do naszego [Discorda](https://discord.tbd) i wyślij wiadomość prywatną do **Hannes Rudolph (`hrudolph`)**.
 - **Alternatywa:** Doświadczeni współtwórcy mogą angażować się bezpośrednio za pośrednictwem [projektów na GitHubie](https://github.com/orgs/RooCodeInc/projects/1).
 
 ## Znajdowanie i planowanie swojego wkładu
@@ -73,13 +73,13 @@ Wszystkie wkłady zaczynają się od zgłoszenia na GitHubie przy użyciu naszyc
 - **Utwórz zgłoszenie**, używając:
     - **Ulepszenia:** szablon „Prośba o ulepszenie” (prosty język skoncentrowany na korzyściach dla użytkownika).
     - **Błędy:** szablon „Zgłoszenie błędu” (minimalna reprodukcja + oczekiwane a rzeczywiste + wersja).
-- **Chcesz nad tym popracować?** Skomentuj „Zgłaszam się” w zgłoszeniu i wyślij wiadomość prywatną do **Hannes Rudolph (`hrudolph`)** na [Discordzie](https://discord.gg/roocode), aby zostać przypisanym. Przypisanie zostanie potwierdzone w wątku.
+- **Chcesz nad tym popracować?** Skomentuj „Zgłaszam się” w zgłoszeniu i wyślij wiadomość prywatną do **Hannes Rudolph (`hrudolph`)** na [Discordzie](https://discord.tbd), aby zostać przypisanym. Przypisanie zostanie potwierdzone w wątku.
 - **PR-y muszą być połączone зі zgłoszeniem.** Niepołączone PR-y mogą zostać zamknięte.
 
 ### Decydowanie, nad czym pracować
 
 - Sprawdź [projekt na GitHubie](https://github.com/orgs/RooCodeInc/projects/1) pod kątem zgłoszeń „Zgłoszenie [Nieprzypisane]”.
-- Aby uzyskać dokumentację, odwiedź [dokumentację Roo Code](https://github.com/RooCodeInc/Roo-Code-Docs).
+- Aby uzyskać dokumentację, odwiedź [dokumentację Klaus Code](https://github.com/RooCodeInc/Roo-Code-Docs).
 
 ### Zgłaszanie błędów
 
@@ -87,7 +87,7 @@ Wszystkie wkłady zaczynają się od zgłoszenia na GitHubie przy użyciu naszyc
 - Utwórz nowy błąd, używając szablonu [„Zgłoszenie błędu”](https://github.com/RooCodeInc/Roo-Code/issues/new/choose) z:
     - Jasnymi, ponumerowanymi krokami reprodukcji
     - Oczekiwanym a rzeczywistym wynikiem
-    - Wersją Roo Code (wymagane); dostawcą/modelem sztucznej inteligencji, jeśli ma to zastosowanie
+    - Wersją Klaus Code (wymagane); dostawcą/modelem sztucznej inteligencji, jeśli ma to zastosowanie
 - **Problemy z bezpieczeństwem**: Zgłoś je prywatnie za pośrednictwem [zaleceń dotyczących bezpieczeństwa](https://github.com/RooCodeInc/Roo-Code/security/advisories/new).
 
 ## Proces rozwoju i przesyłania
@@ -126,7 +126,7 @@ pnpm install
 
 ### Polityka dotycząca żądań ściągnięcia
 
-- Musi odnosić się do przypisanego zgłoszenia na GitHubie. Aby zostać przypisanym: skomentuj „Zgłaszam się” w zgłoszeniu i wyślij wiadomość prywatną do **Hannes Rudolph (`hrudolph`)** na [Discordzie](https://discord.gg/roocode). Przypisanie zostanie potwierdzone w wątku.
+- Musi odnosić się do przypisanego zgłoszenia na GitHubie. Aby zostać przypisanym: skomentuj „Zgłaszam się” w zgłoszeniu i wyślij wiadomość prywatną do **Hannes Rudolph (`hrudolph`)** na [Discordzie](https://discord.tbd). Przypisanie zostanie potwierdzone w wątku.
 - Niepołączone PR-y mogą zostać zamknięte.
 - PR-y muszą przejść testy CI, być zgodne z mapą drogową i mieć przejrzystą dokumentację.
 
@@ -138,4 +138,4 @@ pnpm install
 
 ## Kwestie prawne
 
-Przesyłając wkład, zgadzasz się, że Twoje wkłady będą licencjonowane na podstawie licencji Apache 2.0, zgodnie z licencją Roo Code.
+Przesyłając wkład, zgadzasz się, że Twoje wkłady będą licencjonowane na podstawie licencji Apache 2.0, zgodnie z licencją Klaus Code.

@@ -1,7 +1,12 @@
 import { Anthropic } from "@anthropic-ai/sdk"
 import OpenAI from "openai"
 
-import type { ModelInfo } from "@roo-code/types"
+import type { ModelInfo } from "@klaus-code/types"
+
+// Install undici-based fetch wrapper when using OpenAI-compatible providers
+// This fixes connection issues with localhost on Node.js 20+
+import { installUndiciFetchWrapper } from "../utils/undici-fetch-wrapper"
+installUndiciFetchWrapper()
 
 import { type ApiHandlerOptions, getModelMaxOutputTokens } from "../../shared/api"
 import { TagMatcher } from "../../utils/tag-matcher"
@@ -95,7 +100,7 @@ export abstract class BaseOpenAiCompatibleProvider<ModelName extends string>
 			stream_options: { include_usage: true },
 			tools: this.convertToolsForOpenAI(metadata?.tools),
 			tool_choice: metadata?.tool_choice,
-			parallel_tool_calls: metadata?.parallelToolCalls ?? false,
+			parallel_tool_calls: metadata?.parallelToolCalls ?? true,
 		}
 
 		// Add thinking parameter if reasoning is enabled and model supports it

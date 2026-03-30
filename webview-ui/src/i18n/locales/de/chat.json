@@ -28,14 +28,18 @@
 		"openInCloud": "Aufgabe in Roo Code Cloud öffnen",
 		"openInCloudIntro": "Überwache oder interagiere mit Roo von überall aus. Scanne, klicke oder kopiere zum Öffnen.",
 		"openApiHistory": "API-Verlauf öffnen",
-		"openUiHistory": "UI-Verlauf öffnen"
+		"openUiHistory": "UI-Verlauf öffnen",
+		"backToParentTask": "Übergeordnete Aufgabe"
 	},
 	"unpin": "Lösen von oben",
 	"pin": "Anheften",
 	"tokenProgress": {
 		"availableSpace": "Verfügbarer Speicher: {{amount}} Tokens",
 		"tokensUsed": "Verwendete Tokens: {{used}} von {{total}}",
-		"reservedForResponse": "Reserviert für Modellantwort: {{amount}} Tokens"
+		"reservedForResponse": "Reserviert für Modellantwort: {{amount}} Tokens",
+		"tokensUsedLabel": "Verwendete Tokens",
+		"reservedForResponseLabel": "Für Antwort reserviert",
+		"availableSpaceLabel": "Verfügbarer Speicher"
 	},
 	"retry": {
 		"title": "Wiederholen",
@@ -107,6 +111,8 @@
 	},
 	"selectMode": "Interaktionsmodus auswählen",
 	"selectApiConfig": "API-Konfiguration auswählen",
+	"lockApiConfigAcrossModes": "API-Konfiguration für alle Modi in diesem Arbeitsbereich sperren",
+	"unlockApiConfigAcrossModes": "API-Konfiguration ist für alle Modi in diesem Arbeitsbereich gesperrt (klicke zum Entsperren)",
 	"enhancePrompt": "Prompt mit zusätzlichem Kontext verbessern",
 	"addImages": "Bilder zur Nachricht hinzufügen",
 	"sendMessage": "Nachricht senden",
@@ -146,14 +152,14 @@
 		"rateLimitWait": "Ratenbegrenzung",
 		"errorTitle": "Anbieter-Fehler {{code}}",
 		"errorMessage": {
-			"docs": "Dokumentation",
-			"goToSettings": "Einstellungen",
 			"400": "Der Anbieter konnte die Anfrage nicht wie gestellt verarbeiten. Beende die Aufgabe und versuche einen anderen Ansatz.",
 			"401": "Authentifizierung beim Anbieter fehlgeschlagen. Bitte überprüfe deine API-Schlüssel-Konfiguration.",
 			"402": "Es sieht so aus, als ob dir die Guthaben/Credits in deinem Konto ausgegangen sind. Gehe zu deinem Anbieter und füge mehr hinzu, um fortzufahren.",
 			"403": "Nicht autorisiert. Dein API-Schlüssel ist gültig, aber der Anbieter hat sich geweigert, diese Anfrage zu erfüllen.",
 			"429": "Zu viele Anfragen. Du wirst vom Anbieter rate-limitiert. Bitte warte ein wenig, bevor du den nächsten API-Aufruf machst.",
 			"500": "Fehler auf dem Server des Anbieters. Es stimmt etwas mit der Anbieterseite nicht, mit deiner Anfrage stimmt alles.",
+			"docs": "Dokumentation",
+			"goToSettings": "Einstellungen",
 			"unknown": "Unbekannter API-Fehler. Bitte kontaktiere den Roo Code Support.",
 			"connection": "Verbindungsfehler. Stelle sicher, dass du eine funktionierende Internetverbindung hast.",
 			"claudeCodeNotAuthenticated": "Du musst dich anmelden, um Claude Code zu verwenden. Gehe zu den Einstellungen und klicke auf \"Bei Claude Code anmelden\", um dich zu authentifizieren."
@@ -214,7 +220,8 @@
 		"wantsToViewTopLevelOutsideWorkspace": "Roo möchte die Dateien auf oberster Ebene in diesem Verzeichnis (außerhalb des Arbeitsbereichs) anzeigen",
 		"didViewTopLevelOutsideWorkspace": "Roo hat die Dateien auf oberster Ebene in diesem Verzeichnis (außerhalb des Arbeitsbereichs) angezeigt",
 		"wantsToViewRecursiveOutsideWorkspace": "Roo möchte rekursiv alle Dateien in diesem Verzeichnis (außerhalb des Arbeitsbereichs) anzeigen",
-		"didViewRecursiveOutsideWorkspace": "Roo hat rekursiv alle Dateien in diesem Verzeichnis (außerhalb des Arbeitsbereichs) angezeigt"
+		"didViewRecursiveOutsideWorkspace": "Roo hat rekursiv alle Dateien in diesem Verzeichnis (außerhalb des Arbeitsbereichs) angezeigt",
+		"wantsToViewMultipleDirectories": "Roo möchte mehrere Verzeichnisse anzeigen"
 	},
 	"commandOutput": "Befehlsausgabe",
 	"commandExecution": {
@@ -258,7 +265,8 @@
 		"completionContent": "Teilaufgabe abgeschlossen",
 		"resultContent": "Teilaufgabenergebnisse",
 		"defaultResult": "Bitte fahre mit der nächsten Aufgabe fort.",
-		"completionInstructions": "Teilaufgabe abgeschlossen! Du kannst die Ergebnisse überprüfen und Korrekturen oder nächste Schritte vorschlagen. Wenn alles gut aussieht, bestätige, um das Ergebnis an die übergeordnete Aufgabe zurückzugeben."
+		"completionInstructions": "Teilaufgabe abgeschlossen! Du kannst die Ergebnisse überprüfen und Korrekturen oder nächste Schritte vorschlagen. Wenn alles gut aussieht, bestätige, um das Ergebnis an die übergeordnete Aufgabe zurückzugeben.",
+		"goToSubtask": "Aufgabe anzeigen"
 	},
 	"questions": {
 		"hasQuestion": "Roo hat eine Frage"
@@ -319,6 +327,10 @@
 			"description": "Ältere Nachrichten wurden aus der Konversation entfernt, um innerhalb des Kontextfenster-Limits zu bleiben. Dies ist ein schnellerer, aber weniger kontexterhaltender Ansatz im Vergleich zur Komprimierung."
 		}
 	},
+	"skill": {
+		"wantsToLoad": "Roo möchte eine Fähigkeit laden",
+		"didLoad": "Roo hat eine Fähigkeit geladen"
+	},
 	"followUpSuggest": {
 		"copyToInput": "In Eingabefeld kopieren (oder Shift + Klick)",
 		"timerPrefix": "Automatische Genehmigung aktiviert. Wähle in {{seconds}}s…"
@@ -335,9 +347,9 @@
 		},
 		"release": {
 			"heading": "Was ist neu:",
-			"chatGptUsageLimits": "UI hinzugefügt, um deine ChatGPT-Nutzungslimits im OpenAI Codex Provider zu verfolgen.",
-			"claudeCodeRemoved": "Den veralteten Claude Code Provider entfernt.",
-			"grokCodeFastFreeEnds": "Grok Code Fast ist nicht mehr kostenlos - Danke an xAI für die großzügige Promotion!"
+			"sonnet46": "Claude Sonnet 4.6: Volle Unterstützung für Anthropics neuestes Claude Sonnet 4.6 Modell bei allen Anbietern — Anthropic, Bedrock, Vertex, OpenRouter und Vercel AI Gateway.",
+			"stabilityFixes": "Stabilitätsverbesserungen: Delegierungs-Lebenszyklus gegen Race Conditions gehärtet, Erhaltung des Chat-Verlaufs bei Navigation und Aufgabenwiederaufnahme behoben und Scroll-Verankerungsprobleme für ein flüssigeres Erlebnis gelöst.",
+			"lockedApiConfig": "Gesperrte API-Konfiguration: Ein neuer Sperr-Schalter ermöglicht es dir, deine API-Konfiguration über alle Modi in einem Workspace zu fixieren, sodass ein Moduswechsel deine Anbietereinstellungen nicht mehr zurücksetzt."
 		},
 		"cloudAgents": {
 			"heading": "Neu in der Cloud:",
@@ -352,44 +364,6 @@
 		"total": "Gesamtkosten: ${{cost}}",
 		"includesSubtasks": "Enthält Kosten für Unteraufgaben"
 	},
-	"browser": {
-		"session": "Browser-Sitzung",
-		"active": "Aktiv",
-		"rooWantsToUse": "Roo möchte den Browser verwenden",
-		"consoleLogs": "Konsolenprotokolle",
-		"noNewLogs": "(Keine neuen Protokolle)",
-		"screenshot": "Browser-Screenshot",
-		"cursor": "Cursor",
-		"navigation": {
-			"step": "Schritt {{current}} von {{total}}",
-			"previous": "Zurück",
-			"next": "Weiter"
-		},
-		"sessionStarted": "Browser-Sitzung gestartet",
-		"actions": {
-			"title": "Browser-Aktion: ",
-			"launched": "Browser gestartet",
-			"launch": "Browser starten auf {{url}}",
-			"clicked": "Geklickt auf: {{coordinate}}",
-			"click": "Klicken ({{coordinate}})",
-			"typed": "Eingegeben: {{text}}",
-			"type": "Eingeben \"{{text}}\"",
-			"pressed": "{{key}} gedrückt",
-			"press": "{{key}} drücken",
-			"scrolledDown": "Nach unten gescrollt",
-			"scrollDown": "Nach unten scrollen",
-			"scrolledUp": "Nach oben gescrollt",
-			"scrollUp": "Nach oben scrollen",
-			"hovered": "Gehovered auf: {{coordinate}}",
-			"hover": "Hover ({{coordinate}})",
-			"resized": "Größe geändert auf: {{size}}",
-			"resize": "Größe ändern auf {{size}}",
-			"screenshotSaved": "Screenshot gespeichert",
-			"screenshot": "Screenshot speichern unter {{path}}",
-			"closed": "Browser geschlossen",
-			"close": "Browser schließen"
-		}
-	},
 	"codeblock": {
 		"tooltips": {
 			"expand": "Code-Block erweitern",
@@ -397,7 +371,6 @@
 			"copy_code": "Code kopieren"
 		}
 	},
-	"systemPromptWarning": "WARNUNG: Benutzerdefinierte Systemaufforderung aktiv. Dies kann die Funktionalität erheblich beeinträchtigen und zu unvorhersehbarem Verhalten führen.",
 	"profileViolationWarning": "Das aktuelle Profil ist nicht kompatibel mit den Einstellungen deiner Organisation",
 	"shellIntegration": {
 		"title": "Befehlsausführungswarnung",
@@ -426,6 +399,22 @@
 	"read-batch": {
 		"approve": {
 			"title": "Alle genehmigen"
+		},
+		"deny": {
+			"title": "Alle ablehnen"
+		}
+	},
+	"list-batch": {
+		"approve": {
+			"title": "Alle genehmigen"
+		},
+		"deny": {
+			"title": "Alle ablehnen"
+		}
+	},
+	"edit-batch": {
+		"approve": {
+			"title": "Alle speichern"
 		},
 		"deny": {
 			"title": "Alle ablehnen"
@@ -501,5 +490,13 @@
 		"serversPart_other": "{{count}} MCP-Server",
 		"messageTemplate": "Du hast {{tools}} über {{servers}} aktiviert. Eine so hohe Anzahl kann das Modell verwirren und zu Fehlern führen. Versuche, es unter {{threshold}} zu halten.",
 		"openMcpSettings": "MCP-Einstellungen öffnen"
+	},
+	"readCommandOutput": {
+		"title": "Roo las Befehlsausgabe"
+	},
+	"retiredProvider": {
+		"title": "Anbieter wird nicht mehr unterstützt",
+		"message": "Leider wird dieser Anbieter nicht mehr unterstützt. Wir haben festgestellt, dass nur sehr wenige Roo-Nutzer ihn tatsächlich verwendet haben, und wir müssen den Umfang unserer Codebasis reduzieren, damit wir weiterhin schnell liefern und unserer Community in diesem Bereich gut dienen können. Es war eine wirklich schwere Entscheidung, aber sie ermöglicht uns, uns auf das zu konzentrieren, was dir am wichtigsten ist. Es ist ärgerlich, das wissen wir.",
+		"openSettings": "Einstellungen öffnen"
 	}
 }

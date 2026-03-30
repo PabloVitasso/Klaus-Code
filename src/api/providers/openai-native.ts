@@ -15,8 +15,8 @@ import {
 	type ReasoningEffortExtended,
 	type ServiceTier,
 	ApiProviderError,
-} from "@roo-code/types"
-import { TelemetryService } from "@roo-code/telemetry"
+} from "@klaus-code/types"
+import { TelemetryService } from "@klaus-code/telemetry"
 
 import type { ApiHandlerOptions } from "../../shared/api"
 
@@ -87,7 +87,7 @@ export class OpenAiNativeHandler extends BaseProvider implements SingleCompletio
 		// Include originator, session_id, and User-Agent headers for API tracking and debugging
 		const userAgent = `roo-code/${Package.version} (${os.platform()} ${os.release()}; ${os.arch()}) node/${process.version.slice(1)}`
 		this.client = new OpenAI({
-			baseURL: this.options.openAiNativeBaseUrl,
+			baseURL: this.options.openAiNativeBaseUrl || undefined,
 			apiKey,
 			defaultHeaders: {
 				originator: "roo-code",
@@ -378,7 +378,7 @@ export class OpenAiNativeHandler extends BaseProvider implements SingleCompletio
 					}
 				}),
 			tool_choice: metadata?.tool_choice,
-			parallel_tool_calls: metadata?.parallelToolCalls ?? false,
+			parallel_tool_calls: metadata?.parallelToolCalls ?? true,
 		}
 
 		// Include text.verbosity only when the model explicitly supports it
@@ -1241,24 +1241,12 @@ export class OpenAiNativeHandler extends BaseProvider implements SingleCompletio
 					}
 				}
 
-				// Only handle tool/function calls from done events (to ensure arguments are complete)
-				if (
-					(item.type === "function_call" || item.type === "tool_call") &&
-					event.type === "response.output_item.done"
-				) {
-					// Handle complete tool/function call item
-					// Emit as tool_call for backward compatibility with non-streaming tool handling
-					const callId = item.call_id || item.tool_call_id || item.id
-					if (callId) {
-						const args = item.arguments || item.function?.arguments || item.function_arguments
-						yield {
-							type: "tool_call",
-							id: callId,
-							name: item.name || item.function?.name || item.function_name || "",
-							arguments: typeof args === "string" ? args : "{}",
-						}
-					}
-				}
+				// Note: We intentionally do NOT emit tool_call from response.output_item.done
+				// for function_call/tool_call items. The streaming path handles tool calls via:
+				// 1. tool_call_partial events during argument deltas
+				// 2. NativeToolCallParser.finalizeRawChunks() at stream end emitting tool_call_end
+				// 3. NativeToolCallParser.finalizeStreamingToolCall() creating the final ToolUse
+				// Emitting tool_call here would cause duplicate tool rendering.
 			}
 			return
 		}

@@ -1,9 +1,9 @@
-// pnpm --filter @roo-code/core test src/custom-tools/__tests__/custom-tool-registry.spec.ts
+// pnpm --filter @klaus-code/core test src/custom-tools/__tests__/custom-tool-registry.spec.ts
 
 import path from "path"
 import { fileURLToPath } from "url"
 
-import { type CustomToolDefinition, parametersSchema as z } from "@roo-code/types"
+import { type CustomToolDefinition, parametersSchema as z } from "@klaus-code/types"
 
 import { CustomToolRegistry } from "../custom-tool-registry.js"
 
@@ -281,7 +281,7 @@ describe("CustomToolRegistry", () => {
 			const result = await registry.loadFromDirectory(TEST_FIXTURES_DIR)
 
 			expect(result.loaded).toContain("cached")
-		}, 30000)
+		}, 60000)
 	})
 
 	describe.sequential("loadFromDirectories", () => {

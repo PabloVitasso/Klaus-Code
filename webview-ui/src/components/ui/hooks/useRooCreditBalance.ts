@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react"
 
-import type { ExtensionMessage } from "@roo-code/types"
+import type { ExtensionMessage } from "@klaus-code/types"
 
 import { vscode } from "@src/utils/vscode"
 
 /**
- * Hook to fetch Roo Code Cloud credit balance
+ * Hook to fetch Klaus Code Cloud credit balance
  * Returns the balance in dollars or null if unavailable
  */
 export const useRooCreditBalance = () => {

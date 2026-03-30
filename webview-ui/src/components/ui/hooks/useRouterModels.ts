@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query"
 
-import { type RouterModels, type ExtensionMessage } from "@roo-code/types"
+import { type RouterModels, type ExtensionMessage } from "@klaus-code/types"
 
 import { vscode } from "@src/utils/vscode"
 
@@ -12,7 +12,9 @@ type UseRouterModelsOptions = {
 const getRouterModels = async (provider?: string) =>
 	new Promise<RouterModels>((resolve, reject) => {
 		const cleanup = () => {
-			window.removeEventListener("message", handler)
+			if (typeof window !== "undefined") {
+				window.removeEventListener("message", handler)
+			}
 		}
 
 		const timeout = setTimeout(() => {

@@ -12,7 +12,7 @@ import {
 	TaskBridgeCommandName,
 	TaskSocketEvents,
 	TaskStatus,
-} from "@roo-code/types"
+} from "@klaus-code/types"
 
 import { TaskChannel } from "../TaskChannel.js"
 
@@ -28,7 +28,7 @@ describe("TaskChannel", () => {
 		appVersion: "1.0.0",
 		vscodeVersion: "1.0.0",
 		platform: "darwin",
-		editorName: "Roo Code",
+		editorName: "Klaus Code",
 		hostname: "test-host",
 	}
 

@@ -2,7 +2,7 @@
 
 const mockCaptureException = vitest.fn()
 
-vitest.mock("@roo-code/telemetry", () => ({
+vitest.mock("@klaus-code/telemetry", () => ({
 	TelemetryService: {
 		instance: {
 			captureException: (...args: unknown[]) => mockCaptureException(...args),
@@ -11,8 +11,9 @@ vitest.mock("@roo-code/telemetry", () => ({
 }))
 
 import { Anthropic } from "@anthropic-ai/sdk"
+import OpenAI from "openai"
 
-import { ApiProviderError } from "@roo-code/types"
+import { ApiProviderError } from "@klaus-code/types"
 
 import { OpenAiNativeHandler } from "../openai-native"
 import { ApiHandlerOptions } from "../../../shared/api"
@@ -75,6 +76,28 @@ describe("OpenAiNativeHandler", () => {
 				openAiNativeApiKey: "",
 			})
 			expect(handlerWithoutKey).toBeInstanceOf(OpenAiNativeHandler)
+		})
+
+		it("should pass undefined baseURL when openAiNativeBaseUrl is empty string", () => {
+			;(OpenAI as unknown as ReturnType<typeof vitest.fn>).mockClear()
+			new OpenAiNativeHandler({
+				apiModelId: "gpt-4.1",
+				openAiNativeApiKey: "test-key",
+				openAiNativeBaseUrl: "",
+			})
+			expect(OpenAI).toHaveBeenCalledWith(expect.objectContaining({ baseURL: undefined }))
+		})
+
+		it("should pass custom baseURL when openAiNativeBaseUrl is a valid URL", () => {
+			;(OpenAI as unknown as ReturnType<typeof vitest.fn>).mockClear()
+			new OpenAiNativeHandler({
+				apiModelId: "gpt-4.1",
+				openAiNativeApiKey: "test-key",
+				openAiNativeBaseUrl: "https://custom-openai.example.com/v1",
+			})
+			expect(OpenAI).toHaveBeenCalledWith(
+				expect.objectContaining({ baseURL: "https://custom-openai.example.com/v1" }),
+			)
 		})
 	})
 

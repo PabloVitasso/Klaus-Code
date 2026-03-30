@@ -1,4 +1,115 @@
+# BELOW is text written before FORK
+
 # Roo Code Changelog
+
+## [3.48.0]
+
+- Add Anthropic Claude Sonnet 4.6 support across all providers — Anthropic, Bedrock, Vertex, OpenRouter, and Vercel AI Gateway (PR #11509 by @PeterDaveHello)
+- Add lock toggle to pin API config across all modes in a workspace (PR #11295 by @hannesrudolph)
+- Fix: Prevent parent task state loss during orchestrator delegation (PR #11281 by @hannesrudolph)
+- Fix: Resolve race condition in new_task delegation that loses parent task history (PR #11331 by @daniel-lxs)
+- Fix: Serialize taskHistory writes and fix delegation status overwrite race (PR #11335 by @hannesrudolph)
+- Fix: Prevent chat history loss during cloud/settings navigation (#11371 by @SannidhyaSah, PR #11372 by @SannidhyaSah)
+- Fix: Preserve condensation summary during task resume (#11487 by @SannidhyaSah, PR #11488 by @SannidhyaSah)
+- Fix: Resolve chat scroll anchoring and task-switch scroll race conditions (PR #11385 by @hannesrudolph)
+- Fix: Preserve pasted images in chatbox during chat activity (PR #11375 by @app/roomote)
+- Add disabledTools setting to globally disable native tools (PR #11277 by @daniel-lxs)
+- Rename search_and_replace tool to edit and unify edit-family UI (PR #11296 by @hannesrudolph)
+- Render nested subtasks as recursive tree in history view (PR #11299 by @hannesrudolph)
+- Remove 9 low-usage providers and add retired-provider UX (PR #11297 by @hannesrudolph)
+- Remove browser use functionality entirely (PR #11392 by @hannesrudolph)
+- Remove built-in skills and built-in skills mechanism (PR #11414 by @hannesrudolph)
+- Remove footgun prompting (file-based system prompt override) (PR #11387 by @hannesrudolph)
+- Batch consecutive tool calls in chat UI with shared utility (PR #11245 by @hannesrudolph)
+- Validate Gemini thinkingLevel against model capabilities and handle empty streams (PR #11303 by @hannesrudolph)
+- Add GLM-5 model support to Z.ai provider (PR #11440 by @app/roomote)
+- Fix: Prevent double notification sound playback (PR #11283 by @hannesrudolph)
+- Fix: Prevent false unsaved changes prompt with OpenAI Compatible headers (#8230 by @hannesrudolph, PR #11334 by @daniel-lxs)
+- Fix: Cancel backend auto-approval timeout when auto-approve is toggled off mid-countdown (PR #11439 by @SannidhyaSah)
+- Fix: Add follow_up param validation in AskFollowupQuestionTool (PR #11484 by @rossdonald)
+- Fix: Prevent webview postMessage crashes and make dispose idempotent (PR #11313 by @0xMink)
+- Fix: Avoid zsh process-substitution false positives in assignments (PR #11365 by @hannesrudolph)
+- Fix: Harden command auto-approval against inline JS false positives (PR #11382 by @hannesrudolph)
+- Fix: Make tab close best-effort in DiffViewProvider.open (PR #11363 by @0xMink)
+- Fix: Canonicalize core.worktree comparison to prevent Windows path mismatch failures (PR #11346 by @0xMink)
+- Fix: Make removeClineFromStack() delegation-aware to prevent orphaned parent tasks (PR #11302 by @app/roomote)
+- Fix task resumption in the API module (PR #11369 by @cte)
+- Make defaultTemperature required in getModelParams to prevent silent temperature overrides (PR #11218 by @app/roomote)
+- Remove noisy console.warn logs from NativeToolCallParser (PR #11264 by @daniel-lxs)
+- Consolidate getState calls in resolveWebviewView (PR #11320 by @0xMink)
+- Clean up repo-facing mode rules (PR #11410 by @hannesrudolph)
+- Implement ModelMessage storage layer with AI SDK response messages (PR #11409 by @daniel-lxs)
+- Extract translation and merge resolver modes into reusable skills (PR #11215 by @app/roomote)
+- Add blog section with initial posts to roocode.com (PR #11127 by @app/roomote)
+- Replace Roomote Control with Linear Integration in cloud features grid (PR #11280 by @app/roomote)
+- Add IPC query handlers for commands, modes, and models (PR #11279 by @cte)
+- Add stdin stream mode for the CLI (PR #11476 by @cte)
+- Make CLI auto-approve by default with require-approval opt-in (PR #11424 by @cte)
+- Update CLI default model from Opus 4.5 to Opus 4.6 (PR #11273 by @app/roomote)
+- Add linux-arm64 support for the Roo CLI (PR #11314 by @cte)
+- CLI release: v0.0.51 (PR #11274 by @cte)
+- CLI release: v0.0.52 (PR #11324 by @cte)
+- CLI release: v0.0.53 (PR #11425 by @cte)
+- CLI release: v0.0.54 (PR #11477 by @cte)
+
+## [3.45.0] - 2026-01-27
+
+![3.45.0 Release - Smart Code Folding](/releases/3.45.0-release.png)
+
+- Smart Code Folding: Context condensation now intelligently preserves a lightweight map of files you worked on—function signatures, class declarations, and type definitions—so Roo can continue referencing them accurately after condensing. Files are prioritized by most recent access, with a ~50k character budget ensuring your latest work is always preserved. (Idea by @shariqriazz, PR #10942 by @hannesrudolph)
+
+## [3.44.2] - 2026-01-27
+
+- Re-enable parallel tool calling with new_task isolation safeguards (PR #11006 by @mrubens)
+- Fix worktree indexing by using relative paths in isPathInIgnoredDirectory (PR #11009 by @daniel-lxs)
+- Fix local model validation error for Ollama models (PR #10893 by @roomote)
+- Fix duplicate tool_call emission from Responses API providers (PR #11008 by @daniel-lxs)
+
+## [3.44.1] - 2026-01-27
+
+- Fix LiteLLM tool ID validation errors for Bedrock proxy (PR #10990 by @daniel-lxs)
+- Add temperature=0.9 and top_p=0.95 to zai-glm-4.7 model for better generation quality (PR #10945 by @sebastiand-cerebras)
+- Add quality checks to marketing site deployment workflows (PR #10959 by @mp-roocode)
+
+## [3.44.0] - 2026-01-26
+
+![3.44.0 Release - Worktrees](/releases/3.44.0-release.png)
+
+- Add worktree selector and creation UX (PR #10940 by @brunobergher, thanks Cline!)
+- Improve subtask visibility and navigation in history and chat views (PR #10864 by @brunobergher)
+- Add wildcard support for MCP alwaysAllow configuration (PR #10948 by @app/roomote)
+- Fix: Prevent nested condensing from including previously-condensed content (PR #10985 by @hannesrudolph)
+- Fix: VS Code LM token counting returns 0 outside requests, breaking context condensing (#10968 by @srulyt, PR #10983 by @daniel-lxs)
+- Fix: Record truncation event when condensation fails but truncation succeeds (PR #10984 by @hannesrudolph)
+- Replace hyphen encoding with fuzzy matching for MCP tool names (PR #10775 by @daniel-lxs)
+- Remove MCP SERVERS section from system prompt for cleaner prompts (PR #10895 by @daniel-lxs)
+- new_task tool creates checkpoint the same way write_to_file does (PR #10982 by @daniel-lxs)
+- Update Fireworks provider with new models (#10674 by @hannesrudolph, PR #10679 by @ThanhNguyxn)
+- Fix: Truncate AWS Bedrock toolUseId to 64 characters (PR #10902 by @daniel-lxs)
+- Fix: Restore opaque background to settings section headers (PR #10951 by @app/roomote)
+- Fix: Remove unsupported Fireworks model tool fields (PR #10937 by @app/roomote)
+- Update and improve zh-TW Traditional Chinese locale and docs (PR #10953 by @PeterDaveHello)
+- Chore: Remove POWER_STEERING experiment remnants (PR #10980 by @hannesrudolph)
+
+## [3.43.0] - 2026-01-23
+
+![3.43.0 Release - Intelligent Context Condensation](/releases/3.43.0-release.png)
+
+- Intelligent Context Condensation v2: New context condensation system that intelligently summarizes conversation history when approaching context limits, preserving important information while reducing token usage (PR #10873 by @hannesrudolph)
+- Improved context condensation with environment details, accurate token counts, and lazy evaluation for better performance (PR #10920 by @hannesrudolph)
+- Move condense prompt editor to Context Management tab for better discoverability and organization (PR #10909 by @hannesrudolph)
+- Update Z.AI models with new variants and pricing (#10859 by @ErdemGKSL, PR #10860 by @ErdemGKSL)
+- Add pnpm install:vsix:nightly command for easier nightly build installation (PR #10912 by @hannesrudolph)
+- Fix: Convert orphaned tool_results to text blocks after condensing to prevent API errors (PR #10927 by @daniel-lxs)
+- Fix: Auto-migrate v1 condensing prompt and handle invalid providers on import (PR #10931 by @hannesrudolph)
+- Fix: Use json-stream-stringify for pretty-printing MCP config files to prevent memory issues with large configs (#9862 by @Michaelzag, PR #9864 by @Michaelzag)
+- Fix: Correct Gemini 3 pricing for Flash and Pro models (#10432 by @rossdonald, PR #10487 by @roomote)
+- Fix: Skip thoughtSignature blocks during markdown export for cleaner output (#10199 by @rossdonald, PR #10932 by @rossdonald)
+- Fix: Duplicate model display for OpenAI Codex provider (PR #10930 by @roomote)
+- Remove diffEnabled and fuzzyMatchThreshold settings as they are no longer needed (#10648 by @hannesrudolph, PR #10298 by @hannesrudolph)
+- Remove MULTI_FILE_APPLY_DIFF experiment (PR #10925 by @hannesrudolph)
+- Remove POWER_STEERING experimental feature (PR #10926 by @hannesrudolph)
+- Remove legacy XML tool calling code (getToolDescription) for cleaner codebase (PR #10929 by @hannesrudolph)
 
 ## [3.42.0] - 2026-01-22
 
@@ -22,14 +133,14 @@
 - Fix: Remove custom condensing model option (PR #10901 by @hannesrudolph)
 - Unify user content tags to <user_message> for consistent prompt formatting (#10658 by @hannesrudolph, PR #10723 by @app/roomote)
 - Clarify linked SKILL.md file handling in prompts (PR #10907 by @hannesrudolph)
-- Fix: Padding on Roo Code Cloud teaser (PR #10889 by @app/roomote)
+- Fix: Padding on Klaus Code Cloud teaser (PR #10889 by @app/roomote)
 
 ## [3.41.3] - 2026-01-18
 
 - Fix: Thinking block word-breaking to prevent horizontal scroll in the chat UI (PR #10806 by @roomote)
-- Add Claude-like CLI flags and authentication fixes for the Roo Code CLI (PR #10797 by @cte)
+- Add Claude-like CLI flags and authentication fixes for the Klaus Code CLI (PR #10797 by @cte)
 - Improve CLI authentication by using a redirect instead of a fetch (PR #10799 by @cte)
-- Fix: Roo Code Router fixes for the CLI (PR #10789 by @cte)
+- Fix: Klaus Code Router fixes for the CLI (PR #10789 by @cte)
 - Release CLI v0.0.48 with latest improvements (PR #10800 by @cte)
 - Release CLI v0.0.47 (PR #10798 by @cte)
 - Revert E2E tests enablement to address stability issues (PR #10794 by @cte)
@@ -91,10 +202,10 @@
 
 ## [3.39.3] - 2026-01-10
 
-![3.39.3 Release - Roo Code Router](/releases/3.39.3-release.png)
+![3.39.3 Release - Klaus Code Router](/releases/3.39.3-release.png)
 
-- Rename Roo Code Cloud Provider to Roo Code Router for clearer branding (PR #10560 by @roomote)
-- Update Roo Code Router service name throughout the codebase (PR #10607 by @mrubens)
+- Rename Klaus Code Cloud Provider to Klaus Code Router for clearer branding (PR #10560 by @roomote)
+- Update Klaus Code Router service name throughout the codebase (PR #10607 by @mrubens)
 - Update router name in types for consistency (PR #10605 by @mrubens)
 - Improve ExtensionHost code organization and cleanup (PR #10600 by @cte)
 - Add local installation option to CLI release script for testing (PR #10597 by @cte)
@@ -116,8 +227,8 @@
 - Chore: Stop overriding tool allow/deny lists for Gemini (PR #10592 by @hannesrudolph)
 - Chore: Change default CLI model to anthropic/claude-opus-4.5 (PR #10544 by @mrubens)
 - Chore: Update Terms of Service effective January 9, 2026 (PR #10568 by @mrubens)
-- Chore: Move more types to @roo-code/types for CLI support (PR #10583 by @cte)
-- Chore: Add functionality to @roo-code/core for CLI support (PR #10584 by @cte)
+- Chore: Move more types to @klaus-code/types for CLI support (PR #10583 by @cte)
+- Chore: Add functionality to @klaus-code/core for CLI support (PR #10584 by @cte)
 - Chore: Add slash commands useful for CLI development (PR #10586 by @cte)
 
 ## [3.39.1] - 2026-01-08
@@ -139,8 +250,8 @@
 - Filter @ mention file search results using .rooignore (#10169 by @jerrill-johnson-bitwerx, PR #10174 by @roomote)
 - Add image support documentation to read_file native tool description (#10440 by @nabilfreeman, PR #10442 by @roomote)
 - Add zai-glm-4.7 to Cerebras models (PR #10500 by @sebastiand-cerebras)
-- VSCode shim and basic CLI for running Roo Code headlessly (PR #10452 by @cte)
-- Add CLI installer for headless Roo Code (PR #10474 by @cte)
+- VSCode shim and basic CLI for running Klaus Code headlessly (PR #10452 by @cte)
+- Add CLI installer for headless Klaus Code (PR #10474 by @cte)
 - Add option to use CLI for evals (PR #10456 by @cte)
 - Remember last Roo model selection in web-evals and add evals skill (PR #10470 by @hannesrudolph)
 - Tweak the style of follow up suggestion modes (PR #9260 by @mrubens)
@@ -205,7 +316,7 @@
 - Fix: Drain queued messages while waiting for ask to prevent message loss (PR #10315 by @hannesrudolph)
 - Feat: Add grace retry for empty assistant messages to improve reliability (PR #10297 by @hannesrudolph)
 - Feat: Enable mergeToolResultText for all OpenAI-compatible providers for better tool result handling (PR #10299 by @hannesrudolph)
-- Feat: Enable mergeToolResultText for Roo Code Router (PR #10301 by @hannesrudolph)
+- Feat: Enable mergeToolResultText for Klaus Code Router (PR #10301 by @hannesrudolph)
 - Feat: Strengthen native tool-use guidance in prompts for improved model behavior (PR #10311 by @hannesrudolph)
 - UX: Account-centric signup flow for improved onboarding experience (PR #10306 by @brunobergher)
 
@@ -499,7 +610,7 @@
 - Native tool calling support expanded across many providers: Bedrock (PR #9698 by @mrubens), Cerebras (PR #9692 by @mrubens), Chutes with auto-detection from API (PR #9715 by @daniel-lxs), DeepInfra (PR #9691 by @mrubens), DeepSeek and Doubao (PR #9671 by @daniel-lxs), Groq (PR #9673 by @daniel-lxs), LiteLLM (PR #9719 by @daniel-lxs), Ollama (PR #9696 by @mrubens), OpenAI-compatible providers (PR #9676 by @daniel-lxs), Requesty (PR #9672 by @daniel-lxs), Unbound (PR #9699 by @mrubens), Vercel AI Gateway (PR #9697 by @mrubens), Vertex Gemini (PR #9678 by @daniel-lxs), and xAI with new Grok 4 Fast and Grok 4.1 Fast models (PR #9690 by @mrubens)
 - Fix: Preserve tool_use blocks in summary for parallel tool calls (#9700 by @SilentFlower, PR #9714 by @SilentFlower)
 - Default Grok Code Fast to native tools for better performance (PR #9717 by @mrubens)
-- UX improvements to the Roo Code Router-centric onboarding flow (PR #9709 by @brunobergher)
+- UX improvements to the Klaus Code Router-centric onboarding flow (PR #9709 by @brunobergher)
 - UX toolbar cleanup and settings consolidation for a cleaner interface (PR #9710 by @brunobergher)
 - Add model-specific tool customization via `excludedTools` and `includedTools` configuration (PR #9641 by @daniel-lxs)
 - Add new `apply_patch` native tool for more efficient file editing operations (PR #9663 by @hannesrudolph)
@@ -557,13 +668,13 @@
 - Set native tools as default for minimax-m2 and claude-haiku-4.5 (PR #9586 by @daniel-lxs)
 - Make single file read only apply to XML tools (PR #9600 by @mrubens)
 - Enhance web-evals dashboard with dynamic tool columns and UX improvements (PR #9592 by @hannesrudolph)
-- Revert "Add support for Roo Code Cloud as an embeddings provider" while we fix some issues (PR #9602 by @mrubens)
+- Revert "Add support for Klaus Code Cloud as an embeddings provider" while we fix some issues (PR #9602 by @mrubens)
 
 ## [3.34.4] - 2025-11-25
 
 ![3.34.4 Release - BFL Image Generation](/releases/3.34.4-release.png)
 
-- Add new Black Forest Labs image generation models, free on Roo Code Cloud and also available on OpenRouter (PR #9587 and #9589 by @mrubens)
+- Add new Black Forest Labs image generation models, free on Klaus Code Cloud and also available on OpenRouter (PR #9587 and #9589 by @mrubens)
 - Fix: Preserve dynamic MCP tool names in native mode API history to prevent tool name mismatches (PR #9559 by @daniel-lxs)
 - Fix: Preserve tool_use blocks in summary message during condensing with native tools to maintain conversation context (PR #9582 by @daniel-lxs)
 
@@ -575,9 +686,9 @@
 - Add Claude Opus 4.5 model to Claude Code provider (PR #9560 by @mrubens)
 - Add Claude Opus 4.5 model to Bedrock provider (#9571 by @pisicode, PR #9572 by @roomote)
 - Enable caching for Opus 4.5 model to improve performance (#9567 by @iainRedro, PR #9568 by @roomote)
-- Add support for Roo Code Cloud as an embeddings provider (PR #9543 by @mrubens)
+- Add support for Klaus Code Cloud as an embeddings provider (PR #9543 by @mrubens)
 - Fix ask_followup_question streaming issue and add missing tool cases (PR #9561 by @daniel-lxs)
-- Add contact links to About Roo Code settings page (PR #9570 by @roomote)
+- Add contact links to About Klaus Code settings page (PR #9570 by @roomote)
 - Switch from asdf to mise-en-place in bare-metal evals setup script (PR #9548 by @cte)
 
 ## [3.34.2] - 2025-11-24
@@ -586,7 +697,7 @@
 
 - Add support for Claude Opus 4.5 in Anthropic and Vertex providers (PR #9541 by @daniel-lxs)
 - Add support for Claude Opus 4.5 in OpenRouter with prompt caching and reasoning budget (PR #9540 by @daniel-lxs)
-- Add Roo Code Cloud as an image generation provider (PR #9528 by @mrubens)
+- Add Klaus Code Cloud as an image generation provider (PR #9528 by @mrubens)
 - Fix: Gracefully skip unsupported content blocks in Gemini transformer (PR #9537 by @daniel-lxs)
 - Fix: Flush LiteLLM cache when credentials change on refresh (PR #9536 by @daniel-lxs)
 - Fix: Ensure XML parser state matches tool protocol on config update (PR #9535 by @daniel-lxs)
@@ -598,7 +709,7 @@
 - Show the prompt for image generation in the UI (PR #9505 by @mrubens)
 - Fix double todo list display issue (PR #9517 by @mrubens)
 - Add tracking for cloud synced messages (PR #9518 by @mrubens)
-- Enable the Roo Code Router in evals (PR #9492 by @cte)
+- Enable the Klaus Code Router in evals (PR #9492 by @cte)
 
 ## [3.34.0] - 2025-11-21
 
@@ -678,7 +789,7 @@
 - Use VSCode theme color for outline button borders (PR #9336 by @app/roomote)
 - Replace broken badgen.net badges with shields.io (PR #9318 by @app/roomote)
 - Add max git status files setting to evals (PR #9322 by @mrubens)
-- Roo Code Router pricing page and changes elsewhere (PR #9195 by @brunobergher)
+- Klaus Code Router pricing page and changes elsewhere (PR #9195 by @brunobergher)
 
 ## [3.32.1] - 2025-11-14
 
@@ -704,7 +815,7 @@
 ![3.31.3 Release - Kangaroo Decrypting a Message](/releases/3.31.3-release.png)
 
 - Fix: OpenAI Native encrypted_content handling and remove gpt-5-chat-latest verbosity flag (#9225 by @politsin, PR by @hannesrudolph)
-- Fix: Roo Code Router Anthropic input token normalization to avoid double-counting (thanks @hannesrudolph!)
+- Fix: Klaus Code Router Anthropic input token normalization to avoid double-counting (thanks @hannesrudolph!)
 - Refactor: Rename sliding-window to context-management and truncateConversationIfNeeded to manageContext (thanks @hannesrudolph!)
 
 ## [3.31.2] - 2025-11-12
@@ -844,7 +955,7 @@
 
 - Add token-budget based file reading with intelligent preview to avoid context overruns (thanks @daniel-lxs!)
 - Enable browser-use tool for all image-capable models (#8116 by @hannesrudolph, PR by @app/roomote!)
-- Add dynamic model loading for Roo Code Router (thanks @app/roomote!)
+- Add dynamic model loading for Klaus Code Router (thanks @app/roomote!)
 - Fix: Respect nested .gitignore files in search_files (#7921 by @hannesrudolph, PR by @daniel-lxs)
 - Fix: Preserve trailing newlines in stripLineNumbers for apply_diff (#8020 by @liyi3c, PR by @app/roomote)
 - Fix: Exclude max tokens field for models that don't support it in export (#7944 by @hannesrudolph, PR by @elianiva)
@@ -1002,7 +1113,7 @@
 - UX: Responsive Auto-Approve (thanks @brunobergher!)
 - Add telemetry retry queue for network resilience (thanks @daniel-lxs!)
 - Fix: Transform keybindings in nightly build to fix command+y shortcut (thanks @app/roomote!)
-- New code-supernova stealth model in the Roo Code Router (thanks @mrubens!)
+- New code-supernova stealth model in the Klaus Code Router (thanks @mrubens!)
 
 ## [3.28.3] - 2025-09-16
 
@@ -1040,8 +1151,8 @@
 
 ![3.28.1 Release - Kangaroo riding rocket to the clouds](/releases/3.28.1-release.png)
 
-- Announce Roo Code Cloud!
-- Add cloud task button for opening tasks in Roo Code Cloud (thanks @app/roomote!)
+- Announce Klaus Code Cloud!
+- Add cloud task button for opening tasks in Klaus Code Cloud (thanks @app/roomote!)
 - Make Posthog telemetry the default (thanks @mrubens!)
 - Show notification when the checkpoint initialization fails (thanks @app/roomote!)
 - Bust cache in generated image preview (thanks @mrubens!)
@@ -1050,9 +1161,9 @@
 
 ## [3.28.0] - 2025-09-10
 
-![3.28.0 Release - Continue tasks in Roo Code Cloud](/releases/3.28.0-release.png)
+![3.28.0 Release - Continue tasks in Klaus Code Cloud](/releases/3.28.0-release.png)
 
-- feat: Continue tasks in Roo Code Cloud (thanks @brunobergher!)
+- feat: Continue tasks in Klaus Code Cloud (thanks @brunobergher!)
 - feat: Support connecting to Cloud without redirect handling (thanks @mrubens!)
 - feat: Add toggle to control task syncing to Cloud (thanks @jr!)
 - feat: Add click-to-edit, ESC-to-cancel, and fix padding consistency for chat messages (#7788 by @hannesrudolph, PR by @app/roomote)
@@ -1090,7 +1201,7 @@
 ![3.26.7 Release - OpenAI Service Tiers](/releases/3.26.7-release.png)
 
 - Feature: Add OpenAI Responses API service tiers (flex/priority) with UI selector and pricing (thanks @hannesrudolph!)
-- Feature: Add DeepInfra as a model provider in Roo Code (#7661 by @Thachnh, PR by @Thachnh)
+- Feature: Add DeepInfra as a model provider in Klaus Code (#7661 by @Thachnh, PR by @Thachnh)
 - Feature: Update kimi-k2-0905-preview and kimi-k2-turbo-preview models on the Moonshot provider (thanks @CellenLee!)
 - Feature: Add kimi-k2-0905-preview to Groq, Moonshot, and Fireworks (thanks @daniel-lxs and Cline!)
 - Fix: Prevent countdown timer from showing in history for answered follow-up questions (#7624 by @XuyiK, PR by @daniel-lxs)
@@ -1213,11 +1324,11 @@
 
 ## [3.25.19] - 2025-08-19
 
-- Fix issue where new users couldn't select the Roo Code Router (thanks @daniel-lxs!)
+- Fix issue where new users couldn't select the Klaus Code Router (thanks @daniel-lxs!)
 
 ## [3.25.18] - 2025-08-19
 
-- Add new stealth Sonic model through the Roo Code Router
+- Add new stealth Sonic model through the Klaus Code Router
 - Fix: respect enableReasoningEffort setting when determining reasoning usage (#7048 by @ikbencasdoei, PR by @app/roomote)
 - Fix: prevent duplicate LM Studio models with case-insensitive deduplication (#6954 by @fbuechler, PR by @daniel-lxs)
 - Feat: simplify ask_followup_question prompt documentation (thanks @daniel-lxs!)
@@ -1432,7 +1543,7 @@
 
 ## [3.23.19] - 2025-07-23
 
-- Add Roo Code Cloud Waitlist CTAs (thanks @brunobergher!)
+- Add Klaus Code Cloud Waitlist CTAs (thanks @brunobergher!)
 - Split commands on newlines when evaluating auto-approve
 - Smarter auto-deny of commands
 
@@ -2052,7 +2163,7 @@
 - Fix display issue of the programming language dropdown in the code block component (thanks @zhangtony239)
 - MCP server errors are now captured and shown in a new "Errors" tab (thanks @robertheadley)
 - Error logging will no longer break MCP functionality if the server is properly connected (thanks @ksze)
-- You can now toggle the `terminal.integrated.inheritEnv` VSCode setting directly for the Roo Code settings (thanks @KJ7LNW)
+- You can now toggle the `terminal.integrated.inheritEnv` VSCode setting directly for the Klaus Code settings (thanks @KJ7LNW)
 - Add `gemini-2.5-pro-preview-05-06` to the Vertex and Gemini providers (thanks @zetaloop)
 - Ensure evals exercises are up-to-date before running evals (thanks @shariqriazz)
 - Lots of general UI improvements (thanks @elianiva)
@@ -2069,7 +2180,7 @@
 
 ## [3.15.4] - 2025-05-04
 
-- Fix a nasty bug that would cause Roo Code to hang, particularly in orchestrator mode
+- Fix a nasty bug that would cause Klaus Code to hang, particularly in orchestrator mode
 - Improve Gemini caching efficiency
 
 ## [3.15.3] - 2025-05-02
@@ -2108,8 +2219,8 @@
 - Improve the auto-approve toggle buttons for some high-contrast VSCode themes
 - Offload expensive count token operations to a web worker (thanks @samhvw8)
 - Improve support for mult-root workspaces (thanks @snoyiatk)
-- Simplify and streamline Roo Code's quick actions
-- Allow Roo Code settings to be imported from the welcome screen (thanks @julionav)
+- Simplify and streamline Klaus Code's quick actions
+- Allow Klaus Code settings to be imported from the welcome screen (thanks @julionav)
 - Remove unused types (thanks @wkordalski)
 - Improve the performance of mode switching (thanks @dlab-anton)
 - Fix importing & exporting of custom modes (thanks @julionav)
@@ -2273,7 +2384,7 @@
 - Improve readFileTool XML output format (thanks @KJ7LNW!)
 - Add o1-pro support (thanks @arthurauffray!)
 - Follow symlinked rules files/directories to allow for more flexible rule setups
-- Focus Roo Code in the sidebar when running tasks in the sidebar via the API
+- Focus Klaus Code in the sidebar when running tasks in the sidebar via the API
 - Improve subtasks UI
 
 ## [3.11.10] - 2025-04-08
@@ -2295,7 +2406,7 @@
 - Enhance Rust tree-sitter parser with advanced language structures (thanks @KJ7LNW!)
 - Persist settings on api.setConfiguration (thanks @gtaylor!)
 - Add deep links to settings sections
-- Add command to focus Roo Code input field (thanks @axkirillov!)
+- Add command to focus Klaus Code input field (thanks @axkirillov!)
 - Add resize and hover actions to the browser (thanks @SplittyDev!)
 - Add resumeTask and isTaskInHistory to the API (thanks @franekp!)
 - Fix bug displaying boolean/numeric suggested answers
@@ -2344,7 +2455,7 @@
 - Fix issue where prompts and settings tabs were not scrollable when accessed from dropdown menus
 - Update AWS region dropdown menu to the most recent data (thanks @Smartsheet-JB-Brown!)
 - Fix prompt enhancement for Bedrock (thanks @Smartsheet-JB-Brown!)
-- Allow processes to access the Roo Code API via a unix socket
+- Allow processes to access the Klaus Code API via a unix socket
 - Improve zh-TW Traditional Chinese translations (thanks @PeterDaveHello!)
 - Add support for Azure AI Inference Service with DeepSeek-V3 model (thanks @thomasjeung!)
 - Fix off-by-one error in tree-sitter line numbers
@@ -2381,7 +2492,7 @@
 - Fix list_code_definition_names to support files (thanks @KJ7LNW!)
 - Refactor tool-calling logic to make the code a lot easier to work with (thanks @diarmidmackenzie, @bramburn, @KJ7LNW, and everyone else who helped!)
 - Prioritize “Add to Context” in the code actions and include line numbers (thanks @samhvw8!)
-- Add an activation command that other extensions can use to interface with Roo Code (thanks @gtaylor!)
+- Add an activation command that other extensions can use to interface with Klaus Code (thanks @gtaylor!)
 - Preserve language characters in file @-mentions (thanks @aheizi!)
 - Browser tool improvements (thanks @afshawnlotfi!)
 - Display info about partial reads in the chat row
@@ -2473,7 +2584,7 @@
 
 ## [3.9.0] - 2025-03-18
 
-- Internationalize Roo Code into Catalan, German, Spanish, French, Hindi, Italian, Japanese, Korean, Polish, Portuguese, Turkish, Vietnamese, Simplified Chinese, and Traditional Chinese (thanks @feifei325!)
+- Internationalize Klaus Code into Catalan, German, Spanish, French, Hindi, Italian, Japanese, Korean, Polish, Portuguese, Turkish, Vietnamese, Simplified Chinese, and Traditional Chinese (thanks @feifei325!)
 - Bring back support for MCP over SSE (thanks @aheizi!)
 - Add a text-to-speech option to have Roo talk to you as it works (thanks @heyseth!)
 - Choose a specific provider when using OpenRouter (thanks PhunkyBob!)
@@ -2553,17 +2664,17 @@
 
 ## [3.8.0] - 2025-03-07
 
-- Add opt-in telemetry to help us improve Roo Code faster (thanks Cline!)
+- Add opt-in telemetry to help us improve Klaus Code faster (thanks Cline!)
 - Fix terminal overload / gray screen of death, and other terminal issues
 - Add a new experimental diff editing strategy that applies multiple diff edits at once (thanks @qdaxb!)
-- Add support for a .rooignore to prevent Roo Code from read/writing certain files, with a setting to also exclude them from search/lists (thanks Cline!)
+- Add support for a .rooignore to prevent Klaus Code from read/writing certain files, with a setting to also exclude them from search/lists (thanks Cline!)
 - Update the new_task tool to return results to the parent task on completion, supporting better orchestration (thanks @shaybc!)
 - Support running Roo in multiple editor windows simultaneously (thanks @samhvw8!)
 - Make checkpoints asynchronous and exclude more files to speed them up
 - Redesign the settings page to make it easier to navigate
 - Add credential-based authentication for Vertex AI, enabling users to easily switch between Google Cloud accounts (thanks @eonghk!)
 - Update the DeepSeek provider with the correct baseUrl and track caching correctly (thanks @olweraltuve!)
-- Add a new “Human Relay” provider that allows you to manually copy information to a Web AI when needed, and then paste the AI's response back into Roo Code (thanks @NyxJae)!
+- Add a new “Human Relay” provider that allows you to manually copy information to a Web AI when needed, and then paste the AI's response back into Klaus Code (thanks @NyxJae)!
 - Add observability for OpenAI providers (thanks @refactorthis!)
 - Support speculative decoding for LM Studio local models (thanks @adamwlarson!)
 - Improve UI for mode/provider selectors in chat
@@ -2652,7 +2763,7 @@
 
 ## [3.7.0] - 2025-02-24
 
-- Introducing Roo Code 3.7, with support for the new Claude Sonnet 3.7. Because who cares about skipping version numbers anymore? Thanks @lupuletic and @cte for the PRs!
+- Introducing Klaus Code 3.7, with support for the new Claude Sonnet 3.7. Because who cares about skipping version numbers anymore? Thanks @lupuletic and @cte for the PRs!
 
 ## [3.3.26] - 2025-02-27
 
@@ -2841,7 +2952,7 @@
 - Ask and Architect modes can now edit markdown files
 - Custom modes can now be restricted to specific file patterns (for example, a technical writer who can only edit markdown files 👋)
 - Support for configuring the Bedrock provider with AWS Profiles
-- New Roo Code community Discord at https://roocode.com/discord!
+- New Klaus Code community Discord at https://roocode.com/discord!
 
 ## [3.2.8]
 
@@ -2873,9 +2984,9 @@
 
 ## [3.2.0 - 3.2.2]
 
-- **Name Change From Roo Cline to Roo Code:** We're excited to announce our new name! After growing beyond 50,000 installations, we've rebranded from Roo Cline to Roo Code to better reflect our identity as we chart our own course.
+- **Name Change From Roo Cline to Klaus Code:** We're excited to announce our new name! After growing beyond 50,000 installations, we've rebranded from Roo Cline to Klaus Code to better reflect our identity as we chart our own course.
 
-- **Custom Modes:** Create your own personas for Roo Code! While our built-in modes (Code, Architect, Ask) are still here, you can now shape entirely new ones:
+- **Custom Modes:** Create your own personas for Klaus Code! While our built-in modes (Code, Architect, Ask) are still here, you can now shape entirely new ones:
     - Define custom prompts
     - Choose which tools each mode can access
     - Create specialized assistants for any workflow
@@ -2934,7 +3045,7 @@ Join us at https://www.reddit.com/r/RooCode to share your custom modes and be pa
 
 ## [3.0.0]
 
-- This release adds chat modes! Now you can ask Roo Code questions about system architecture or the codebase without immediately jumping into writing code. You can even assign different API configuration profiles to each mode if you prefer to use different models for thinking vs coding. Would love feedback in the new Roo Code Reddit! https://www.reddit.com/r/RooCode
+- This release adds chat modes! Now you can ask Klaus Code questions about system architecture or the codebase without immediately jumping into writing code. You can even assign different API configuration profiles to each mode if you prefer to use different models for thinking vs coding. Would love feedback in the new Klaus Code Reddit! https://www.reddit.com/r/RooCode
 
 ## [2.2.46]
 

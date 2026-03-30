@@ -4,17 +4,17 @@ import * as os from "node:os"
 import pWaitFor from "p-wait-for"
 import { execa } from "execa"
 
-import { type ToolUsage, TaskCommandName, RooCodeEventName, IpcMessageType } from "@roo-code/types"
-import { IpcClient } from "@roo-code/ipc"
+import { type ToolUsage, TaskCommandName, RooCodeEventName, IpcMessageType } from "@klaus-code/types"
+import { IpcClient } from "@klaus-code/ipc"
 
-import { updateTask, createTaskMetrics, updateTaskMetrics, createToolError } from "../db/index.js"
-import { EVALS_REPO_PATH } from "../exercises/index.js"
+import { updateTask, createTaskMetrics, updateTaskMetrics, createToolError } from "../db/index"
+import { EVALS_REPO_PATH } from "../exercises/index"
 
-import { type RunTaskOptions } from "./types.js"
-import { mergeToolUsage, waitForSubprocessWithTimeout } from "./utils.js"
+import { type RunTaskOptions } from "./types"
+import { mergeToolUsage, waitForSubprocessWithTimeout } from "./utils"
 
 /**
- * Run a task using the Roo Code CLI (headless mode).
+ * Run a task using the Klaus Code CLI (headless mode).
  * Uses the same IPC protocol as VSCode since the CLI loads the same extension bundle.
  */
 export const runTaskWithCli = async ({ run, task, publish, logger, jobToken }: RunTaskOptions) => {
@@ -37,13 +37,12 @@ export const runTaskWithCli = async ({ run, task, publish, logger, jobToken }: R
 
 	const cliArgs = [
 		"--filter",
-		"@roo-code/cli",
+		"@klaus-code/cli",
 		"start",
 		"--prompt-file",
 		promptSourcePath,
 		"--workspace",
 		workspacePath,
-		"--yes",
 		"--reasoning-effort",
 		"disabled",
 		"--oneshot",
@@ -264,7 +263,7 @@ export const runTaskWithCli = async ({ run, task, publish, logger, jobToken }: R
 
 		if (rooTaskId && !isClientDisconnected) {
 			logger.info("cancelling task")
-			client.sendCommand({ commandName: TaskCommandName.CancelTask, data: rooTaskId })
+			client.sendCommand({ commandName: TaskCommandName.CancelTask })
 			await new Promise((resolve) => setTimeout(resolve, 5_000))
 		}
 
@@ -289,7 +288,7 @@ export const runTaskWithCli = async ({ run, task, publish, logger, jobToken }: R
 
 	if (rooTaskId && !isClientDisconnected) {
 		logger.info("closing task")
-		client.sendCommand({ commandName: TaskCommandName.CloseTask, data: rooTaskId })
+		client.sendCommand({ commandName: TaskCommandName.CloseTask })
 		await new Promise((resolve) => setTimeout(resolve, 2_000))
 	}
 

@@ -2,7 +2,7 @@ import { useState, useCallback, useMemo, useEffect } from "react"
 import { useEvent } from "react-use"
 import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react"
 
-import type { ProviderSettings, ExtensionMessage, ModelRecord } from "@roo-code/types"
+import type { ProviderSettings, ExtensionMessage, ModelRecord } from "@klaus-code/types"
 
 import { useAppTranslation } from "@src/i18n/TranslationContext"
 import { useRouterModels } from "@src/components/ui/hooks/useRouterModels"
@@ -64,10 +64,10 @@ export const Ollama = ({ apiConfiguration, setApiConfigurationField }: OllamaPro
 			return undefined // Model is available locally
 		}
 
-		// If we have router models data for Ollama
-		if (routerModels.data?.ollama) {
+		// Only validate against router models if they actually contain data (not just an empty placeholder)
+		if (routerModels.data?.ollama && Object.keys(routerModels.data.ollama).length > 0) {
 			const availableModels = Object.keys(routerModels.data.ollama)
-			// Show warning if model is not in the list (regardless of how many models there are)
+			// Show warning if model is not in the list
 			if (!availableModels.includes(selectedModel)) {
 				return t("settings:validation.modelAvailability", { modelId: selectedModel })
 			}

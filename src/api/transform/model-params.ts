@@ -4,7 +4,7 @@ import {
 	type VerbosityLevel,
 	type ReasoningEffortExtended,
 	ANTHROPIC_DEFAULT_MAX_TOKENS,
-} from "@roo-code/types"
+} from "@klaus-code/types"
 
 import {
 	DEFAULT_HYBRID_REASONING_MODEL_MAX_TOKENS,
@@ -33,7 +33,7 @@ type GetModelParamsOptions<T extends Format> = {
 	modelId: string
 	model: ModelInfo
 	settings: ProviderSettings
-	defaultTemperature?: number
+	defaultTemperature: number
 }
 
 type BaseModelParams = {
@@ -77,7 +77,7 @@ export function getModelParams({
 	modelId,
 	model,
 	settings,
-	defaultTemperature = 0,
+	defaultTemperature,
 }: GetModelParamsOptions<Format>): ModelParams {
 	const {
 		modelMaxTokens: customMaxTokens,

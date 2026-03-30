@@ -3,15 +3,16 @@ import Mocha from "mocha"
 import { glob } from "glob"
 import * as vscode from "vscode"
 
-import type { RooCodeAPI } from "@roo-code/types"
+import type { RooCodeAPI } from "@klaus-code/types"
 
 import { waitFor } from "./utils"
 
 export async function run() {
-	const extension = vscode.extensions.getExtension<RooCodeAPI>("RooVeterinaryInc.roo-cline")
+	const extensionId = process.env.VSCODE_EXTENSION_ID || "KlausCode.klaus-code"
+	const extension = vscode.extensions.getExtension<RooCodeAPI>(extensionId)
 
 	if (!extension) {
-		throw new Error("Extension not found")
+		throw new Error(`Extension not found: ${extensionId}`)
 	}
 
 	const api = extension.isActive ? extension.exports : await extension.activate()
@@ -19,10 +20,10 @@ export async function run() {
 	await api.setConfiguration({
 		apiProvider: "openrouter" as const,
 		openRouterApiKey: process.env.OPENROUTER_API_KEY!,
-		openRouterModelId: "openai/gpt-4.1",
+		openRouterModelId: process.env.OPENROUTER_MODEL_ID || "openai/gpt-4.1",
 	})
 
-	await vscode.commands.executeCommand("roo-cline.SidebarProvider.focus")
+	await vscode.commands.executeCommand("klaus-code.SidebarProvider.focus")
 	await waitFor(() => api.isReady())
 
 	globalThis.api = api

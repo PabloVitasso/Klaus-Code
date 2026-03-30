@@ -1,0 +1,189 @@
+name: Nightly Changelog Update
+
+on:
+  schedule:
+    - cron: '0 2 * * *' # Run every night at 2 AM UTC
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  update-changelog:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Need full history for changelog generation
+
+      - name: Setup Node.js and pnpm
+        uses: ./.github/actions/setup-node-pnpm
+        with:
+          install-args: '--frozen-lockfile'
+
+      - name: Check for new commits since last weekly build
+        id: check_commits
+        run: |
+          # Find last weekly tag
+          LAST_TAG=$(git tag --list 'weekly-v*' --sort=-version:refname | head -n1)
+
+          if [ -z "$LAST_TAG" ]; then
+            echo "No previous weekly tags found"
+            COMMIT_COUNT=0
+          else
+            COMMIT_COUNT=$(git rev-list --count ${LAST_TAG}..HEAD 2>/dev/null || echo "0")
+          fi
+
+          echo "commits=$COMMIT_COUNT" >> $GITHUB_OUTPUT
+          echo "last_tag=$LAST_TAG" >> $GITHUB_OUTPUT
+          echo "📊 Found $COMMIT_COUNT new commits since $LAST_TAG"
+
+      - name: Generate changeset from commits
+        if: steps.check_commits.outputs.commits > 0
+        run: |
+          LAST_TAG="${{ steps.check_commits.outputs.last_tag }}"
+
+          # Determine version bump
+          HAS_BREAKING=$(git log ${LAST_TAG}..HEAD --oneline --grep="BREAKING CHANGE" | wc -l)
+          HAS_FEAT=$(git log ${LAST_TAG}..HEAD --oneline --grep="^feat" | wc -l)
+          HAS_FIX=$(git log ${LAST_TAG}..HEAD --oneline --grep="^fix" | wc -l)
+
+          if [ "$HAS_BREAKING" -gt 0 ]; then
+            BUMP_TYPE="major"
+          elif [ "$HAS_FEAT" -gt 0 ]; then
+            BUMP_TYPE="minor"
+          else
+            BUMP_TYPE="patch"
+          fi
+
+          # Generate changeset file
+          CHANGESET_ID="auto-$(date +%Y%m%d)"
+          CHANGESET_FILE=".changeset/${CHANGESET_ID}.md"
+
+          # Check if changeset already exists for today
+          if [ -f "$CHANGESET_FILE" ]; then
+            echo "Changeset already exists for today, updating..."
+            rm "$CHANGESET_FILE"
+          fi
+
+          cat > "$CHANGESET_FILE" <<'EOF'
+          ---
+          "klaus-code": ${BUMP_TYPE}
+          ---
+
+          EOF
+
+          # Add commit range to changeset
+          if [ -n "$LAST_TAG" ]; then
+            COMMIT_RANGE="${LAST_TAG}..HEAD"
+          else
+            COMMIT_RANGE="HEAD~20..HEAD"
+          fi
+
+          # Features
+          FEATURES=$(git log $COMMIT_RANGE --oneline --no-merges --grep="^feat" --perl-regexp --pretty=format:"- %s" 2>/dev/null || true)
+          if [ -n "$FEATURES" ]; then
+            echo "### ✨ Features" >> "$CHANGESET_FILE"
+            echo "" >> "$CHANGESET_FILE"
+            echo "$FEATURES" >> "$CHANGESET_FILE"
+            echo "" >> "$CHANGESET_FILE"
+          fi
+
+          # Bug Fixes
+          FIXES=$(git log $COMMIT_RANGE --oneline --no-merges --grep="^fix" --perl-regexp --pretty=format:"- %s" 2>/dev/null || true)
+          if [ -n "$FIXES" ]; then
+            echo "### 🐛 Bug Fixes" >> "$CHANGESET_FILE"
+            echo "" >> "$CHANGESET_FILE"
+            echo "$FIXES" >> "$CHANGESET_FILE"
+            echo "" >> "$CHANGESET_FILE"
+          fi
+
+          # Documentation
+          DOCS=$(git log $COMMIT_RANGE --oneline --no-merges --grep="^docs" --perl-regexp --pretty=format:"- %s" 2>/dev/null | head -10 || true)
+          if [ -n "$DOCS" ]; then
+            echo "### 📚 Documentation" >> "$CHANGESET_FILE"
+            echo "" >> "$CHANGESET_FILE"
+            echo "$DOCS" >> "$CHANGESET_FILE"
+            echo "" >> "$CHANGESET_FILE"
+          fi
+
+          # Other changes (limit to 10 most recent)
+          OTHERS=$(git log $COMMIT_RANGE --oneline --no-merges --invert-grep --grep="^feat" --grep="^fix" --grep="^docs" --perl-regexp --pretty=format:"- %s" 2>/dev/null | head -10 || true)
+          if [ -n "$OTHERS" ]; then
+            echo "### 🔧 Other Changes" >> "$CHANGESET_FILE"
+            echo "" >> "$CHANGESET_FILE"
+            echo "$OTHERS" >> "$CHANGESET_FILE"
+            echo "" >> "$CHANGESET_FILE"
+          fi
+
+          # Fix the BUMP_TYPE placeholder
+          sed -i "s/\${BUMP_TYPE}/$BUMP_TYPE/g" "$CHANGESET_FILE"
+
+          echo "✅ Generated changeset: $CHANGESET_FILE"
+          cat "$CHANGESET_FILE"
+
+      - name: Generate preview changelog
+        if: steps.check_commits.outputs.commits > 0
+        run: |
+          echo "# Preview Changelog for Next Release" > /tmp/preview-changelog.md
+          echo "" >> /tmp/preview-changelog.md
+          echo "This is an automatically generated preview of changes since the last weekly build." >> /tmp/preview-changelog.md
+          echo "" >> /tmp/preview-changelog.md
+
+          ./scripts/generate-weekly-changelog.sh "${{ steps.check_commits.outputs.last_tag }}" >> /tmp/preview-changelog.md
+
+          echo "📝 Preview changelog:"
+          cat /tmp/preview-changelog.md
+
+      - name: Create Pull Request
+        if: steps.check_commits.outputs.commits > 0
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'chore: auto-update changelog for upcoming release'
+          branch: auto-changelog-update
+          delete-branch: true
+          title: '📝 Auto-generated Changelog Update'
+          body: |
+            ## Automated Changelog Update
+
+            This PR contains automatically generated changelog entries based on commits since the last weekly build.
+
+            ### Summary
+            - **Commits analyzed**: ${{ steps.check_commits.outputs.commits }}
+            - **Since**: `${{ steps.check_commits.outputs.last_tag }}`
+
+            ### What's included:
+            - ✅ New changeset file in `.changeset/`
+            - ✅ Auto-categorized by commit type (feat, fix, docs, etc.)
+
+            ### Next Steps:
+            1. **Review** the changeset file for accuracy
+            2. **Edit** if needed (update descriptions, fix categorization)
+            3. **Merge** when ready
+            4. The next weekly build will include these changes
+
+            ---
+
+            <details>
+            <summary>📋 Preview Changelog</summary>
+
+            $(cat /tmp/preview-changelog.md)
+
+            </details>
+
+            ---
+
+            🤖 This PR was created automatically by the [nightly-changelog workflow](.github/workflows/nightly-changelog.yml)
+          labels: |
+            automated
+            changelog
+            documentation
+
+      - name: No changes detected
+        if: steps.check_commits.outputs.commits == 0
+        run: |
+          echo "ℹ️  No new commits since last weekly build - skipping changelog update"

@@ -1,6 +1,6 @@
 {
 	"extension": {
-		"name": "Roo Code",
+		"name": "Klaus Code",
 		"description": "您編輯器中的完整 AI 開發團隊。"
 	},
 	"number_format": {
@@ -62,7 +62,7 @@
 		"condense_not_enough_messages": "沒有足夠的訊息來壓縮上下文",
 		"condensed_recently": "上下文最近已壓縮；跳過此次嘗試",
 		"condense_handler_invalid": "壓縮上下文的 API 處理程式無效",
-		"condense_context_grew": "壓縮過程中上下文大小增加；跳過此次嘗試",
+		"condense_api_failed": "壓縮 API 呼叫失敗：{{message}}",
 		"url_timeout": "網站載入超時。這可能是由於網路連線緩慢、網站負載過重或暫時無法使用。你可以稍後重試或檢查 URL 是否正確。",
 		"url_not_found": "找不到網站位址。請檢查 URL 是否正確並重試。",
 		"no_internet": "無網路連線。請檢查網路連線並重試。",
@@ -110,17 +110,8 @@
 			"thinking_complete_safety": "（思考完成，但由於安全設定輸出被阻止。）",
 			"thinking_complete_recitation": "（思考完成，但由於引用檢查輸出被阻止。）"
 		},
-		"cerebras": {
-			"authenticationFailed": "Cerebras API 驗證失敗。請檢查您的 API 金鑰是否有效且未過期。",
-			"accessForbidden": "Cerebras API 存取被拒絕。您的 API 金鑰可能無法存取所請求的模型或功能。",
-			"rateLimitExceeded": "Cerebras API 速率限制已超出。請稍候再發出另一個請求。",
-			"serverError": "Cerebras API 伺服器錯誤 ({{status}})。請稍後重試。",
-			"genericError": "Cerebras API 錯誤 ({{status}})：{{message}}",
-			"noResponseBody": "Cerebras API 錯誤：無回應主體",
-			"completionError": "Cerebras 完成錯誤：{{error}}"
-		},
 		"roo": {
-			"authenticationRequired": "Roo 提供者需要雲端認證。請登入 Roo Code Cloud。"
+			"authenticationRequired": "Roo 提供者需要雲端認證。請登入 Klaus Code Cloud。"
 		},
 		"api": {
 			"invalidKeyInvalidChars": "API 金鑰包含無效字元。",
@@ -154,7 +145,7 @@
 	"warnings": {
 		"no_terminal_content": "沒有選擇終端機內容",
 		"missing_task_files": "此工作的檔案遺失。您想從工作列表中刪除它嗎？",
-		"auto_import_failed": "自動匯入 RooCode 設定失敗：{{error}}"
+		"auto_import_failed": "自動匯入 Klaus Code 設定失敗：{{error}}"
 	},
 	"info": {
 		"no_changes": "沒有找到更改。",
@@ -163,7 +154,7 @@
 		"custom_storage_path_set": "自訂儲存路徑已設定：{{path}}",
 		"default_storage_path": "已恢復使用預設儲存路徑",
 		"settings_imported": "設定已成功匯入。",
-		"auto_import_success": "已自動匯入 RooCode 設定：{{filename}}",
+		"auto_import_success": "已自動匯入 Klaus Code 設定：{{filename}}",
 		"share_link_copied": "分享連結已複製到剪貼簿",
 		"image_copied_to_clipboard": "圖片資料 URI 已複製到剪貼簿",
 		"image_saved": "圖片已儲存至 {{path}}",
@@ -196,8 +187,8 @@
 	},
 	"storage": {
 		"prompt_custom_path": "輸入自訂會話歷史儲存路徑，留空以使用預設位置",
-		"path_placeholder": "D:\\RooCodeStorage",
-		"enter_absolute_path": "請輸入絕對路徑（例如 D:\\RooCodeStorage 或 /home/user/storage）",
+		"path_placeholder": "D:\\Klaus CodeStorage",
+		"enter_absolute_path": "請輸入絕對路徑（例如 D:\\Klaus CodeStorage 或 /home/user/storage）",
 		"enter_valid_path": "請輸入有效的路徑"
 	},
 	"input": {
@@ -205,10 +196,7 @@
 		"task_placeholder": "在這裡輸入工作"
 	},
 	"settings": {
-		"providers": {
-			"groqApiKey": "Groq API 金鑰",
-			"getGroqApiKey": "取得 Groq API 金鑰"
-		}
+		"providers": {}
 	},
 	"customModes": {
 		"errors": {
@@ -234,8 +222,8 @@
 	},
 	"mdm": {
 		"errors": {
-			"cloud_auth_required": "您的組織需要 Roo Code Cloud 身份驗證。請登入以繼續。",
-			"organization_mismatch": "您必須使用組織的 Roo Code Cloud 帳戶進行身份驗證。",
+			"cloud_auth_required": "您的組織需要 Klaus Code Cloud 身份驗證。請登入以繼續。",
+			"organization_mismatch": "您必須使用組織的 Klaus Code Cloud 帳戶進行身份驗證。",
 			"manual_url_empty": "請輸入有效的回呼 URL",
 			"manual_url_no_query": "無效的回呼 URL：缺少查詢參數",
 			"manual_url_missing_params": "無效的回呼 URL：缺少必要參數（code 和 state）",

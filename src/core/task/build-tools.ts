@@ -2,8 +2,8 @@ import path from "path"
 
 import type OpenAI from "openai"
 
-import type { ProviderSettings, ModeConfig, ModelInfo } from "@roo-code/types"
-import { customToolRegistry, formatNative } from "@roo-code/core"
+import type { ProviderSettings, ModeConfig, ModelInfo } from "@klaus-code/types"
+import { customToolRegistry, formatNative } from "@klaus-code/core"
 
 import type { ClineProvider } from "../webview/ClineProvider"
 import { getRooDirectoriesForCwd } from "../../services/roo-config/index.js"
@@ -22,11 +22,8 @@ interface BuildToolsOptions {
 	customModes: ModeConfig[] | undefined
 	experiments: Record<string, boolean> | undefined
 	apiConfiguration: ProviderSettings | undefined
-	maxReadFileLine: number
-	maxConcurrentFileReads: number
-	browserToolEnabled: boolean
+	disabledTools?: string[]
 	modelInfo?: ModelInfo
-	diffEnabled: boolean
 	/**
 	 * If true, returns all tools without mode filtering, but also includes
 	 * the list of allowed tool names for use with allowedFunctionNames.
@@ -90,11 +87,8 @@ export async function buildNativeToolsArrayWithRestrictions(options: BuildToolsO
 		customModes,
 		experiments,
 		apiConfiguration,
-		maxReadFileLine,
-		maxConcurrentFileReads,
-		browserToolEnabled,
+		disabledTools,
 		modelInfo,
-		diffEnabled,
 		includeAllToolsWithRestrictions,
 	} = options
 
@@ -107,21 +101,15 @@ export async function buildNativeToolsArrayWithRestrictions(options: BuildToolsO
 	// Build settings object for tool filtering.
 	const filterSettings = {
 		todoListEnabled: apiConfiguration?.todoListEnabled ?? true,
-		browserToolEnabled: browserToolEnabled ?? true,
+		disabledTools,
 		modelInfo,
-		diffEnabled,
 	}
-
-	// Determine if partial reads are enabled based on maxReadFileLine setting.
-	const partialReadsEnabled = maxReadFileLine !== -1
 
 	// Check if the model supports images for read_file tool description.
 	const supportsImages = modelInfo?.supportsImages ?? false
 
 	// Build native tools with dynamic read_file tool based on settings.
 	const nativeTools = getNativeTools({
-		partialReadsEnabled,
-		maxConcurrentFileReads,
 		supportsImages,
 	})
 

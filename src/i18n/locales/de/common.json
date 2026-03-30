@@ -1,6 +1,6 @@
 {
 	"extension": {
-		"name": "Roo Code",
+		"name": "Klaus Code",
 		"description": "Ein komplettes Entwicklerteam mit KI in deinem Editor."
 	},
 	"number_format": {
@@ -62,7 +62,7 @@
 		"condense_not_enough_messages": "Nicht genügend Nachrichten zum Verdichten des Kontexts",
 		"condensed_recently": "Kontext wurde kürzlich verdichtet; dieser Versuch wird übersprungen",
 		"condense_handler_invalid": "API-Handler zum Verdichten des Kontexts ist ungültig",
-		"condense_context_grew": "Kontextgröße ist während der Verdichtung gewachsen; dieser Versuch wird übersprungen",
+		"condense_api_failed": "Verdichtungs-API-Aufruf fehlgeschlagen: {{message}}",
 		"url_timeout": "Die Website hat zu lange zum Laden gebraucht (Timeout). Das könnte an einer langsamen Verbindung, einer schweren Website oder vorübergehender Nichtverfügbarkeit liegen. Du kannst es später nochmal versuchen oder prüfen, ob die URL korrekt ist.",
 		"url_not_found": "Die Website-Adresse konnte nicht gefunden werden. Bitte prüfe, ob die URL korrekt ist und versuche es erneut.",
 		"no_internet": "Keine Internetverbindung. Bitte prüfe deine Netzwerkverbindung und versuche es erneut.",
@@ -111,17 +111,8 @@
 			"thinking_complete_safety": "(Denken abgeschlossen, aber die Ausgabe wurde aufgrund von Sicherheitseinstellungen blockiert.)",
 			"thinking_complete_recitation": "(Denken abgeschlossen, aber die Ausgabe wurde aufgrund der Rezitationsprüfung blockiert.)"
 		},
-		"cerebras": {
-			"authenticationFailed": "Cerebras API-Authentifizierung fehlgeschlagen. Bitte überprüfe, ob dein API-Schlüssel gültig und nicht abgelaufen ist.",
-			"accessForbidden": "Cerebras API-Zugriff verweigert. Dein API-Schlüssel hat möglicherweise keinen Zugriff auf das angeforderte Modell oder die Funktion.",
-			"rateLimitExceeded": "Cerebras API-Ratenlimit überschritten. Bitte warte, bevor du eine weitere Anfrage stellst.",
-			"serverError": "Cerebras API-Serverfehler ({{status}}). Bitte versuche es später erneut.",
-			"genericError": "Cerebras API-Fehler ({{status}}): {{message}}",
-			"noResponseBody": "Cerebras API-Fehler: Kein Antworttext vorhanden",
-			"completionError": "Cerebras-Vervollständigungsfehler: {{error}}"
-		},
 		"roo": {
-			"authenticationRequired": "Roo-Anbieter erfordert Cloud-Authentifizierung. Bitte melde dich bei Roo Code Cloud an."
+			"authenticationRequired": "Roo-Anbieter erfordert Cloud-Authentifizierung. Bitte melde dich bei Klaus Code Cloud an."
 		},
 		"openAiCodex": {
 			"notAuthenticated": "Nicht bei OpenAI Codex authentifiziert. Bitte melde dich über den OpenAI Codex OAuth-Flow an.",
@@ -154,7 +145,7 @@
 	"warnings": {
 		"no_terminal_content": "Kein Terminal-Inhalt ausgewählt",
 		"missing_task_files": "Die Dateien dieser Aufgabe fehlen. Möchtest du sie aus der Aufgabenliste entfernen?",
-		"auto_import_failed": "Fehler beim automatischen Import der RooCode-Einstellungen: {{error}}"
+		"auto_import_failed": "Fehler beim automatischen Import der Klaus Code-Einstellungen: {{error}}"
 	},
 	"info": {
 		"no_changes": "Keine Änderungen gefunden.",
@@ -163,7 +154,7 @@
 		"custom_storage_path_set": "Benutzerdefinierter Speicherpfad festgelegt: {{path}}",
 		"default_storage_path": "Auf Standardspeicherpfad zurückgesetzt",
 		"settings_imported": "Einstellungen erfolgreich importiert.",
-		"auto_import_success": "RooCode-Einstellungen automatisch importiert aus {{filename}}",
+		"auto_import_success": "Klaus Code-Einstellungen automatisch importiert aus {{filename}}",
 		"share_link_copied": "Share-Link in die Zwischenablage kopiert",
 		"image_copied_to_clipboard": "Bild-Daten-URI in die Zwischenablage kopiert",
 		"image_saved": "Bild gespeichert unter {{path}}",
@@ -196,8 +187,8 @@
 	},
 	"storage": {
 		"prompt_custom_path": "Gib den benutzerdefinierten Speicherpfad für den Gesprächsverlauf ein, leer lassen für Standardspeicherort",
-		"path_placeholder": "D:\\RooCodeStorage",
-		"enter_absolute_path": "Bitte gib einen absoluten Pfad ein (z.B. D:\\RooCodeStorage oder /home/user/storage)",
+		"path_placeholder": "D:\\Klaus CodeStorage",
+		"enter_absolute_path": "Bitte gib einen absoluten Pfad ein (z.B. D:\\Klaus CodeStorage oder /home/user/storage)",
 		"enter_valid_path": "Bitte gib einen gültigen Pfad ein"
 	},
 	"input": {
@@ -205,10 +196,7 @@
 		"task_placeholder": "Gib deine Aufgabe hier ein"
 	},
 	"settings": {
-		"providers": {
-			"groqApiKey": "Groq API-Schlüssel",
-			"getGroqApiKey": "Groq API-Schlüssel erhalten"
-		}
+		"providers": {}
 	},
 	"customModes": {
 		"errors": {
@@ -234,8 +222,8 @@
 	},
 	"mdm": {
 		"errors": {
-			"cloud_auth_required": "Deine Organisation erfordert eine Roo Code Cloud-Authentifizierung. Bitte melde dich an, um fortzufahren.",
-			"organization_mismatch": "Du musst mit dem Roo Code Cloud-Konto deiner Organisation authentifiziert sein.",
+			"cloud_auth_required": "Deine Organisation erfordert eine Klaus Code Cloud-Authentifizierung. Bitte melde dich an, um fortzufahren.",
+			"organization_mismatch": "Du musst mit dem Klaus Code Cloud-Konto deiner Organisation authentifiziert sein.",
 			"verification_failed": "Die Organisationsauthentifizierung konnte nicht verifiziert werden."
 		},
 		"info": {

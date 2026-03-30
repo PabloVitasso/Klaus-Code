@@ -16,8 +16,7 @@ export {
 	handleCheckBranchWorktreeInclude,
 	handleCreateWorktreeInclude,
 	handleCheckoutBranch,
-	handleMergeWorktree,
 } from "./handlers"
 
-// Re-export types from @roo-code/types for convenience
-export type { WorktreeListResponse, WorktreeDefaultsResponse } from "@roo-code/types"
+// Re-export types from @klaus-code/types for convenience
+export type { WorktreeListResponse, WorktreeDefaultsResponse } from "@klaus-code/types"

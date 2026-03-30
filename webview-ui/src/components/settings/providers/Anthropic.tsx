@@ -2,7 +2,7 @@ import { useCallback, useState } from "react"
 import { Checkbox } from "vscrui"
 import { VSCodeTextField } from "@vscode/webview-ui-toolkit/react"
 
-import type { ProviderSettings } from "@roo-code/types"
+import type { ProviderSettings } from "@klaus-code/types"
 
 import { useAppTranslation } from "@src/i18n/TranslationContext"
 import { VSCodeButtonLink } from "@src/components/common/VSCodeButtonLink"
@@ -24,7 +24,10 @@ export const Anthropic = ({ apiConfiguration, setApiConfigurationField }: Anthro
 
 	// Check if the current model supports 1M context beta
 	const supports1MContextBeta =
-		selectedModel?.id === "claude-sonnet-4-20250514" || selectedModel?.id === "claude-sonnet-4-5"
+		selectedModel?.id === "claude-sonnet-4-20250514" ||
+		selectedModel?.id === "claude-sonnet-4-5" ||
+		selectedModel?.id === "claude-sonnet-4-6" ||
+		selectedModel?.id === "claude-opus-4-6"
 
 	const handleInputChange = useCallback(
 		<K extends keyof ProviderSettings, E>(

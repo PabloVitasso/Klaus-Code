@@ -1,4 +1,4 @@
-import type { ProviderSettings, OrganizationAllowList, RouterModels } from "@roo-code/types"
+import type { ProviderSettings, OrganizationAllowList, RouterModels } from "@klaus-code/types"
 
 // Mock i18next to return translation keys with interpolated values
 vi.mock("i18next", () => ({
@@ -39,16 +39,11 @@ describe("Model Validation Functions", () => {
 			},
 		},
 		requesty: {},
-		unbound: {},
 		litellm: {},
 		ollama: {},
 		lmstudio: {},
-		deepinfra: {},
-		"io-intelligence": {},
 		"vercel-ai-gateway": {},
-		huggingface: {},
 		roo: {},
-		chutes: {},
 	}
 
 	const allowAllOrganization: OrganizationAllowList = {

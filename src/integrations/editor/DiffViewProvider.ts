@@ -5,7 +5,7 @@ import * as diff from "diff"
 import stripBom from "strip-bom"
 import delay from "delay"
 
-import { type ClineSayTool, DEFAULT_WRITE_DELAY_MS } from "@roo-code/types"
+import { type ClineSayTool, DEFAULT_WRITE_DELAY_MS } from "@klaus-code/types"
 
 import { createDirectoriesForFile } from "../../utils/fs"
 import { arePathsEqual, getReadablePath } from "../../utils/path"
@@ -98,7 +98,11 @@ export class DiffViewProvider {
 
 		for (const tab of tabs) {
 			if (!tab.isDirty) {
-				await vscode.window.tabGroups.close(tab)
+				try {
+					await vscode.window.tabGroups.close(tab)
+				} catch (err) {
+					console.error(`Failed to close tab ${tab.label}`, err)
+				}
 			}
 			this.documentWasOpen = true
 		}

@@ -12,4 +12,5 @@ export const Package = {
 	version: process.env.PKG_VERSION || version,
 	outputChannel: process.env.PKG_OUTPUT_CHANNEL || "Roo-Code",
 	sha: process.env.PKG_SHA,
+	branch: process.env.PKG_BRANCH,
 } as const

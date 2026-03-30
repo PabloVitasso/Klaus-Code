@@ -4,11 +4,11 @@ import * as path from "path"
 
 import { execa, type ResultPromise } from "execa"
 
-import type { ToolUsage } from "@roo-code/types"
+import type { ToolUsage } from "@klaus-code/types"
 
-import type { Run, Task } from "../db/index.js"
+import type { Run, Task } from "../db/index"
 
-import { SubprocessTimeoutError } from "./types.js"
+import { SubprocessTimeoutError } from "./types"
 
 export const getTag = (caller: string, { run, task }: { run: Run; task?: Task }) =>
 	task
@@ -24,7 +24,7 @@ export const isDockerContainer = () => {
 }
 
 export const resetEvalsRepo = async ({ run, cwd }: { run: Run; cwd: string }) => {
-	await execa({ cwd })`git config user.name "Roo Code"`
+	await execa({ cwd })`git config user.name "Klaus Code"`
 	await execa({ cwd })`git config user.email "support@roocode.com"`
 	await execa({ cwd })`git checkout -f`
 	await execa({ cwd })`git clean -fd`

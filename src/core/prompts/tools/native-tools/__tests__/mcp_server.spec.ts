@@ -1,6 +1,6 @@
 import type OpenAI from "openai"
 
-import type { McpServer, McpTool } from "@roo-code/types"
+import type { McpServer, McpTool } from "@klaus-code/types"
 
 import type { McpHub } from "../../../../../services/mcp/McpHub"
 
@@ -89,7 +89,7 @@ describe("getMcpServerTools", () => {
 
 		// Should only have one tool (from project server)
 		expect(result).toHaveLength(1)
-		expect(getFunction(result[0]).name).toBe("mcp--context7--resolve___library___id")
+		expect(getFunction(result[0]).name).toBe("mcp--context7--resolve-library-id")
 		// Project server takes priority
 		expect(getFunction(result[0]).description).toBe("Project description")
 	})

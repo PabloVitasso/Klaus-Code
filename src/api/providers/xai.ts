@@ -1,8 +1,8 @@
 import { Anthropic } from "@anthropic-ai/sdk"
 import OpenAI from "openai"
 
-import { type XAIModelId, xaiDefaultModelId, xaiModels, ApiProviderError } from "@roo-code/types"
-import { TelemetryService } from "@roo-code/telemetry"
+import { type XAIModelId, xaiDefaultModelId, xaiModels, ApiProviderError } from "@klaus-code/types"
+import { TelemetryService } from "@klaus-code/telemetry"
 
 import { NativeToolCallParser } from "../../core/assistant-message/NativeToolCallParser"
 import type { ApiHandlerOptions } from "../../shared/api"
@@ -43,7 +43,13 @@ export class XAIHandler extends BaseProvider implements SingleCompletionHandler 
 				: xaiDefaultModelId
 
 		const info = xaiModels[id]
-		const params = getModelParams({ format: "openai", modelId: id, model: info, settings: this.options })
+		const params = getModelParams({
+			format: "openai",
+			modelId: id,
+			model: info,
+			settings: this.options,
+			defaultTemperature: XAI_DEFAULT_TEMPERATURE,
+		})
 		return { id, info, ...params }
 	}
 
@@ -68,7 +74,7 @@ export class XAIHandler extends BaseProvider implements SingleCompletionHandler 
 			...(reasoning && reasoning),
 			tools: this.convertToolsForOpenAI(metadata?.tools),
 			tool_choice: metadata?.tool_choice,
-			parallel_tool_calls: metadata?.parallelToolCalls ?? false,
+			parallel_tool_calls: metadata?.parallelToolCalls ?? true,
 		}
 
 		let stream

@@ -11,9 +11,9 @@
 </sub>
 </div>
 
-# 為 Roo Code 做出貢獻
+# 為 Klaus Code 做出貢獻
 
-Roo Code 是一個由社群驅動的專案，我們非常重視每一份貢獻。為了簡化協作，我們採用 [「問題優先」的方法](#問題優先方法)，這意味著所有的 [拉取請求 (PR)](#提交拉取請求) 都必須先連結到一個 GitHub 問題。請仔細閱讀本指南。
+Klaus Code 是一個由社群驅動的專案，我們非常重視每一份貢獻。為了簡化協作，我們採用 [「問題優先」的方法](#問題優先方法)，這意味著所有的 [拉取請求 (PR)](#提交拉取請求) 都必須先連結到一個 GitHub 問題。請仔細閱讀本指南。
 
 ## 目錄
 
@@ -52,9 +52,9 @@ Roo Code 是一個由社群驅動的專案，我們非常重視每一份貢獻�
 
 在您的 PR 中提及與這些領域的一致性。
 
-### 3. 加入 Roo Code 社群
+### 3. 加入 Klaus Code 社群
 
-- **主要方式：** 加入我們的 [Discord](https://discord.gg/roocode) 並私訊 **Hannes Rudolph (`hrudolph`)**。
+- **主要方式：** 加入我們的 [Discord](https://discord.tbd) 並私訊 **Hannes Rudolph (`hrudolph`)**。
 - **替代方式：** 經驗豐富的貢獻者可以透過 [GitHub 專案](https://github.com/orgs/RooCodeInc/projects/1) 直接參與。
 
 ## 尋找和規劃您的貢獻
@@ -73,13 +73,13 @@ Roo Code 是一個由社群驅動的專案，我們非常重視每一份貢獻�
 - **使用以下範本建立問題**：
     - **增強功能：** 「增強請求」範本（著重於使用者利益的簡單語言）。
     - **錯誤：** 「錯誤報告」範本（最少的重現步驟 + 預期與實際 + 版本）。
-- **想參與其中嗎？** 在問題上評論“領取”，並在[Discord](https://discord.gg/roocode)上私訊 **Hannes Rudolph (`hrudolph`)** 以獲得分配。分配將在帖子中確認。
+- **想參與其中嗎？** 在問題上評論“領取”，並在[Discord](https://discord.tbd)上私訊 **Hannes Rudolph (`hrudolph`)** 以獲得分配。分配將在帖子中確認。
 - **PR 必須連結到問題。** 未連結的 PR 可能會被關閉。
 
 ### 決定做什麼
 
 - 查看 [GitHub 專案](https://github.com/orgs/RooCodeInc/projects/1) 中的「問題 [未分配]」問題。
-- 如需文件，請造訪 [Roo Code 文件](https://github.com/RooCodeInc/Roo-Code-Docs)。
+- 如需文件，請造訪 [Klaus Code 文件](https://github.com/RooCodeInc/Roo-Code-Docs)。
 
 ### 報告錯誤
 
@@ -87,7 +87,7 @@ Roo Code 是一個由社群驅動的專案，我們非常重視每一份貢獻�
 - 使用 [「錯誤報告」範本](https://github.com/RooCodeInc/Roo-Code/issues/new/choose) 建立一個新錯誤，並提供：
     - 清晰、編號的重現步驟
     - 預期與實際結果
-    - Roo Code 版本（必需）；如果相關，還需提供 API 提供商/模型
+    - Klaus Code 版本（必需）；如果相關，還需提供 API 提供商/模型
 - **安全問題**：透過 [安全公告](https://github.com/RooCodeInc/Roo-Code/security/advisories/new) 私下報告。
 
 ## 開發和提交流程
@@ -126,7 +126,7 @@ pnpm install
 
 ### 拉取請求政策
 
-- 必須引用一個已分配的 GitHub 問題。要獲得分配：在問題上評論“領取”，並在[Discord](https://discord.gg/roocode)上私訊 **Hannes Rudolph (`hrudolph`)**。分配將在帖子中確認。
+- 必須引用一個已分配的 GitHub 問題。要獲得分配：在問題上評論“領取”，並在[Discord](https://discord.tbd)上私訊 **Hannes Rudolph (`hrudolph`)**。分配將在帖子中確認。
 - 未連結的 PR 可能會被關閉。
 - PR 必須通過 CI 測試，與路線圖保持一致，並有清晰的文件。
 
@@ -138,4 +138,4 @@ pnpm install
 
 ## 法律
 
-透過貢獻，您同意您的貢獻將根據 Apache 2.0 授權進行授權，這與 Roo Code 的授權一致。
+透過貢獻，您同意您的貢獻將根據 Apache 2.0 授權進行授權，這與 Klaus Code 的授權一致。

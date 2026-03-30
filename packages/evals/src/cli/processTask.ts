@@ -1,14 +1,14 @@
 import { execa } from "execa"
 
-import { type TaskEvent, RooCodeEventName } from "@roo-code/types"
+import { type TaskEvent, RooCodeEventName } from "@klaus-code/types"
 
-import { findRun, findTask, updateTask } from "../db/index.js"
+import { findRun, findTask, updateTask } from "../db/index"
 
-import { Logger, getTag, isDockerContainer } from "./utils.js"
-import { redisClient, getPubSubKey, registerRunner, deregisterRunner } from "./redis.js"
-import { runUnitTest } from "./runUnitTest.js"
-import { runTaskWithCli } from "./runTaskInCli.js"
-import { runTaskInVscode } from "./runTaskInVscode.js"
+import { Logger, getTag, isDockerContainer } from "./utils"
+import { redisClient, getPubSubKey, registerRunner, deregisterRunner } from "./redis"
+import { runUnitTest } from "./runUnitTest"
+import { runTaskWithCli } from "./runTaskInCli"
+import { runTaskInVscode } from "./runTaskInVscode"
 
 export const processTask = async ({
 	taskId,
@@ -103,7 +103,7 @@ export const processTaskInContainer = async ({
 		}
 	}
 
-	const command = `pnpm --filter @roo-code/evals cli --taskId ${taskId}`
+	const command = `pnpm --filter @klaus-code/evals cli --taskId ${taskId}`
 	logger.info(command)
 
 	for (let attempt = 0; attempt <= maxRetries; attempt++) {

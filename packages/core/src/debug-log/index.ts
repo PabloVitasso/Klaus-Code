@@ -5,7 +5,7 @@
  * which would break TUI applications. The log format is timestamped JSON.
  *
  * Usage:
- *   import { debugLog, DebugLogger } from "@roo-code/core/cli"
+ *   import { debugLog, DebugLogger } from "@klaus-code/core/cli"
  *
  *   // Simple logging
  *   debugLog("handleModeSwitch", { mode: newMode, configId })
@@ -21,11 +21,25 @@ import * as os from "os"
 
 const DEBUG_LOG_PATH = path.join(os.homedir(), ".roo", "cli-debug.log")
 
+let debugLogEnabled = false
+
+/**
+ * Enable or disable file-based debug logging.
+ * Logging is disabled by default and should only be enabled in dev/debug mode.
+ */
+export function setDebugLogEnabled(enabled: boolean): void {
+	debugLogEnabled = enabled
+}
+
 /**
  * Simple file-based debug log function.
  * Writes timestamped entries to ~/.roo/cli-debug.log
+ * Only writes when enabled via setDebugLogEnabled(true).
  */
 export function debugLog(message: string, data?: unknown): void {
+	if (!debugLogEnabled) {
+		return
+	}
 	try {
 		const logDir = path.dirname(DEBUG_LOG_PATH)
 

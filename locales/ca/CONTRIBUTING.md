@@ -11,9 +11,9 @@
 </sub>
 </div>
 
-# Contribuir a Roo Code
+# Contribuir a Klaus Code
 
-Roo Code és un projecte impulsat per la comunitat i valorem profundament cada contribució. Per agilitzar la col·laboració, operem sobre una base de [primer la incidència](#enfocament-de-primera-incidència), la qual cosa significa que totes les [sol·licituds d'extracció (PR)](#enviament-duna-sollicitud-dextracció) primer han d'estar enllaçades a una incidència de GitHub. Si us plau, reviseu aquesta guia amb atenció.
+Klaus Code és un projecte impulsat per la comunitat i valorem profundament cada contribució. Per agilitzar la col·laboració, operem sobre una base de [primer la incidència](#enfocament-de-primera-incidència), la qual cosa significa que totes les [sol·licituds d'extracció (PR)](#enviament-duna-sollicitud-dextracció) primer han d'estar enllaçades a una incidència de GitHub. Si us plau, reviseu aquesta guia amb atenció.
 
 ## Taula de continguts
 
@@ -52,9 +52,9 @@ El nostre full de ruta guia la direcció del projecte. Alineeu les vostres contr
 
 Mencioneu l'alineació amb aquestes àrees a les vostres sol·licituds d'extracció.
 
-### 3. Uniu-vos a la comunitat de Roo Code
+### 3. Uniu-vos a la comunitat de Klaus Code
 
-- **Principal:** Uniu-vos al nostre [Discord](https://discord.gg/roocode) i envieu un missatge directe a **Hannes Rudolph (`hrudolph`)**.
+- **Principal:** Uniu-vos al nostre [Discord](https://discord.tbd) i envieu un missatge directe a **Hannes Rudolph (`hrudolph`)**.
 - **Alternativa:** Els col·laboradors experimentats poden participar directament a través de [Projectes de GitHub](https://github.com/orgs/RooCodeInc/projects/1).
 
 ## Trobar i planificar la vostra contribució
@@ -73,13 +73,13 @@ Totes les contribucions comencen amb una incidència de GitHub utilitzant les no
 - **Creeu una incidència** utilitzant:
     - **Millores:** plantilla "Sol·licitud de millora" (llenguatge senzill centrat en el benefici per a l'usuari).
     - **Errors:** plantilla "Informe d'error" (reproducció mínima + esperat vs real + versió).
-- **Voleu treballar-hi?** Comenteu "Reclamant" a la incidència i envieu un missatge directe a **Hannes Rudolph (`hrudolph`)** a [Discord](https://discord.gg/roocode) per ser assignat. L'assignació es confirmarà al fil.
+- **Voleu treballar-hi?** Comenteu "Reclamant" a la incidència i envieu un missatge directe a **Hannes Rudolph (`hrudolph`)** a [Discord](https://discord.tbd) per ser assignat. L'assignació es confirmarà al fil.
 - **Les sol·licituds d'extracció han d'enllaçar a la incidència.** Les sol·licituds d'extracció no enllaçades es poden tancar.
 
 ### Decidir en què treballar
 
 - Consulteu el [Projecte de GitHub](https://github.com/orgs/RooCodeInc/projects/1) per a incidències "Incidència [No assignada]".
-- Per a documents, visiteu [Documents de Roo Code](https://github.com/RooCodeInc/Roo-Code-Docs).
+- Per a documents, visiteu [Documents de Klaus Code](https://github.com/RooCodeInc/Roo-Code-Docs).
 
 ### Informar d'errors
 
@@ -87,7 +87,7 @@ Totes les contribucions comencen amb una incidència de GitHub utilitzant les no
 - Creeu un error nou utilitzant la [plantilla "Informe d'error"](https://github.com/RooCodeInc/Roo-Code/issues/new/choose) amb:
     - Passos de reproducció clars i numerats
     - Resultat esperat vs real
-    - Versió de Roo Code (obligatori); proveïdor/model d'API si és rellevant
+    - Versió de Klaus Code (obligatori); proveïdor/model d'API si és rellevant
 - **Problemes de seguretat**: informeu de manera privada a través d' [avisos de seguretat](https://github.com/RooCodeInc/Roo-Code/security/advisories/new).
 
 ## Procés de desenvolupament i submissió
@@ -126,7 +126,7 @@ pnpm install
 
 ### Política de sol·licitud d'extracció
 
-- Ha de fer referència a una incidència de GitHub assignada. Per ser assignat: comenteu "Reclamant" a la incidència i envieu un missatge directe a **Hannes Rudolph (`hrudolph`)** a [Discord](https://discord.gg/roocode). L'assignació es confirmarà al fil.
+- Ha de fer referència a una incidència de GitHub assignada. Per ser assignat: comenteu "Reclamant" a la incidència i envieu un missatge directe a **Hannes Rudolph (`hrudolph`)** a [Discord](https://discord.tbd). L'assignació es confirmarà al fil.
 - Les sol·licituds d'extracció no enllaçades es poden tancar.
 - Les sol·licituds d'extracció han de passar les proves de CI, alinear-se amb el full de ruta i tenir una documentació clara.
 
@@ -138,4 +138,4 @@ pnpm install
 
 ## Legal
 
-En contribuir, accepteu que les vostres contribucions es llicenciaran sota la llicència Apache 2.0, d'acord amb la llicència de Roo Code.
+En contribuir, accepteu que les vostres contribucions es llicenciaran sota la llicència Apache 2.0, d'acord amb la llicència de Klaus Code.

@@ -4,12 +4,12 @@ import * as path from "path"
 import * as os from "os"
 import * as vscode from "vscode"
 
-import { RooCodeEventName, type ClineMessage } from "@roo-code/types"
+import { RooCodeEventName, type ClineMessage } from "@klaus-code/types"
 
 import { waitFor, sleep } from "../utils"
 import { setDefaultSuiteTimeout } from "../test-utils"
 
-suite.skip("Roo Code use_mcp_tool Tool", function () {
+suite("Klaus Code use_mcp_tool Tool", function () {
 	setDefaultSuiteTimeout(this)
 
 	let tempDir: string
@@ -185,7 +185,7 @@ suite.skip("Roo Code use_mcp_tool Tool", function () {
 			}
 		}
 		api.on(RooCodeEventName.TaskCompleted, taskCompletedHandler)
-		await sleep(2000) // Wait for Roo Code to fully initialize
+		await sleep(2000) // Wait for Klaus Code to fully initialize
 
 		// Trigger MCP server detection by opening and modifying the file
 		console.log("Triggering MCP server detection by modifying the config file...")
@@ -194,7 +194,7 @@ suite.skip("Roo Code use_mcp_tool Tool", function () {
 			const document = await vscode.workspace.openTextDocument(mcpConfigUri)
 			const editor = await vscode.window.showTextDocument(document)
 
-			// Make a small modification to trigger the save event, without this Roo Code won't load the MCP server
+			// Make a small modification to trigger the save event, without this Klaus Code won't load the MCP server
 			const edit = new vscode.WorkspaceEdit()
 			const currentContent = document.getText()
 			const modifiedContent = currentContent.replace(
@@ -557,7 +557,7 @@ suite.skip("Roo Code use_mcp_tool Tool", function () {
 		}
 	})
 
-	test.skip("Should request MCP filesystem directory_tree tool and complete successfully", async function () {
+	test("Should request MCP filesystem directory_tree tool and complete successfully", async function () {
 		const api = globalThis.api
 		const messages: ClineMessage[] = []
 		let _taskCompleted = false
@@ -696,7 +696,7 @@ suite.skip("Roo Code use_mcp_tool Tool", function () {
 		}
 	})
 
-	test.skip("Should handle MCP server error gracefully and complete task", async function () {
+	test("Should handle MCP server error gracefully and complete task", async function () {
 		// Skipped: This test requires interactive approval for non-whitelisted MCP servers
 		// which cannot be automated in the test environment
 		const api = globalThis.api
@@ -767,7 +767,7 @@ suite.skip("Roo Code use_mcp_tool Tool", function () {
 		}
 	})
 
-	test.skip("Should validate MCP request message format and complete successfully", async function () {
+	test("Should validate MCP request message format and complete successfully", async function () {
 		const api = globalThis.api
 		const messages: ClineMessage[] = []
 		let _taskCompleted = false

@@ -6,7 +6,7 @@ import {
 	vercelAiGatewayDefaultModelInfo,
 	VERCEL_AI_GATEWAY_DEFAULT_TEMPERATURE,
 	VERCEL_AI_GATEWAY_PROMPT_CACHING_MODELS,
-} from "@roo-code/types"
+} from "@klaus-code/types"
 
 import { ApiHandlerOptions } from "../../shared/api"
 
@@ -63,7 +63,7 @@ export class VercelAiGatewayHandler extends RouterProvider implements SingleComp
 			stream_options: { include_usage: true },
 			tools: this.convertToolsForOpenAI(metadata?.tools),
 			tool_choice: metadata?.tool_choice,
-			parallel_tool_calls: metadata?.parallelToolCalls ?? false,
+			parallel_tool_calls: metadata?.parallelToolCalls ?? true,
 		}
 
 		const completion = await this.client.chat.completions.create(body)

@@ -12,12 +12,12 @@ import {
 	extractApiProviderErrorProperties,
 	isConsecutiveMistakeError,
 	extractConsecutiveMistakeErrorProperties,
-} from "@roo-code/types"
+} from "@klaus-code/types"
 
 import { BaseTelemetryClient } from "./BaseTelemetryClient"
 
 /**
- * PostHogTelemetryClient handles telemetry event tracking for the Roo Code extension.
+ * PostHogTelemetryClient handles telemetry event tracking for the Klaus Code extension.
  * Uses PostHog analytics to track user interactions and system events.
  * Respects user privacy settings and VSCode's global telemetry configuration.
  */
@@ -36,7 +36,7 @@ export class PostHogTelemetryClient extends BaseTelemetryClient {
 			debug,
 		)
 
-		this.client = new PostHog(process.env.POSTHOG_API_KEY || "", { host: "https://ph.roocode.com" })
+		this.client = new PostHog(process.env.POSTHOG_API_KEY || "", { host: "https://ph.tbd" })
 	}
 
 	/**

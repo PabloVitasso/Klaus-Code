@@ -1,9 +1,9 @@
 import { pgTable, text, timestamp, integer, real, boolean, jsonb, uniqueIndex } from "drizzle-orm/pg-core"
 import { relations } from "drizzle-orm"
 
-import type { RooCodeSettings, ToolName, ToolUsage } from "@roo-code/types"
+import type { RooCodeSettings, ToolName, ToolUsage } from "@klaus-code/types"
 
-import type { ExerciseLanguage } from "../exercises/index.js"
+import type { ExerciseLanguage } from "../exercises/index"
 
 /**
  * ExecutionMethod

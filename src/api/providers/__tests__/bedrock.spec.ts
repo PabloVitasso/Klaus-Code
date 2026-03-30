@@ -1,7 +1,7 @@
 // Mock TelemetryService before other imports
 const mockCaptureException = vi.fn()
 
-vi.mock("@roo-code/telemetry", () => ({
+vi.mock("@klaus-code/telemetry", () => ({
 	TelemetryService: {
 		instance: {
 			captureException: (...args: unknown[]) => mockCaptureException(...args),
@@ -41,7 +41,7 @@ import {
 	BEDROCK_SERVICE_TIER_MODEL_IDS,
 	bedrockModels,
 	ApiProviderError,
-} from "@roo-code/types"
+} from "@klaus-code/types"
 
 import type { Anthropic } from "@anthropic-ai/sdk"
 
@@ -699,6 +699,21 @@ describe("AwsBedrockHandler", () => {
 
 			// Should have 1M context window when enabled
 			expect(model.info.contextWindow).toBe(1_000_000)
+		})
+
+		it("should apply 1M tier pricing when awsBedrock1MContext is true for Claude Sonnet 4.6", () => {
+			const handler = new AwsBedrockHandler({
+				apiModelId: "anthropic.claude-sonnet-4-6-20260114-v1:0",
+				awsAccessKey: "test",
+				awsSecretKey: "test",
+				awsRegion: "us-east-1",
+				awsBedrock1MContext: true,
+			})
+
+			const model = handler.getModel()
+			expect(model.info.contextWindow).toBe(1_000_000)
+			expect(model.info.inputPrice).toBe(6.0)
+			expect(model.info.outputPrice).toBe(22.5)
 		})
 
 		it("should use default context window when awsBedrock1MContext is false for Claude Sonnet 4", () => {

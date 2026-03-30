@@ -1,6 +1,6 @@
 {
 	"extension": {
-		"name": "Roo Code",
+		"name": "Klaus Code",
 		"description": "Cały zespół programistów AI w Twoim edytorze."
 	},
 	"number_format": {
@@ -62,7 +62,7 @@
 		"condense_not_enough_messages": "Za mało wiadomości do skondensowania kontekstu",
 		"condensed_recently": "Kontekst został niedawno skondensowany; pomijanie tej próby",
 		"condense_handler_invalid": "Nieprawidłowy handler API do kondensowania kontekstu",
-		"condense_context_grew": "Rozmiar kontekstu wzrósł podczas kondensacji; pomijanie tej próby",
+		"condense_api_failed": "Wywołanie API kondensacji nie powiodło się: {{message}}",
 		"url_timeout": "Strona internetowa ładowała się zbyt długo (timeout). Może to być spowodowane wolnym połączeniem, ciężką stroną lub tymczasową niedostępnością. Możesz spróbować ponownie później lub sprawdzić, czy URL jest poprawny.",
 		"url_not_found": "Nie można znaleźć adresu strony internetowej. Sprawdź, czy URL jest poprawny i spróbuj ponownie.",
 		"no_internet": "Brak połączenia z internetem. Sprawdź połączenie sieciowe i spróbuj ponownie.",
@@ -111,17 +111,8 @@
 			"thinking_complete_safety": "(Myślenie zakończone, ale dane wyjściowe zostały zablokowane przez ustawienia bezpieczeństwa.)",
 			"thinking_complete_recitation": "(Myślenie zakończone, ale dane wyjściowe zostały zablokowane przez kontrolę recytacji.)"
 		},
-		"cerebras": {
-			"authenticationFailed": "Uwierzytelnianie API Cerebras nie powiodło się. Sprawdź, czy twój klucz API jest ważny i nie wygasł.",
-			"accessForbidden": "Dostęp do API Cerebras zabroniony. Twój klucz API może nie mieć dostępu do żądanego modelu lub funkcji.",
-			"rateLimitExceeded": "Przekroczono limit szybkości API Cerebras. Poczekaj przed wykonaniem kolejnego żądania.",
-			"serverError": "Błąd serwera API Cerebras ({{status}}). Spróbuj ponownie później.",
-			"genericError": "Błąd API Cerebras ({{status}}): {{message}}",
-			"noResponseBody": "Błąd API Cerebras: Brak treści odpowiedzi",
-			"completionError": "Błąd uzupełniania Cerebras: {{error}}"
-		},
 		"roo": {
-			"authenticationRequired": "Dostawca Roo wymaga uwierzytelnienia w chmurze. Zaloguj się do Roo Code Cloud."
+			"authenticationRequired": "Dostawca Roo wymaga uwierzytelnienia w chmurze. Zaloguj się do Klaus Code Cloud."
 		},
 		"api": {
 			"invalidKeyInvalidChars": "Klucz API zawiera nieprawidłowe znaki.",
@@ -154,7 +145,7 @@
 	"warnings": {
 		"no_terminal_content": "Nie wybrano zawartości terminala",
 		"missing_task_files": "Pliki tego zadania są brakujące. Czy chcesz usunąć je z listy zadań?",
-		"auto_import_failed": "Nie udało się automatycznie zaimportować ustawień RooCode: {{error}}"
+		"auto_import_failed": "Nie udało się automatycznie zaimportować ustawień Klaus Code: {{error}}"
 	},
 	"info": {
 		"no_changes": "Nie znaleziono zmian.",
@@ -163,7 +154,7 @@
 		"custom_storage_path_set": "Ustawiono niestandardową ścieżkę przechowywania: {{path}}",
 		"default_storage_path": "Wznowiono używanie domyślnej ścieżki przechowywania",
 		"settings_imported": "Ustawienia zaimportowane pomyślnie.",
-		"auto_import_success": "Ustawienia RooCode zostały automatycznie zaimportowane z {{filename}}",
+		"auto_import_success": "Ustawienia Klaus Code zostały automatycznie zaimportowane z {{filename}}",
 		"share_link_copied": "Link udostępniania skopiowany do schowka",
 		"image_copied_to_clipboard": "URI danych obrazu skopiowane do schowka",
 		"image_saved": "Obraz zapisany w {{path}}",
@@ -196,8 +187,8 @@
 	},
 	"storage": {
 		"prompt_custom_path": "Wprowadź niestandardową ścieżkę przechowywania dla historii konwersacji lub pozostaw puste, aby użyć lokalizacji domyślnej",
-		"path_placeholder": "D:\\RooCodeStorage",
-		"enter_absolute_path": "Wprowadź pełną ścieżkę (np. D:\\RooCodeStorage lub /home/user/storage)",
+		"path_placeholder": "D:\\Klaus CodeStorage",
+		"enter_absolute_path": "Wprowadź pełną ścieżkę (np. D:\\Klaus CodeStorage lub /home/user/storage)",
 		"enter_valid_path": "Wprowadź prawidłową ścieżkę"
 	},
 	"input": {
@@ -205,10 +196,7 @@
 		"task_placeholder": "Wpisz swoje zadanie tutaj"
 	},
 	"settings": {
-		"providers": {
-			"groqApiKey": "Klucz API Groq",
-			"getGroqApiKey": "Uzyskaj klucz API Groq"
-		}
+		"providers": {}
 	},
 	"customModes": {
 		"errors": {
@@ -234,8 +222,8 @@
 	},
 	"mdm": {
 		"errors": {
-			"cloud_auth_required": "Twoja organizacja wymaga uwierzytelnienia Roo Code Cloud. Zaloguj się, aby kontynuować.",
-			"organization_mismatch": "Musisz być uwierzytelniony kontem Roo Code Cloud swojej organizacji.",
+			"cloud_auth_required": "Twoja organizacja wymaga uwierzytelnienia Klaus Code Cloud. Zaloguj się, aby kontynuować.",
+			"organization_mismatch": "Musisz być uwierzytelniony kontem Klaus Code Cloud swojej organizacji.",
 			"manual_url_empty": "Wprowadź prawidłowy URL callback",
 			"manual_url_no_query": "Nieprawidłowy URL callback: brak parametrów zapytania",
 			"manual_url_missing_params": "Nieprawidłowy URL callback: brak wymaganych parametrów (code i state)",

@@ -1,12 +1,15 @@
-import { SECRET_STATE_KEYS, GLOBAL_SECRET_KEYS, ProviderSettings } from "@roo-code/types"
+import { SECRET_STATE_KEYS, GLOBAL_SECRET_KEYS, ProviderSettings } from "@klaus-code/types"
 
 export function checkExistKey(config: ProviderSettings | undefined) {
 	if (!config) {
 		return false
 	}
 
-	// Special case for fake-ai, openai-codex, qwen-code, and roo providers which don't need any configuration.
-	if (config.apiProvider && ["fake-ai", "openai-codex", "qwen-code", "roo"].includes(config.apiProvider)) {
+	// Special case for fake-ai, openai-codex, qwen-code, roo, and claude-code providers which don't need any configuration.
+	if (
+		config.apiProvider &&
+		["fake-ai", "openai-codex", "qwen-code", "roo", "claude-code"].includes(config.apiProvider)
+	) {
 		return true
 	}
 

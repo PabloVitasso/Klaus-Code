@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react"
 import { VSCodeProgressRing, VSCodeTextField } from "@vscode/webview-ui-toolkit/react"
 
-import { type CloudUserInfo, type CloudOrganizationMembership, TelemetryEventName } from "@roo-code/types"
+import { type CloudUserInfo, type CloudOrganizationMembership, TelemetryEventName } from "@klaus-code/types"
 
 import { useAppTranslation } from "@src/i18n/TranslationContext"
 import { useExtensionState } from "@src/context/ExtensionStateContext"
@@ -17,7 +17,7 @@ import { OrganizationSwitcher } from "./OrganizationSwitcher"
 import { StandardTooltip } from "../ui"
 
 // Define the production URL constant locally to avoid importing from cloud package in tests
-const PRODUCTION_ROO_CODE_API_URL = "https://app.roocode.com"
+const PRODUCTION_ROO_CODE_API_URL = "https://app.tbd"
 
 type CloudViewProps = {
 	userInfo: CloudUserInfo | null

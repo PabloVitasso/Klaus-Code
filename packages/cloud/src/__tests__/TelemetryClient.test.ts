@@ -2,7 +2,7 @@
 
 // npx vitest run src/__tests__/TelemetryClient.test.ts
 
-import { type TelemetryPropertiesProvider, TelemetryEventName } from "@roo-code/types"
+import { type TelemetryPropertiesProvider, TelemetryEventName } from "@klaus-code/types"
 
 import { CloudTelemetryClient as TelemetryClient } from "../TelemetryClient.js"
 
@@ -305,7 +305,7 @@ describe("TelemetryClient", () => {
 			})
 
 			expect(mockFetch).toHaveBeenCalledWith(
-				"https://app.roocode.com/api/events",
+				"https://app.tbd/api/events",
 				expect.objectContaining({
 					method: "POST",
 					body: JSON.stringify(mockValidatedData),
@@ -347,7 +347,7 @@ describe("TelemetryClient", () => {
 
 			expect(mockSettingsService.isTaskSyncEnabled).toHaveBeenCalled()
 			expect(mockFetch).toHaveBeenCalledWith(
-				"https://app.roocode.com/api/events",
+				"https://app.tbd/api/events",
 				expect.objectContaining({
 					method: "POST",
 					body: JSON.stringify(mockValidatedData),
@@ -459,7 +459,7 @@ describe("TelemetryClient", () => {
 			await client.backfillMessages(messages, "test-task-id")
 
 			expect(mockFetch).toHaveBeenCalledWith(
-				"https://app.roocode.com/api/events/backfill",
+				"https://app.tbd/api/events/backfill",
 				expect.objectContaining({
 					method: "POST",
 					headers: {
@@ -514,7 +514,7 @@ describe("TelemetryClient", () => {
 			await client.backfillMessages(messages, "test-task-id")
 
 			expect(mockFetch).toHaveBeenCalledWith(
-				"https://app.roocode.com/api/events/backfill",
+				"https://app.tbd/api/events/backfill",
 				expect.objectContaining({
 					method: "POST",
 					headers: {
@@ -561,7 +561,7 @@ describe("TelemetryClient", () => {
 			await client.backfillMessages(messages, "test-task-id")
 
 			expect(mockFetch).toHaveBeenCalledWith(
-				"https://app.roocode.com/api/events/backfill",
+				"https://app.tbd/api/events/backfill",
 				expect.objectContaining({
 					method: "POST",
 					headers: {
@@ -647,7 +647,7 @@ describe("TelemetryClient", () => {
 			await client.backfillMessages([], "test-task-id")
 
 			expect(mockFetch).toHaveBeenCalledWith(
-				"https://app.roocode.com/api/events/backfill",
+				"https://app.tbd/api/events/backfill",
 				expect.objectContaining({
 					method: "POST",
 					headers: {

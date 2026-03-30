@@ -1,4 +1,4 @@
-import { type ModelInfo, type ProviderSettings, ANTHROPIC_DEFAULT_MAX_TOKENS } from "@roo-code/types"
+import { type ModelInfo, type ProviderSettings, ANTHROPIC_DEFAULT_MAX_TOKENS } from "@klaus-code/types"
 
 import { getModelMaxOutputTokens, shouldUseReasoningBudget, shouldUseReasoningEffort } from "../api"
 
@@ -9,7 +9,7 @@ describe("getModelMaxOutputTokens", () => {
 		supportsPromptCache: true,
 	}
 
-	test("should return model maxTokens when maxTokens is within 20% of context window", () => {
+	test("should return model maxTokens when not using claude-code provider and maxTokens is within 20% of context window", () => {
 		const settings: ProviderSettings = {
 			apiProvider: "anthropic",
 		}

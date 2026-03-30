@@ -20,18 +20,25 @@ import {
 	ExperimentId,
 	checkoutDiffPayloadSchema,
 	checkoutRestorePayloadSchema,
-} from "@roo-code/types"
-import { customToolRegistry } from "@roo-code/core"
-import { CloudService } from "@roo-code/cloud"
-import { TelemetryService } from "@roo-code/telemetry"
+} from "@klaus-code/types"
+import { customToolRegistry } from "@klaus-code/core"
+import { CloudService } from "@klaus-code/cloud"
+import { TelemetryService } from "@klaus-code/telemetry"
 
 import { type ApiMessage } from "../task-persistence/apiMessages"
 import { saveTaskMessages } from "../task-persistence"
 
 import { ClineProvider } from "./ClineProvider"
-import { BrowserSessionPanelManager } from "./BrowserSessionPanelManager"
 import { handleCheckpointRestoreOperation } from "./checkpointRestoreHandler"
 import { generateErrorDiagnostics } from "./diagnosticsHandler"
+import {
+	handleRequestSkills,
+	handleCreateSkill,
+	handleDeleteSkill,
+	handleMoveSkill,
+	handleUpdateSkillModes,
+	handleOpenSkillFile,
+} from "./skillsMessageHandler"
 import { changeLanguage, t } from "../../i18n"
 import { Package } from "../../shared/package"
 import { type RouterName, toRouterName } from "../../shared/api"
@@ -44,7 +51,6 @@ import { openFile } from "../../integrations/misc/open-file"
 import { openImage, saveImage } from "../../integrations/misc/image-handler"
 import { selectImages } from "../../integrations/misc/process-images"
 import { getTheme } from "../../integrations/theme/getTheme"
-import { discoverChromeHostUrl, tryChromeHostUrl } from "../../services/browser/browserDiscovery"
 import { searchWorkspaceFiles } from "../../services/search/file-search"
 import { fileExistsAtPath } from "../../utils/fs"
 import { playTts, setTtsEnabled, setTtsSpeed, stopTts } from "../../utils/tts"
@@ -78,7 +84,6 @@ import {
 	handleCheckBranchWorktreeInclude,
 	handleCreateWorktreeInclude,
 	handleCheckoutBranch,
-	handleMergeWorktree,
 } from "./worktree"
 
 export const webviewMessageHandler = async (
@@ -491,12 +496,18 @@ export const webviewMessageHandler = async (
 						if (!checkExistKey(listApiConfig[0])) {
 							const { apiConfiguration } = await provider.getState()
 
-							await provider.providerSettingsManager.saveConfig(
-								listApiConfig[0].name ?? "default",
-								apiConfiguration,
-							)
+							// Only save if the current configuration has meaningful settings
+							// (e.g., API keys). This prevents saving a default "anthropic"
+							// fallback when no real config exists, which can happen during
+							// CLI initialization before provider settings are applied.
+							if (checkExistKey(apiConfiguration)) {
+								await provider.providerSettingsManager.saveConfig(
+									listApiConfig[0].name ?? "default",
+									apiConfiguration,
+								)
 
-							listApiConfig[0].apiProvider = apiConfiguration.apiProvider
+								listApiConfig[0].apiProvider = apiConfiguration.apiProvider
+							}
 						}
 					}
 
@@ -631,10 +642,6 @@ export const webviewMessageHandler = async (
 					} else if (key === "terminalZdotdir") {
 						if (value !== undefined) {
 							Terminal.setTerminalZdotdir(value as boolean)
-						}
-					} else if (key === "terminalCompressProgressBar") {
-						if (value !== undefined) {
-							Terminal.setCompressProgressBar(value as boolean)
 						}
 					} else if (key === "mcpEnabled") {
 						newValue = value ?? true
@@ -865,16 +872,11 @@ export const webviewMessageHandler = async (
 				: {
 						openrouter: {},
 						"vercel-ai-gateway": {},
-						huggingface: {},
 						litellm: {},
-						deepinfra: {},
-						"io-intelligence": {},
 						requesty: {},
-						unbound: {},
 						ollama: {},
 						lmstudio: {},
 						roo: {},
-						chutes: {},
 					}
 
 			const safeGetModels = async (options: GetModelsOptions): Promise<ModelRecord> => {
@@ -901,39 +903,18 @@ export const webviewMessageHandler = async (
 						baseUrl: apiConfiguration.requestyBaseUrl,
 					},
 				},
-				{ key: "unbound", options: { provider: "unbound", apiKey: apiConfiguration.unboundApiKey } },
 				{ key: "vercel-ai-gateway", options: { provider: "vercel-ai-gateway" } },
-				{
-					key: "deepinfra",
-					options: {
-						provider: "deepinfra",
-						apiKey: apiConfiguration.deepInfraApiKey,
-						baseUrl: apiConfiguration.deepInfraBaseUrl,
-					},
-				},
 				{
 					key: "roo",
 					options: {
 						provider: "roo",
-						baseUrl: process.env.ROO_CODE_PROVIDER_URL ?? "https://api.roocode.com/proxy",
+						baseUrl: process.env.ROO_CODE_PROVIDER_URL ?? "https://api.tbd/proxy",
 						apiKey: CloudService.hasInstance()
 							? CloudService.instance.authService?.getSessionToken()
 							: undefined,
 					},
 				},
-				{
-					key: "chutes",
-					options: { provider: "chutes", apiKey: apiConfiguration.chutesApiKey },
-				},
 			]
-
-			// IO Intelligence is conditional on api key
-			if (apiConfiguration.ioIntelligenceApiKey) {
-				candidates.push({
-					key: "io-intelligence",
-					options: { provider: "io-intelligence", apiKey: apiConfiguration.ioIntelligenceApiKey },
-				})
-			}
 
 			// LiteLLM is conditional on baseUrl+apiKey
 			const litellmApiKey = apiConfiguration.litellmApiKey || message?.values?.litellmApiKey
@@ -1052,7 +1033,7 @@ export const webviewMessageHandler = async (
 			try {
 				const rooOptions = {
 					provider: "roo" as const,
-					baseUrl: process.env.ROO_CODE_PROVIDER_URL ?? "https://api.roocode.com/proxy",
+					baseUrl: process.env.ROO_CODE_PROVIDER_URL ?? "https://api.tbd/proxy",
 					apiKey: CloudService.hasInstance()
 						? CloudService.instance.authService?.getSessionToken()
 						: undefined,
@@ -1121,21 +1102,6 @@ export const webviewMessageHandler = async (
 			const vsCodeLmModels = await getVsCodeLmModels()
 			// TODO: Cache like we do for OpenRouter, etc?
 			provider.postMessageToWebview({ type: "vsCodeLmModels", vsCodeLmModels })
-			break
-		case "requestHuggingFaceModels":
-			// TODO: Why isn't this handled by `requestRouterModels` above?
-			try {
-				const { getHuggingFaceModelsWithMetadata } = await import("../../api/providers/fetchers/huggingface")
-				const huggingFaceModelsResponse = await getHuggingFaceModelsWithMetadata()
-
-				provider.postMessageToWebview({
-					type: "huggingFaceModels",
-					huggingFaceModels: huggingFaceModelsResponse.models,
-				})
-			} catch (error) {
-				console.error("Failed to fetch Hugging Face models:", error)
-				provider.postMessageToWebview({ type: "huggingFaceModels", huggingFaceModels: [] })
-			}
 			break
 		case "openImage":
 			openImage(message.text!, { values: message.values })
@@ -1219,69 +1185,6 @@ export const webviewMessageHandler = async (
 			// Cancel any pending auto-approval timeout for the current task
 			provider.getCurrentTask()?.cancelAutoApprovalTimeout()
 			break
-		case "killBrowserSession":
-			{
-				const task = provider.getCurrentTask()
-				if (task?.browserSession) {
-					await task.browserSession.closeBrowser()
-					await provider.postStateToWebview()
-				}
-			}
-			break
-		case "openBrowserSessionPanel":
-			{
-				// Toggle the Browser Session panel (open if closed, close if open)
-				const panelManager = BrowserSessionPanelManager.getInstance(provider)
-				await panelManager.toggle()
-			}
-			break
-		case "showBrowserSessionPanelAtStep":
-			{
-				const panelManager = BrowserSessionPanelManager.getInstance(provider)
-
-				// If this is a launch action, reset the manual close flag
-				if (message.isLaunchAction) {
-					panelManager.resetManualCloseFlag()
-				}
-
-				// Show panel if:
-				// 1. Manual click (forceShow) - always show
-				// 2. Launch action - always show and reset flag
-				// 3. Auto-open for non-launch action - only if user hasn't manually closed
-				if (message.forceShow || message.isLaunchAction || panelManager.shouldAllowAutoOpen()) {
-					// Ensure panel is shown and populated
-					await panelManager.show()
-
-					// Navigate to a specific step if provided
-					// For launch actions: navigate to step 0
-					// For manual clicks: navigate to the clicked step
-					// For auto-opens of regular actions: don't navigate, let BrowserSessionRow's
-					// internal auto-advance logic handle it (only advances if user is on most recent step)
-					if (typeof message.stepIndex === "number" && message.stepIndex >= 0) {
-						await panelManager.navigateToStep(message.stepIndex)
-					}
-				}
-			}
-			break
-		case "refreshBrowserSessionPanel":
-			{
-				// Re-send the latest browser session snapshot to the panel
-				const panelManager = BrowserSessionPanelManager.getInstance(provider)
-				const task = provider.getCurrentTask()
-				if (task) {
-					const messages = task.clineMessages || []
-					const browserSessionStartIndex = messages.findIndex(
-						(m) =>
-							m.ask === "browser_action_launch" ||
-							(m.say === "browser_session_status" && m.text?.includes("opened")),
-					)
-					const browserSessionMessages =
-						browserSessionStartIndex !== -1 ? messages.slice(browserSessionStartIndex) : []
-					const isBrowserSessionActive = task.browserSession?.isSessionActive() ?? false
-					await panelManager.updateBrowserSession(browserSessionMessages, isBrowserSessionActive)
-				}
-			}
-			break
 		case "allowedCommands": {
 			// Validate and sanitize the commands array
 			const commands = message.commands ?? []
@@ -1324,7 +1227,7 @@ export const webviewMessageHandler = async (
 			break
 		}
 		case "openKeyboardShortcuts": {
-			// Open VSCode keyboard shortcuts settings and optionally filter to show the Roo Code commands
+			// Open VSCode keyboard shortcuts settings and optionally filter to show the Klaus Code commands
 			const searchQuery = message.text || ""
 			if (searchQuery) {
 				// Open with a search query pre-filled
@@ -1359,7 +1262,7 @@ export const webviewMessageHandler = async (
 				const exists = await fileExistsAtPath(mcpPath)
 
 				if (!exists) {
-					await safeWriteJson(mcpPath, { mcpServers: {} })
+					await safeWriteJson(mcpPath, { mcpServers: {} }, { prettyPrint: true })
 				}
 
 				await openFile(mcpPath)
@@ -1448,10 +1351,6 @@ export const webviewMessageHandler = async (
 			}
 			break
 		}
-		case "enableMcpServerCreation":
-			await updateGlobalState("enableMcpServerCreation", message.bool ?? true)
-			await provider.postStateToWebview()
-			break
 		case "remoteControlEnabled":
 			try {
 				await CloudService.instance.updateUserSettings({ extensionBridgeEnabled: message.bool ?? false })
@@ -1512,43 +1411,6 @@ export const webviewMessageHandler = async (
 			break
 		case "stopTts":
 			stopTts()
-			break
-
-		case "testBrowserConnection":
-			// If no text is provided, try auto-discovery
-			if (!message.text) {
-				// Use testBrowserConnection for auto-discovery
-				const chromeHostUrl = await discoverChromeHostUrl()
-
-				if (chromeHostUrl) {
-					// Send the result back to the webview
-					await provider.postMessageToWebview({
-						type: "browserConnectionResult",
-						success: !!chromeHostUrl,
-						text: `Auto-discovered and tested connection to Chrome: ${chromeHostUrl}`,
-						values: { endpoint: chromeHostUrl },
-					})
-				} else {
-					await provider.postMessageToWebview({
-						type: "browserConnectionResult",
-						success: false,
-						text: "No Chrome instances found on the network. Make sure Chrome is running with remote debugging enabled (--remote-debugging-port=9222).",
-					})
-				}
-			} else {
-				// Test the provided URL
-				const customHostUrl = message.text
-				const hostIsValid = await tryChromeHostUrl(message.text)
-
-				// Send the result back to the webview
-				await provider.postMessageToWebview({
-					type: "browserConnectionResult",
-					success: hostIsValid,
-					text: hostIsValid
-						? `Successfully connected to Chrome: ${customHostUrl}`
-						: "Failed to connect to Chrome",
-				})
-			}
 			break
 
 		case "updateVSCodeSetting": {
@@ -1655,6 +1517,14 @@ export const webviewMessageHandler = async (
 			await updateGlobalState("hasOpenedModeSelector", message.bool ?? true)
 			await provider.postStateToWebview()
 			break
+
+		case "lockApiConfigAcrossModes": {
+			const enabled = message.bool ?? false
+			await provider.context.workspaceState.update("lockApiConfigAcrossModes", enabled)
+
+			await provider.postStateToWebview()
+			break
+		}
 
 		case "toggleApiConfigPin":
 			if (message.text) {
@@ -2391,6 +2261,45 @@ export const webviewMessageHandler = async (
 
 			break
 		}
+		case "claudeCodeSignIn": {
+			try {
+				const { claudeCodeOAuthManager } = await import("../../integrations/claude-code/oauth")
+				const authUrl = claudeCodeOAuthManager.startAuthorizationFlow()
+
+				// Open the authorization URL in the browser
+				await vscode.env.openExternal(vscode.Uri.parse(authUrl))
+
+				// Wait for the callback in a separate promise (non-blocking)
+				claudeCodeOAuthManager
+					.waitForCallback()
+					.then(async () => {
+						vscode.window.showInformationMessage("Successfully signed in to Claude Code")
+						await provider.postStateToWebview()
+					})
+					.catch((error) => {
+						provider.log(`Claude Code OAuth callback failed: ${error}`)
+						if (!String(error).includes("timed out")) {
+							vscode.window.showErrorMessage(`Claude Code sign in failed: ${error.message || error}`)
+						}
+					})
+			} catch (error) {
+				provider.log(`Claude Code OAuth failed: ${error}`)
+				vscode.window.showErrorMessage("Claude Code sign in failed.")
+			}
+			break
+		}
+		case "claudeCodeSignOut": {
+			try {
+				const { claudeCodeOAuthManager } = await import("../../integrations/claude-code/oauth")
+				await claudeCodeOAuthManager.clearCredentials()
+				vscode.window.showInformationMessage("Signed out from Claude Code")
+				await provider.postStateToWebview()
+			} catch (error) {
+				provider.log(`Claude Code sign out failed: ${error}`)
+				vscode.window.showErrorMessage("Claude Code sign out failed.")
+			}
+			break
+		}
 		case "openAiCodexSignIn": {
 			try {
 				const { openAiCodexOAuthManager } = await import("../../integrations/openai-codex/oauth")
@@ -2979,6 +2888,30 @@ export const webviewMessageHandler = async (
 			}
 			break
 		}
+		case "requestSkills": {
+			await handleRequestSkills(provider)
+			break
+		}
+		case "createSkill": {
+			await handleCreateSkill(provider, message)
+			break
+		}
+		case "deleteSkill": {
+			await handleDeleteSkill(provider, message)
+			break
+		}
+		case "moveSkill": {
+			await handleMoveSkill(provider, message)
+			break
+		}
+		case "updateSkillModes": {
+			await handleUpdateSkillModes(provider, message)
+			break
+		}
+		case "openSkillFile": {
+			await handleOpenSkillFile(provider, message)
+			break
+		}
 		case "openCommandFile": {
 			try {
 				if (message.text) {
@@ -3230,6 +3163,40 @@ export const webviewMessageHandler = async (
 					provider.log(`Error opening markdown preview: ${errorMessage}`)
 					vscode.window.showErrorMessage(`Failed to open markdown preview: ${errorMessage}`)
 				}
+			}
+			break
+		}
+
+		case "requestClaudeCodeRateLimits": {
+			try {
+				const { claudeCodeOAuthManager } = await import("../../integrations/claude-code/oauth")
+				const accessToken = await claudeCodeOAuthManager.getAccessToken()
+
+				if (!accessToken) {
+					provider.postMessageToWebview({
+						type: "claudeCodeRateLimits",
+						error: "Not authenticated with Claude Code",
+					})
+					break
+				}
+
+				// Get email for user_id metadata (matches official Claude Code CLI)
+				const email = await claudeCodeOAuthManager.getEmail()
+
+				const { fetchRateLimitInfo } = await import("../../integrations/claude-code/streaming-client")
+				const rateLimits = await fetchRateLimitInfo(accessToken, email || undefined)
+
+				provider.postMessageToWebview({
+					type: "claudeCodeRateLimits",
+					values: rateLimits,
+				})
+			} catch (error) {
+				const errorMessage = error instanceof Error ? error.message : String(error)
+				provider.log(`Error fetching Claude Code rate limits: ${errorMessage}`)
+				provider.postMessageToWebview({
+					type: "claudeCodeRateLimits",
+					error: errorMessage,
+				})
 			}
 			break
 		}
@@ -3557,33 +3524,29 @@ export const webviewMessageHandler = async (
 			break
 		}
 
-		case "mergeWorktree": {
+		case "browseForWorktreePath": {
 			try {
-				const result = await handleMergeWorktree(provider, {
-					worktreePath: message.worktreePath!,
-					targetBranch: message.worktreeTargetBranch!,
-					deleteAfterMerge: message.worktreeDeleteAfterMerge,
-				})
+				const options: vscode.OpenDialogOptions = {
+					canSelectFiles: false,
+					canSelectFolders: true,
+					canSelectMany: false,
+					openLabel: t("worktrees:selectWorktreeLocation"),
+					title: t("worktrees:selectFolderForWorktree"),
+					defaultUri: vscode.workspace.workspaceFolders?.[0]?.uri
+						? vscode.Uri.joinPath(vscode.workspace.workspaceFolders[0].uri, "..")
+						: undefined,
+				}
 
-				await provider.postMessageToWebview({
-					type: "mergeWorktreeResult",
-					success: result.success,
-					text: result.message,
-					hasConflicts: result.hasConflicts,
-					conflictingFiles: result.conflictingFiles,
-					sourceBranch: result.sourceBranch,
-					targetBranch: result.targetBranch,
-				})
+				const result = await vscode.window.showOpenDialog(options)
+				if (result && result[0]) {
+					await provider.postMessageToWebview({
+						type: "folderSelected",
+						path: result[0].fsPath,
+					})
+				}
 			} catch (error) {
 				const errorMessage = error instanceof Error ? error.message : String(error)
-
-				await provider.postMessageToWebview({
-					type: "mergeWorktreeResult",
-					success: false,
-					text: errorMessage,
-					hasConflicts: false,
-					conflictingFiles: [],
-				})
+				provider.log(`Error opening folder picker: ${errorMessage}`)
 			}
 
 			break

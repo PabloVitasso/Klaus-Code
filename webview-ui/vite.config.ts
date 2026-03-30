@@ -20,6 +20,18 @@ function getGitSha() {
 	return gitSha
 }
 
+function getGitBranch() {
+	let gitBranch: string | undefined = undefined
+
+	try {
+		gitBranch = execSync("git rev-parse --abbrev-ref HEAD").toString().trim()
+	} catch (_error) {
+		// Do nothing.
+	}
+
+	return gitBranch
+}
+
 const wasmPlugin = (): Plugin => ({
 	name: "wasm",
 	async load(id) {
@@ -57,6 +69,7 @@ export default defineConfig(({ mode }) => {
 
 	const pkg = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "src", "package.json"), "utf8"))
 	const gitSha = getGitSha()
+	const gitBranch = getGitBranch()
 
 	const define: Record<string, any> = {
 		"process.platform": JSON.stringify(process.platform),
@@ -65,9 +78,10 @@ export default defineConfig(({ mode }) => {
 		"process.env.PKG_VERSION": JSON.stringify(pkg.version),
 		"process.env.PKG_OUTPUT_CHANNEL": JSON.stringify("Roo-Code"),
 		...(gitSha ? { "process.env.PKG_SHA": JSON.stringify(gitSha) } : {}),
+		...(gitBranch ? { "process.env.PKG_BRANCH": JSON.stringify(gitBranch) } : {}),
 	}
 
-	// TODO: We can use `@roo-code/build` to generate `define` once the
+	// TODO: We can use `@klaus-code/build` to generate `define` once the
 	// monorepo is deployed.
 	if (mode === "nightly") {
 		outDir = "../apps/vscode-nightly/build/webview-ui/build"
@@ -81,7 +95,17 @@ export default defineConfig(({ mode }) => {
 		define["process.env.PKG_OUTPUT_CHANNEL"] = JSON.stringify("Roo-Code-Nightly")
 	}
 
-	const plugins: PluginOption[] = [react(), tailwindcss(), persistPortPlugin(), wasmPlugin(), sourcemapPlugin()]
+	const plugins: PluginOption[] = [
+		react({
+			babel: {
+				plugins: [["babel-plugin-react-compiler", { target: "18" }]],
+			},
+		}),
+		tailwindcss(),
+		persistPortPlugin(),
+		wasmPlugin(),
+		sourcemapPlugin(),
+	]
 
 	return {
 		plugins,
@@ -100,7 +124,7 @@ export default defineConfig(({ mode }) => {
 			sourcemap: true,
 			// Ensure source maps are properly included in the build
 			minify: mode === "production" ? "esbuild" : false,
-			// Use a single combined CSS bundle so both webviews share styles
+			// Use a single combined CSS bundle so all webviews share styles
 			cssCodeSplit: false,
 			rollupOptions: {
 				// Externalize vscode module - it's imported by file-search.ts which is
@@ -109,7 +133,6 @@ export default defineConfig(({ mode }) => {
 				external: ["vscode"],
 				input: {
 					index: resolve(__dirname, "index.html"),
-					"browser-panel": resolve(__dirname, "browser-panel.html"),
 				},
 				output: {
 					entryFileNames: `assets/[name].js`,

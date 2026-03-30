@@ -1,4 +1,4 @@
-import type { ClineAsk, ClineSay, TodoItem } from "@roo-code/types"
+import type { ClineAsk, ClineSay, TodoItem } from "@klaus-code/types"
 
 export type MessageRole = "system" | "user" | "assistant" | "tool" | "thinking"
 
@@ -39,14 +39,6 @@ export interface ToolData {
 	command?: string
 	/** Command output */
 	output?: string
-
-	// Browser operation fields
-	/** Browser action type */
-	action?: string
-	/** Browser URL */
-	url?: string
-	/** Click/hover coordinates */
-	coordinate?: string
 
 	// Batch operation fields
 	/** Batch file reads */

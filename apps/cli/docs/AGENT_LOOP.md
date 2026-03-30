@@ -1,6 +1,6 @@
 # CLI Agent Loop
 
-This document explains how the Roo Code CLI detects and tracks the agent loop state.
+This document explains how the Klaus Code CLI detects and tracks the agent loop state.
 
 ## Overview
 
@@ -242,7 +242,8 @@ Routes asks to appropriate handlers:
 
 - Uses type guards: `isIdleAsk()`, `isInteractiveAsk()`, etc.
 - Coordinates between `OutputManager` and `PromptManager`
-- In non-interactive mode (`-y` flag), auto-approves everything
+- By default, the CLI auto-approves tool/command/browser/MCP actions
+- In `--require-approval` mode, those actions prompt for manual approval
 
 ### OutputManager
 
@@ -298,10 +299,10 @@ client.sendMessage({
 
 ## Type Guards
 
-The CLI uses type guards from `@roo-code/types` for categorization:
+The CLI uses type guards from `@klaus-code/types` for categorization:
 
 ```typescript
-import { isIdleAsk, isInteractiveAsk, isResumableAsk, isNonBlockingAsk } from "@roo-code/types"
+import { isIdleAsk, isInteractiveAsk, isResumableAsk, isNonBlockingAsk } from "@klaus-code/types"
 
 const ask = message.ask
 if (isInteractiveAsk(ask)) {
@@ -320,7 +321,7 @@ if (isInteractiveAsk(ask)) {
 Enable with `-d` flag. Logs go to `~/.roo/cli-debug.log`:
 
 ```bash
-roo -d -y -P "Build something" --no-tui
+roo -d -P "Build something" --no-tui
 ```
 
 View logs:

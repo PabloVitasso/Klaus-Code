@@ -18,13 +18,16 @@ bin/
 
 # Local prompts and rules
 /local-prompts
+AGENTS.local.md
 
 # Test environment
 .test_env
 .vscode-test/
 
 # Docs
+docs/
 docs/_site/
+docs/untracked/
 
 # Dotenv
 .env
@@ -54,3 +57,6 @@ qdrant_storage/
 plans/
 
 roo-cli-*.tar.gz*
+
+# Web app (Klaus Code is VSIX-only)
+apps/web-roo-code/

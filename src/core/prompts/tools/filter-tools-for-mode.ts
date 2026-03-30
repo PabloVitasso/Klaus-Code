@@ -1,5 +1,5 @@
 import type OpenAI from "openai"
-import type { ModeConfig, ToolName, ToolGroup, ModelInfo } from "@roo-code/types"
+import type { ModeConfig, ToolName, ToolGroup, ModelInfo } from "@klaus-code/types"
 import { getModeBySlug, getToolsForMode } from "../../../shared/modes"
 import { TOOL_GROUPS, ALWAYS_AVAILABLE_TOOLS, TOOL_ALIASES } from "../../../shared/tools"
 import { defaultModeSlug } from "../../../shared/modes"
@@ -291,14 +291,14 @@ export function filterNativeToolsForMode(
 		allowedToolNames.delete("run_slash_command")
 	}
 
-	// Conditionally exclude browser_action if disabled in settings
-	if (settings?.browserToolEnabled === false) {
-		allowedToolNames.delete("browser_action")
-	}
-
-	// Conditionally exclude apply_diff if diffs are disabled
-	if (settings?.diffEnabled === false) {
-		allowedToolNames.delete("apply_diff")
+	// Remove tools that are explicitly disabled via the disabledTools setting
+	if (settings?.disabledTools?.length) {
+		for (const toolName of settings.disabledTools) {
+			// Normalize aliases so disabling a legacy alias (e.g. "search_and_replace")
+			// also disables the canonical tool (e.g. "edit").
+			const resolvedToolName = resolveToolAlias(toolName)
+			allowedToolNames.delete(resolvedToolName)
+		}
 	}
 
 	// Conditionally exclude access_mcp_resource if MCP is not enabled or there are no resources
@@ -380,11 +380,6 @@ export function isToolAllowedInMode(
 			return experiments?.runSlashCommand === true
 		}
 		return true
-	}
-
-	// Check for browser_action being disabled by user settings
-	if (toolName === "browser_action" && settings?.browserToolEnabled === false) {
-		return false
 	}
 
 	// Check if the tool is allowed by the mode's groups

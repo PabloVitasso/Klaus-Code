@@ -12,12 +12,11 @@ import * as os from "os"
 import type {
 	WorktreeResult,
 	BranchInfo,
-	MergeWorktreeResult,
 	WorktreeIncludeStatus,
 	WorktreeListResponse,
 	WorktreeDefaultsResponse,
-} from "@roo-code/types"
-import { worktreeService, worktreeIncludeService, type CopyProgressCallback } from "@roo-code/core"
+} from "@klaus-code/types"
+import { worktreeService, worktreeIncludeService, type CopyProgressCallback } from "@klaus-code/core"
 
 import type { ClineProvider } from "../ClineProvider"
 
@@ -190,7 +189,7 @@ export async function handleSwitchWorktree(
 		const worktreeUri = vscode.Uri.file(worktreePath)
 
 		if (newWindow) {
-			// Set the auto-open path so the new window opens Roo Code sidebar.
+			// Set the auto-open path so the new window opens Klaus Code sidebar.
 			await provider.contextProxy.setValue("worktreeAutoOpenPath", worktreePath)
 
 			// Open in new window.
@@ -277,16 +276,4 @@ export async function handleCreateWorktreeInclude(provider: ClineProvider, conte
 export async function handleCheckoutBranch(provider: ClineProvider, branch: string): Promise<WorktreeResult> {
 	const cwd = provider.cwd
 	return worktreeService.checkoutBranch(cwd, branch)
-}
-
-export async function handleMergeWorktree(
-	provider: ClineProvider,
-	options: {
-		worktreePath: string
-		targetBranch: string
-		deleteAfterMerge?: boolean
-	},
-): Promise<MergeWorktreeResult> {
-	const cwd = provider.cwd
-	return worktreeService.mergeWorktree(cwd, options)
 }
